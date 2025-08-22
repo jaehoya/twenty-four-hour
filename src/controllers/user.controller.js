@@ -1,4 +1,5 @@
-const { createUser } = require("../services/user.service");
+const { createUser, loginUser } = require("../services/user.service");
+
 
 // 회원가입 요청 처리 컨트롤러
 async function signup(req, res, next) {
@@ -20,4 +21,19 @@ async function signup(req, res, next) {
   }
 }
 
-module.exports = { signup };
+// 로그인 요청 처리 컨트롤러
+async function login(req, res, next) {
+  try {
+    const { email, password } = req.body;
+    const result = await loginUser({ email, password });
+
+    return res.status(200).json({
+      message: "로그인 성공",
+      ...result  // { user, accessToken, refreshToken }
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { signup, login };
