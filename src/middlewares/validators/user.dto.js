@@ -24,6 +24,7 @@ const signupValidator = [
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
+        state: 400,
         code: "VALIDATION_ERROR",
         errors: errors.array().map(e => ({ field: e.path, message: e.msg }))
       });
@@ -49,6 +50,7 @@ const loginValidator = [
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
       return res.status(400).json({
+        state: 400,
         code: "VALIDATION_ERROR",
         errors: errors.array().map(e => ({ field: e.path, message: e.msg }))
       });
