@@ -19,7 +19,10 @@ app.use((err, req, res, next) => {
   const code = err.code || "INTERNAL_SERVER_ERROR";
   const message = err.message || "서버 오류가 발생했습니다.";
 
-  res.status(status).json({ code, message });
+  res.status(status).json({ 
+    state: status,
+    code,
+    message });
 });
 
 module.exports = app;
