@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
-
-const { signup } = require("../controllers/user.controller");
-const { signupValidator } = require("../middlewares/validators/user.dto");
+const { signup, login } = require("../controllers/user.controller");
+const { signupValidator, loginValidator } = require("../middlewares/validators/user.dto");
 
 // POST /api/users/signup → 회원가입
-// signupValidator: 입력값 검증 → signup: 컨트롤러 실행
 router.post("/signup", signupValidator, signup);
+
+// POST /api/users/login -> 로그인
+router.post("/login", loginValidator, login);
 
 module.exports = router;
