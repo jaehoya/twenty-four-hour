@@ -71,8 +71,8 @@ async function createUser({ email, username, password }) {
  */
 async function loginUser({ email, password }) {
   // 이메일로 유저 조회
-  const User = await User.findOne({ where: { email }});
-  if(!User) {
+  const user = await User.findOne({ where: { email }});
+  if(!user) {
     const err = new Error("잘못된 이메일 또는 비밀번호입니다.");
     err.status = 401;
     err.code = "INVALID_CREDENTIALS";
