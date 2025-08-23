@@ -1,10 +1,7 @@
-import './App.css'
+// src/App.jsx
+// import './App.css'  // 파일 없으면 지우기/주석
+import Login from "./pages/login.jsx";
 
-function App() {
-  return (
-    <>
-    </>
-  )
+export default function App() {
+  return <Login />;
 }
-
-export default App
