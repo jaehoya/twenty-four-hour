@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import IdIcon from "../../assets/signup/id_icon.png";
 import KeyIcon from "../../assets/signup/key_icon.png";
 import NameIcon from "../../assets/signup/name_icon.png";
+import { useNavigate } from "react-router-dom";
 
 function SignupForm() {
     const [id, setId] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [passwordCheck, setPasswordCheck] = useState("");
+
+    const navigate = useNavigate();
 
     return (
         <div className="flex justify-center">
@@ -81,6 +84,7 @@ function SignupForm() {
             </button>
             <button
                 type="button" 
+                onClick={() => navigate("/login")}
                 className="text-[#368DFF] text-[13px] p-0 text-left"
             >
             로그인으로 돌아가기
