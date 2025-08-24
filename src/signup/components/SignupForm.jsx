@@ -139,9 +139,10 @@ function SignupForm() {
                         className="flex-1 min-w-0 placeholder-[#9698A9] text-[15px] outline-none border-none"
                     />
                 </div>
-                {formError && (
-                    <span className="text-[#F46464] text-[11px] mt-1">{formError}</span>
-                )}
+                {formError
+                    ? <span className="text-[#F46464] text-[11px] mt-1">{formError}</span>
+                    : <span className="text-[11px] mt-1 invisible">placeholder</span>
+                }
             </div>
             
             <button
