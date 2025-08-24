@@ -23,6 +23,31 @@ function SignupForm() {
         }
 
         setPasswordError(false);
+
+        try {
+            const response = await fetch("/api/users/signup", {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    id, 
+                    username,
+                    password,
+                }),
+            });
+
+            if (response.ok) {
+                alert("회원가입 성공!");
+                navigate("/login");
+            } else {
+                const errorData = await response.json();
+                alert(errorData.message || "회원가입 실패");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("서버 오류가 발생했습니다.");
+        }
     }
 
     return (
