@@ -10,7 +10,20 @@ function SignupForm() {
     const [password, setPassword] = useState("");
     const [passwordCheck, setPasswordCheck] = useState("");
 
+    const [passwordError, setPasswordError] = useState(false);
+
     const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (password !== passwordCheck) {
+            setPasswordError(true);
+            return;
+        }
+
+        setPasswordError(false);
+    }
 
     return (
         <div className="flex justify-center">
@@ -21,7 +34,7 @@ function SignupForm() {
                                 w-[363px] h-[49px]
                                 ring-1 ring-[#C6CED9]
                                 focus-within:ring-2 focus-within:ring-[#3888FF]`}>
-                    <img src={IdIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]"></img>
+                    <img src={IdIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]" />
                     <input 
                         type="text" 
                         value={id} 
@@ -35,7 +48,7 @@ function SignupForm() {
                                 w-[363px] h-[49px]
                                 ring-1 ring-[#C6CED9]
                                 focus-within:ring-2 focus-within:ring-[#3888FF]`}>
-                    <img src={NameIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]"></img>
+                    <img src={NameIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]" />
                     <input 
                         type="text" 
                         value={username} 
@@ -51,7 +64,7 @@ function SignupForm() {
                                 w-[363px] h-[49px]
                                 ring-1 ring-[#C6CED9]
                                 focus-within:ring-2 focus-within:ring-[#3888FF]`}>
-                    <img src={KeyIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]"></img>
+                    <img src={KeyIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]" />
                     <input 
                         type="password" 
                         value={password} 
@@ -62,9 +75,10 @@ function SignupForm() {
                 </div>
                 <div
                     className={`flex flex-row items-center rounded-[7px] 
-                    w-[363px] h-[49px] ring-1`}
+                                w-[363px] h-[49px] ring-1
+                                ${passwordError ? "ring-2 ring-[#F46464]" : "ring-[#C6CED9] focus-within:ring-2 focus-within:ring-[#3888FF]"}`}
                 >
-                    <img src={KeyIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]"></img>
+                    <img src={KeyIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]" />
                     <input 
                         type="password" 
                         value={passwordCheck}
@@ -73,12 +87,15 @@ function SignupForm() {
                         className="flex-1 min-w-0 placeholder-[#9698A9] text-[15px] outline-none border-none"
                     />
                 </div>
+                {passwordError && (
+                    <span className="text-[#F46464] text-[11px] mt-1">비밀번호가 일치하지 않습니다.</span>
+                )}
             </div>
             
             <button
                 type="submit"
                 className={`w-[363px] h-[55px] rounded-[7px] text-[16px] text-white mt-[40px] mb-[20px] font-semibold
-                bg-gradient-to-r from-[#0D4CFF] to-[#33AAFF]`}
+                            bg-gradient-to-r from-[#0D4CFF] to-[#33AAFF]`}
             >
             가입하기
             </button>
