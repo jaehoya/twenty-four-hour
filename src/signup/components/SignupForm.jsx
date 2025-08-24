@@ -11,42 +11,69 @@ function SignupForm() {
     const [passwordCheck, setPasswordCheck] = useState("");
 
     const [passwordError, setPasswordError] = useState(false);
+    const [formError, setFormError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (loading) return;
+        setFormError("");
 
         if (password !== passwordCheck) {
             setPasswordError(true);
+            setFormError("비밀번호가 일치하지 않습니다.")
             return;
         }
 
         setPasswordError(false);
+        setLoading(true);
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         try {
             const response = await fetch("/api/users/signup", {
                 method: "POST",
-                headers: {
-                "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    id, 
-                    username,
-                    password,
-                }),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id, username, password }),
+                signal: controller.signal,
             });
 
-            if (response.ok) {
-                alert("회원가입 성공!");
-                navigate("/login");
-            } else {
-                const errorData = await response.json();
-                alert(errorData.message || "회원가입 실패");
+            const ct = response.headers.get("content-type") || "";
+            let body = null;
+            try {
+                body = ct.includes("application/json") ? await response.json() : await response.text();
+            } catch (_) {
+                body = null;
             }
+
+            if (!response.ok) {
+                if (response.status === 409) {
+                    setFormError("이미 사용 중인 아이디입니다.");
+                } else if (response.status === 400 || response.status === 422) {
+                    const msg = (body && (body.message || body.error)) || "입력값을 확인해주세요.";
+                    setFormError(msg);
+                } else {
+                    const msg = (body && (body.message || body.error)) || `회원가입 실패 (HTTP ${response.status})`;
+                    setFormError(msg);
+                }
+                return;
+            }
+
+            alert("회원가입 성공!");
+            navigate("/login");
         } catch (err) {
+            if (err.name === "AbortError") {
+            setFormError("요청 시간이 초과되었습니다. 네트워크 상태를 확인해주세요.");
+        } else {
+            setFormError("서버 또는 네트워크 오류가 발생했습니다.");
+        }
             console.error(err);
-            alert("서버 오류가 발생했습니다.");
+        } finally {
+            clearTimeout(timeoutId);
+            setLoading(false);
         }
     }
 
@@ -112,8 +139,8 @@ function SignupForm() {
                         className="flex-1 min-w-0 placeholder-[#9698A9] text-[15px] outline-none border-none"
                     />
                 </div>
-                {passwordError && (
-                    <span className="text-[#F46464] text-[11px] mt-1">비밀번호가 일치하지 않습니다.</span>
+                {formError && (
+                    <span className="text-[#F46464] text-[11px] mt-1">{formError}</span>
                 )}
             </div>
             
