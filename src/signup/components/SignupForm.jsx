@@ -4,6 +4,11 @@ import KeyIcon from "../../assets/signup/key_icon.png";
 import NameIcon from "../../assets/signup/name_icon.png";
 
 function SignupForm() {
+    const [id, setId] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [passwordCheck, setPasswordCheck] = useState("");
+
     return (
         <div className="flex justify-center">
         <form className="flex flex-col" onSubmit={handleSubmit}>
@@ -16,6 +21,8 @@ function SignupForm() {
                     <img src={IdIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]"></img>
                     <input 
                         type="text" 
+                        value={id} 
+                        onChange={(e) => setId(e.target.value)}
                         placeholder="아이디를 입력해주세요." 
                         className="flex-1 min-w-0 placeholder-[#9698A9] text-[15px] outline-none border-none"
                     />
@@ -28,6 +35,8 @@ function SignupForm() {
                     <img src={NameIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]"></img>
                     <input 
                         type="text" 
+                        value={username} 
+                        onChange={(e) => setUsername(e.target.value)}
                         placeholder="닉네임을 입력해주세요." 
                         className="flex-1 min-w-0 placeholder-[#9698A9] text-[15px] outline-none border-none"
                     />
@@ -42,6 +51,8 @@ function SignupForm() {
                     <img src={KeyIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]"></img>
                     <input 
                         type="password" 
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)}
                         placeholder="비밀번호를 입력해주세요." 
                         className="flex-1 min-w-0 placeholder-[#9698A9] text-[15px] outline-none border-none"
                         />
@@ -53,6 +64,8 @@ function SignupForm() {
                     <img src={KeyIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]"></img>
                     <input 
                         type="password" 
+                        value={passwordCheck}
+                        onChange={(e) => setPasswordCheck(e.target.value)}
                         placeholder="비밀번호를 다시 입력해주세요." 
                         className="flex-1 min-w-0 placeholder-[#9698A9] text-[15px] outline-none border-none"
                     />
