@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import IdIcon from "../../assets/signup/id_icon.png";
-import KeyIcon from "../../assets/signup/key_icon.png";
-import NameIcon from "../../assets/signup/name_icon.png";
+import EmailIcon from "../../assets/signup/email_icon.svg";
+import KeyIcon from "../../assets/signup/key_icon.svg";
+import NameIcon from "../../assets/signup/nickname_icon.svg";
 import { useNavigate } from "react-router-dom";
 
 function SignupForm() {
-    const [id, setId] = useState("");
+    const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [passwordCheck, setPasswordCheck] = useState("");
@@ -86,12 +86,12 @@ function SignupForm() {
                                 w-[363px] h-[49px]
                                 ring-1 ring-[#C6CED9]
                                 focus-within:ring-2 focus-within:ring-[#3888FF]`}>
-                    <img src={IdIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]" />
+                    <img src={EmailIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]" />
                     <input 
                         type="text" 
-                        value={id} 
-                        onChange={(e) => setId(e.target.value)}
-                        placeholder="아이디를 입력해주세요." 
+                        value={email} 
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="이메일을 입력해주세요." 
                         className="flex-1 min-w-0 placeholder-[#9698A9] text-[15px] outline-none border-none"
                     />
                 </div>
