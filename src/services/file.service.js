@@ -8,11 +8,10 @@ const { File } = require("../models");
 
 /**
  * 파일 메타데이터 저장
- * -userId: 업로드한 사용자 ID
+ * -userId: 업로드한 사용자 ID (req.user.id에서 주입됨)
  * -file: multer가 제공하는 파일 객체
  */
 async function saveFileMetadata(userId, file) {
-    // userId는 인증 붙인 후 req.user.id에서 주입 예정 (지금은 파라미터로 받음)
     return await File.create({
         user_id: userId,
         original_name: file.originalname,
