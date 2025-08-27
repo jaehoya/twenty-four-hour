@@ -19,9 +19,7 @@ async function uploadFile(req, res, next) {
             });
         }
 
-        // JWT 인증 붙인 후에 req.user.id 사용
-        // 지금은 테스트용 임시값 처리
-        const userId = (req.user && req.user.id) || 1;
+        const userId = req.user.id;
         const fileRecord = await saveFileMetadata(userId, req.file);
 
         return res.status(201).json({
