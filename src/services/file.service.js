@@ -15,9 +15,9 @@ async function saveFileMetadata(userId, file) {
     // userId는 인증 붙인 후 req.user.id에서 주입 예정 (지금은 파라미터로 받음)
     return await File.create({
         user_id: userId,
-        original_name: file.original_name,
-        stored_name: file.stored_name,
-        mime_type: file.mime_type,
+        original_name: file.originalname,
+        stored_name: file.filename,
+        mime_type: file.mimetype,
         size: file.size,
         path: "src/uploads/" + file.filename,
     });
