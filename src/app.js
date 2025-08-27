@@ -12,7 +12,7 @@ sequelize.authenticate()
 
 // 라우터 등록 (회원가입 라우터 포함)
 app.use("/api/users", require("./routes/user.routes"));
-app.use("api/files", require("./routes/file.routes"));
+app.use("/api/files", require("./routes/file.routes"));
 
 // 공통 에러 핸들러 (마지막에 두기)
 app.use((err, req, res, next) => {
