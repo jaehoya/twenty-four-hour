@@ -34,7 +34,7 @@ const allowedMime = [
 ];
 
 // 파일 타입 필터
-const fileFilter = (req, res, cb) => {
+const fileFilter = (req, file, cb) => {
     if(allowedMime.includes(file.mimetype)) {
         cb(null, true);  // 허용된 확장자면 통과
     }
