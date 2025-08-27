@@ -39,7 +39,10 @@ const fileFilter = (req, file, cb) => {
         cb(null, true);  // 허용된 확장자면 통과
     }
     else {
-        cb(new Error("허용되지 않은 파일 형식입니다."), false);  // 업로드 거부
+        const err = new Error("허용되지 않은 파일 형식입니다.");
+        err.status = 400;
+        err.code = "INVALID_TYPE";
+        cb(err, false);  // 업로드 거부
     }
 };
 
