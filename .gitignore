@@ -7,6 +7,9 @@ node_modules
 # 업로드된 파일 저장소
 src/uploads/
 
+#src/config/config.json
+src/config/config.json
+
 # 로그 파일
 npm-debug.log*
 yarn-debug.log*
