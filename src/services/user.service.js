@@ -101,8 +101,9 @@ async function loginUser({ email, password }) {
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
   );
-
-  // 로그아웃 api 구현단계 때 RefreshToken을 DB/Redis에 저장하기
+      // RefreshToken을 DB에 저장
+  user.refreshToken = refreshToken;
+  await user.save();
 
   // 응답에서 민감 정보 제외
   return {
@@ -116,4 +117,61 @@ async function loginUser({ email, password }) {
   };
 }
 
-module.exports = { createUser, loginUser };
+/**
+ * 로그아웃 서비스
+ * - DB에서 RefreshToken을 제거
+ */
+async function logoutUser(id) {
+  const user = await User.findOne(id);
+  if (!user) {
+    const err = new Error("사용자를 찾을 수 없습니다.");
+    err.status = 404;
+    err.code = "USER_NOT_FOUND";
+    throw err;
+  }
+  if (user.refreshToken !== null) {
+    // DB에서 리프레시 토큰 삭제 (무효화)
+    user.refreshToken = null;
+    await user.save();
+  }
+  
+}
+
+/**
+ * 회원 탈퇴 서비스
+ * - id로 사용자 조회 후 삭제
+ */
+async function deleteUser(id, username, password) {
+  const user = await User.findOne({ where: { id, username } });
+  if (!user) {
+    const err = new Error("사용자를 찾을 수 없습니다.");
+    err.status = 404;
+    err.code = "USER_NOT_FOUND";
+    throw err;
+  }
+
+  // 비밀번호 확인
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    const err = new Error("잘못된 비밀번호입니다.");
+    err.status = 401;
+    err.code = "INVALID_PASSWORD";
+    throw err;
+  }
+
+  const deletedRowCount = await User.destroy({
+    where: { id },
+  });
+
+  // 삭제된 행이 없으면 사용자가 없다는 뜻
+  if (deletedRowCount === 0) {
+    const err = new Error("해당 사용자를 찾을 수 없습니다.");
+    err.status = 404;
+    err.code = "USER_NOT_FOUND";
+    throw err;
+  }
+
+  return true;
+}
+
+module.exports = { createUser, loginUser, logoutUser, deleteUser };
