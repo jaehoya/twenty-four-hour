@@ -3,6 +3,7 @@ import EmailIcon from "../../assets/signup/email_icon.svg";
 import KeyIcon from "../../assets/signup/key_icon.svg";
 import NameIcon from "../../assets/signup/nickname_icon.svg";
 import { useNavigate } from "react-router-dom";
+import InputField from "./InputField";
 
 function SignupForm() {
     const [email, setEmail] = useState("");
@@ -37,7 +38,7 @@ function SignupForm() {
             const response = await fetch("/api/users/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id, username, password }),
+                body: JSON.stringify({ email, username, password }),
                 signal: controller.signal,
             });
 
@@ -78,89 +79,59 @@ function SignupForm() {
     }
 
     return (
-        <div className="flex justify-center">
-        <form className="flex flex-col" onSubmit={handleSubmit}>
-            <div className="border-b-[2px] border-[#DDE4EE] pb-[15px]">
-                <label className="text-[13px] font-semibold">아이디</label>
-                <div className={`flex flex-row items-center rounded-[7px] mb-[10px]
-                                w-[363px] h-[49px]
-                                ring-1 ring-[#C6CED9]
-                                focus-within:ring-2 focus-within:ring-[#3888FF]`}>
-                    <img src={EmailIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]" />
-                    <input 
-                        type="text" 
-                        value={email} 
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="이메일을 입력해주세요." 
-                        className="flex-1 min-w-0 placeholder-[#9698A9] text-[15px] outline-none border-none"
-                    />
-                </div>
-                <label className="text-[13px] font-semibold">닉네임</label>
-                <div className={`flex flex-row items-center rounded-[7px] mb-[10px]
-                                w-[363px] h-[49px]
-                                ring-1 ring-[#C6CED9]
-                                focus-within:ring-2 focus-within:ring-[#3888FF]`}>
-                    <img src={NameIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]" />
-                    <input 
-                        type="text" 
-                        value={username} 
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="닉네임을 입력해주세요." 
-                        className="flex-1 min-w-0 placeholder-[#9698A9] text-[15px] outline-none border-none"
-                    />
-                </div>
-            </div>
-            <div className="border-b-[2px] border-[#DDE4EE] pb-[40px] mt-[15px]">
-                <label className="text-[13px] font-semibold">비밀번호</label>
-                <div className={`flex flex-row items-center rounded-[7px] mb-[10px]
-                                w-[363px] h-[49px]
-                                ring-1 ring-[#C6CED9]
-                                focus-within:ring-2 focus-within:ring-[#3888FF]`}>
-                    <img src={KeyIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]" />
-                    <input 
-                        type="password" 
-                        value={password} 
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="비밀번호를 입력해주세요." 
-                        className="flex-1 min-w-0 placeholder-[#9698A9] text-[15px] outline-none border-none"
-                        />
-                </div>
-                <div
-                    className={`flex flex-row items-center rounded-[7px] 
-                                w-[363px] h-[49px] ring-1
-                                ${passwordError ? "ring-2 ring-[#F46464]" : "ring-[#C6CED9] focus-within:ring-2 focus-within:ring-[#3888FF]"}`}
-                >
-                    <img src={KeyIcon} className="w-[24px] h-[24px] mr-[10px] ml-[10px]" />
-                    <input 
-                        type="password" 
-                        value={passwordCheck}
-                        onChange={(e) => setPasswordCheck(e.target.value)}
-                        placeholder="비밀번호를 다시 입력해주세요." 
-                        className="flex-1 min-w-0 placeholder-[#9698A9] text-[15px] outline-none border-none"
-                    />
-                </div>
+        <form className="flex flex-col mx-auto relative" onSubmit={handleSubmit} id="signupForm">
+            <div>
+                <label htmlFor="email" className="text-[0.8125rem] font-medium block text-[#2A2D41]">이메일</label>
+                <InputField
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="이메일을 입력해주세요."
+                    icon={EmailIcon}
+                    inputProps={{ autoComplete: "email" }}
+                />
+                
+                <label htmlFor="username" className="text-[0.8125rem] font-medium block text-[#2A2D41] mt-2 md:mt-[2%]">닉네임</label>
+                <InputField
+                    id="username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="닉네임을 입력해주세요."
+                    icon={NameIcon}
+                    inputProps={{ autoComplete: "username" }}
+                />
+                
+                <div className="h-px w-full max-w-[363px] bg-[#DDE4EE] my-3 md:my-5" />
+                
+                <label htmlFor="password" className="text-[0.8125rem] font-medium block text-[#2A2D41]">비밀번호</label>
+                <InputField
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="비밀번호를 입력해주세요."
+                    icon={KeyIcon}
+                    inputProps={{ autoComplete: "new-password" }}
+                />
+                
+                <InputField
+                    id="passwordCheck"
+                    type="password"
+                    value={passwordCheck}
+                    onChange={(e) => setPasswordCheck(e.target.value)}
+                    placeholder="비밀번호를 다시 입력해주세요."
+                    icon={KeyIcon}
+                    error={passwordError}
+                    inputProps={{ autoComplete: "new-password" }}
+                />
                 {formError
-                    ? <span className="text-[#F46464] text-[11px] mt-1">{formError}</span>
-                    : <span className="text-[11px] mt-1 invisible">placeholder</span>
+                    && <span className="text-[#F46464] text-[11px] mt-1">{formError}</span>
                 }
+                
             </div>
-            
-            <button
-                type="submit"
-                className={`w-[363px] h-[55px] rounded-[7px] text-[16px] text-white mt-[40px] mb-[20px] font-semibold
-                            bg-gradient-to-r from-[#0D4CFF] to-[#33AAFF]`}
-            >
-            가입하기
-            </button>
-            <button
-                type="button" 
-                onClick={() => navigate("/login")}
-                className="text-[#368DFF] text-[13px] p-0 text-left"
-            >
-            로그인으로 돌아가기
-            </button>
         </form>
-        </div>
     )
 }
 
