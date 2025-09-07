@@ -12,7 +12,7 @@ function InputField({
     inputProps = {},    
     }) {
     return (
-        <div className={`w-full max-w-[363px] md:mb-3 ${className}`}>
+        <div className={`w-full max-w-[363px] mb-3 ${className}`}>
             <div
                 className={`flex flex-row items-center rounded-[7px]
                             max-h-[44px] md:max-h-[49px]

@@ -81,7 +81,7 @@ function SignupForm() {
     return (
         <form className="flex flex-col mx-auto relative" onSubmit={handleSubmit} id="signupForm">
             <div>
-                <label htmlFor="email" className="text-[0.8125rem] font-medium block text-[#2A2D41]">이메일</label>
+                <label htmlFor="email" className="hidden md:block text-[0.9375rem] font-medium text-[#2A2D41]">이메일</label>
                 <InputField
                     id="email"
                     type="email"
@@ -92,7 +92,7 @@ function SignupForm() {
                     inputProps={{ autoComplete: "email" }}
                 />
                 
-                <label htmlFor="username" className="text-[0.8125rem] font-medium block text-[#2A2D41] mt-2 md:mt-[2%]">닉네임</label>
+                <label htmlFor="username" className="hidden md:block text-[0.9375rem] font-medium text-[#2A2D41] mt-2 md:mt-[2%]">닉네임</label>
                 <InputField
                     id="username"
                     type="text"
@@ -103,9 +103,9 @@ function SignupForm() {
                     inputProps={{ autoComplete: "username" }}
                 />
                 
-                <div className="h-px w-full max-w-[363px] bg-[#DDE4EE] my-3 md:my-5" />
+                <div className="h-px w-full max-w-[363px] bg-[#DDE4EE] my-8 md:my-3 md:my-5" />
                 
-                <label htmlFor="password" className="text-[0.8125rem] font-medium block text-[#2A2D41]">비밀번호</label>
+                <label htmlFor="password" className="hidden md:block text-[0.9375rem] font-medium text-[#2A2D41]">비밀번호</label>
                 <InputField
                     id="password"
                     type="password"
@@ -129,8 +129,9 @@ function SignupForm() {
                 {formError
                     && <span className="text-[#F46464] text-[11px] mt-1">{formError}</span>
                 }
-                
+                <div className="h-px w-full max-w-[363px] bg-[#DDE4EE] my-8 md:my-3 md:hidden" />
             </div>
+            <div className="h-8 md:h-12"></div>
         </form>
     )
 }
