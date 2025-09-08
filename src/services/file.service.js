@@ -19,17 +19,9 @@ async function saveFileMetadata(userId, file) {
     });
 }
 
-/**
- * 사용자 ID로 파일 목록 조회 (검색 및 정렬 기능 추가)
- * @param {number} userId - 사용자 ID
- * @param {string} search - 검색어
- * @param {string} sortBy - 정렬 기준 (createdAt, original_name, size)
- * @param {string} sortOrder - 정렬 순서 (ASC, DESC)
- */
 async function getFilesByUserId(userId, search, sortBy, sortOrder) {
     const where = { user_id: userId };
     if (search) {
-        // NOTE: MySQL's default behavior for LIKE is case-insensitive.
         where.original_name = { [Op.like]: `%${search}%` };
     }
 
