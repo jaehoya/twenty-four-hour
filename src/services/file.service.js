@@ -19,6 +19,7 @@ async function saveFileMetadata(userId, file) {
     });
 }
 
+// 사용자 파일 목록 조회
 async function getFilesByUserId(userId, search, sortBy, sortOrder) {
     const where = { user_id: userId };
     if (search) {
@@ -33,6 +34,11 @@ async function getFilesByUserId(userId, search, sortBy, sortOrder) {
     }
 
     return await File.findAll({ where, order });
+}
+
+// 파일 ID로 파일 조회 (다운로드용)
+async function getFileByID(fileId) {
+    return await File.findByPk(fileId);
 }
 
 /**
@@ -60,4 +66,4 @@ async function deleteFileById(userId, fileId) {
     await file.destroy();
 }
 
-module.exports = { saveFileMetadata, getFilesByUserId, deleteFileById };
+module.exports = { saveFileMetadata, getFilesByUserId, getFileByID, deleteFileById };
