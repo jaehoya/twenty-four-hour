@@ -1,4 +1,4 @@
-const { createUser, loginUser } = require("../services/user.service");
+const { createUser, loginUser, logoutUser, deleteUser: deleteUserService } = require("../services/user.service");
 
 
 // 회원가입 요청 처리 컨트롤러
