@@ -37,7 +37,7 @@ async function getFilesByUserId(userId, search, sortBy, sortOrder) {
 }
 
 // 파일 ID로 파일 조회 (다운로드용)
-async function getFileByID(fileId) {
+async function getFileById(fileId) {
     return await File.findByPk(fileId);
 }
 
@@ -66,4 +66,4 @@ async function deleteFileById(userId, fileId) {
     await file.destroy();
 }
 
-module.exports = { saveFileMetadata, getFilesByUserId, getFileByID, deleteFileById };
+module.exports = { saveFileMetadata, getFilesByUserId, getFileById, deleteFileById };
