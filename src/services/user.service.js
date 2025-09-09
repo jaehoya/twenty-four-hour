@@ -122,7 +122,7 @@ async function loginUser({ email, password }) {
  * - DB에서 RefreshToken을 제거
  */
 async function logoutUser(id) {
-  const user = await User.findOne(id);
+  const user = await User.findByPk(id);
   if (!user) {
     const err = new Error("사용자를 찾을 수 없습니다.");
     err.status = 404;
