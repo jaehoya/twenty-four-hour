@@ -59,6 +59,27 @@ const loginValidator = [
   }
 ];
 
+// 회원탈퇴 검증
+const deleteUserValidator = [
+  // password: 필수, 8~64자
+  body("password")
+    .isString().withMessage("비밀번호는 문자열이어야 합니다.")
+    .isLength({ min: 8, max: 64 }).withMessage("비밀번호는 8~64자입니다."),
+
+  // 검증 결과 처리
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+      return res.status(400).json({
+        state: 400,
+        code: "VALIDATION_ERROR",
+        errors: errors.array().map(e => ({ field: e.path, message: e.msg }))
+      });
+    }
+    next();
+  }
+];
+
 // 비밀번호 변경 검증
 const changePasswordValidator = [
   // currentPassword: 필수, 8~64자
@@ -85,4 +106,9 @@ const changePasswordValidator = [
   }
 ];
 
-module.exports = { signupValidator , loginValidator, changePasswordValidator };
+module.exports = { 
+  signupValidator, 
+  loginValidator, 
+  deleteUserValidator, 
+  changePasswordValidator 
+};
