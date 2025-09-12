@@ -1,11 +1,10 @@
-/**
- * 파일 업로드 컨트롤러
- * - multer에서 req.file 주입
- * - 파일 없으면 400 반환
- * - 성공 시 201 + 저장된 파일 메타데이터 반환
- */
+const { 
+    saveFileMetadata, 
+    getFilesByUserId, 
+    deleteFileById,
+    getFileById 
+} = require("../services/file.service");
 
-const { saveFileMetadata } = require("../services/file.service");
 
 // 파일 업로드 처리 컨트롤러
 async function uploadFile(req, res, next) {
@@ -35,4 +34,62 @@ async function uploadFile(req, res, next) {
     }
 }
 
-module.exports = { uploadFile };
+
+// 사용자 파일 목록 조회 컨트롤러
+async function getUserFiles(req, res, next) {
+    try {
+        const userId = req.user.id;
+        const { search, sortBy, sortOrder } = req.query;
+        const files = await getFilesByUserId(userId, search, sortBy, sortOrder);
+
+        return res.status(200).json({
+            state: 200,
+            code: "FILES_FOUND",
+            message: "사용자 파일 목록 조회 성공",
+            files: files,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+// 파일 삭제 컨트롤러
+async function deleteFile(req, res, next) {
+    try {
+        const userId = req.user.id;
+        const fileId = req.params.id;
+
+        await deleteFileById(userId, fileId);
+
+        return res.status(200).json({
+            state: 200,
+            code: "FILE_DELETED",
+            message: "파일 삭제 성공",
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+// 파일 다운로드 컨트롤러
+async function downloadFile(req, res, next) {
+    try {
+        const fileId = req.params.id;
+        const file = await getFileById(fileId);
+
+        if(!file) {
+            return res.status(404).json({
+                state: 404,
+                code: "FILE_NOT_FOUND",
+                message: "파일을 찾을 수 없습니다.",
+            });
+        }
+
+        // 파일 경로에서 실제 파일을 찾아서 원래 파일명으로 다운로드
+        return res.download(file.path, file.original_name);
+    } catch(err) {
+        next(err);
+    }
+}
+
+module.exports = { uploadFile, getUserFiles, deleteFile, downloadFile };
