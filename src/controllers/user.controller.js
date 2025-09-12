@@ -1,4 +1,10 @@
-const { createUser, loginUser, logoutUser, deleteUser: deleteUserService } = require("../services/user.service");
+const { 
+  createUser, 
+  loginUser, 
+  logoutUser, 
+  deleteUser: deleteUserService,
+  changeUserPassword 
+} = require("../services/user.service");
 
 
 // 회원가입 요청 처리 컨트롤러
@@ -72,5 +78,24 @@ async function deleteUser(req, res, next) {
   }
 }
 
-module.exports = { signup, login, logout, deleteUser };
+// 비밀번호 변경 요청 처리 컨트롤러
+async function changePassword(req, res, next) {
+  try {
+    // authMiddleware에서 추가한 req.user 객체에서 id를 가져옴
+    const { id} = req.user;
+    // req.body에서 현재 비밀번호와 새 비밀번호를 가져옴
+    const { currentPassword, newPassword } = req.body;
+
+    // 서비스 레이어 호출 -> DB에서 비밀번호 변경
+    await changeUserPassword(id, currentPassword, newPassword);
+
+    return res.status(200).json({
+      message: "비밀번호 변경 성공"
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { signup, login, logout, deleteUser, changePassword };
 

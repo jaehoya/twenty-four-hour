@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { signup, login, logout, deleteUser } = require("../controllers/user.controller");
+const { signup, login, logout, deleteUser, changePassword } = require("../controllers/user.controller");
 const { signupValidator, loginValidator } = require("../middlewares/validators/user.dto");
 const authMiddleware = require("../middlewares/auth.js");
 
@@ -16,5 +16,8 @@ router.post("/logout", authMiddleware, logout);
 
 // DELETE /api/users/delete -> 회원 탈퇴
 router.delete("/delete", authMiddleware, deleteUser);
+
+// PUT /api/users/change-password -> 비밀번호 변경 
+router.put("/change-password", authMiddleware, changePassword);
 
 module.exports = router;
