@@ -21,7 +21,7 @@ function Detail({ selectedItem = null }) {
     const isEmpty = selectedItem.type === "folder" && itemCount === 0;
 
     return (
-        <div className="hidden md:block md:w-[20.93svw] md:h-[90svh] md:m-3 md:px-[2.65svw] md:pt-30 rounded-[10px] border-[1px] border-[#DAE0E9] bg-white p-6">
+        <div className="hidden md:block md:w-[20.93svw] md:h-[90svh] md:m-3 md:px-[2.65svw] md:pt-28 rounded-[10px] border-[1px] border-[#DAE0E9] bg-white p-6">
             {/* 아이콘 */}
             <div className="flex justify-center mb-6">
                 {selectedItem.type === "folder" ? (
@@ -38,15 +38,15 @@ function Detail({ selectedItem = null }) {
             </div>
             
             {/* 이름 */}
-            <div className="text-center mb-30">
+            <div className="text-center mb-28">
                 <h2 className="text-[1.0625rem] font-semibold text-[#34475C]">{selectedItem.name}</h2>
             </div>
             
             {/* 상세 정보 */}
-            <div className="space-y-8">
+            <div className="space-y-10">
                 <div className="flex flex-col justify-left">
                     <span className="text-[0.8125rem] font-semibold text-[#34475C]">유형</span>
-                    <span className="text-[0.8125rem] font-medium text-[#667687]">{selectedItem.type === "folder" ? "폴더" : "파일"}</span>
+                    <span className="text-[0.8125rem] font-normal text-[#667687]">{selectedItem.type === "folder" ? "폴더" : "파일"}</span>
                 </div>
                 
                 {selectedItem.type === "folder" && (

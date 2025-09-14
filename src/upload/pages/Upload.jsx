@@ -43,7 +43,7 @@ function Upload() {
                     </div>
                     
                     {/* 24 로고 */}
-                    <div className="absolute bottom-10 md:bottom-25 left-1/2 transform -translate-x-1/2 pointer-events-none -z-10">
+                    <div className="absolute bottom-10 md:bottom-28 left-1/2 transform -translate-x-1/2 pointer-events-none -z-10">
                         <svg 
                             className="w-[70px] h-[56px] md:w-[132px] md:h-[106px]"
                             viewBox="0 0 82 65" 
@@ -85,7 +85,7 @@ function Upload() {
             
             {/* 모바일 플로팅 액션 버튼 */}
             {isMobile && (
-                <div className="fixed bottom-25 right-6 z-50">
+                <div className="fixed bottom-28 right-6 z-50">
                     <UpdateBtn />
                 </div>
             )}
