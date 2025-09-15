@@ -13,15 +13,15 @@ function SideBar() {
     const getButtonStyles = (buttonName) => {
         const isActive = activeButton === buttonName;
         return {
-            button: `flex flex-row items-center p-4 w-full rounded-[15px] transition-all duration-200 ${
+            button: `flex flex-row items-center p-4 w-full rounded-[15px] transition-all duration-300 ease-in-out ${
                 isActive 
                     ? "bg-gradient-to-r from-[#0D4CFF] to-[#33AAFF]" 
                     : "hover:bg-gray-50"
             }`,
-            text: `font-normal text-[0.9375rem] ${
+            text: `font-normal text-[0.9375rem] transition-colors duration-300 ease-in-out ${
                 isActive ? "text-[#FFFFFF]" : "text-[#2A2D41]"
             }`,
-            icon: `pr-3 ${
+            icon: `pr-3 transition-all duration-300 ease-in-out ${
                 isActive ? "brightness-0 invert" : ""
             }`
         };

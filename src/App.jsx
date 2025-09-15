@@ -6,7 +6,6 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path='/' element={<Upload />} />
         <Route path='/upload' element={<Upload />} />
       </Routes>
     </Router>
