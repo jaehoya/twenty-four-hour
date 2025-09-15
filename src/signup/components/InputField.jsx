@@ -15,7 +15,6 @@ function InputField({
         <div className={`w-full max-w-[363px] mb-3 ${className}`}>
             <div
                 className={`flex flex-row items-center rounded-[7px]
-                            max-h-[44px] md:max-h-[49px]
                             ring-inset ring-1
                     ${
                     error
@@ -26,7 +25,7 @@ function InputField({
         {icon && (
             <img
                 src={icon}
-                className="h-[40%] md:h-[49%] ml-3 md:ml-[5%]"
+                className="h-[40%] md:h-[49%] mx-3 md:mx-[5%]"
                 alt=""
                 aria-hidden="true"
             />
@@ -38,7 +37,7 @@ function InputField({
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="flex-1 min-w-0 placeholder-[#9698A9] text-sm md:text-[0.9375rem] outline-none border-none p-3 md:p-[5%]"
+            className="flex-1 min-w-0 placeholder-[#9698A9] text-[0.9375rem] md:text-[0.875rem] font-normal outline-none border-none h-[55px] md:h-[49px]"
             aria-invalid={error || undefined}
             {...inputProps}
         />

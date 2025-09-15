@@ -126,12 +126,14 @@ function SignupForm() {
                     error={passwordError}
                     inputProps={{ autoComplete: "new-password" }}
                 />
-                {formError
-                    && <span className="text-[#F46464] text-[11px] mt-1">{formError}</span>
-                }
-                <div className="h-px w-full max-w-[363px] bg-[#DDE4EE] my-8 md:my-3 md:hidden" />
+                <div className="min-h-[11px]">
+                    {formError
+                        && <span className="text-[#F46464] text-[11px] mt-1">{formError}</span>
+                    }
+                </div>
+                <div className="h-px w-full max-w-[363px] bg-[#DDE4EE] my-3 md:hidden" />
             </div>
-            <div className="h-8 md:h-12"></div>
+            <div className="h-4 md:h-12" />
         </form>
     )
 }
