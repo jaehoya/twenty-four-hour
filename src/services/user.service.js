@@ -133,8 +133,7 @@ async function logoutUser(id) {
     // DB에서 리프레시 토큰 삭제 (무효화)
     user.refreshToken = null;
     await user.save();
-  }
-  
+  } 
 }
 
 /**
@@ -174,4 +173,43 @@ async function deleteUser(id, username, password) {
   return true;
 }
 
-module.exports = { createUser, loginUser, logoutUser, deleteUser };
+/**
+ * 비밀번호 변경 서비스
+ * - userId로 사용자 조회
+ * - 현재 비밀번호 검증 (bcrypt.compare)
+ * - 새 비밀번호 해시 후 저장
+ */
+async function changeUserPassword(id, currentPassword, newPassword) {
+  // 사용자 조회
+  const user = await User.findByPk(id);
+  if (!user) {
+    const err = new Error("사용자를 찾을 수 없습니다.");
+    err.status = 404;
+    err.code = "USER_NOT_FOUND";
+    throw err;
+  }
+
+  // 기존 비밀번호 확인
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!isMatch) {
+    const err = new Error("현재 비밀번호가 일치하지 않습니다.");
+    err.status = 400;
+    err.code = "INVALID_CURRENT_PASSWORD";
+    throw err;
+  }
+
+  // 새 비밀번호 해시 후 저장
+  const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+  user.password = hashedNewPassword;
+  await user.save();
+
+  return true; 
+}
+
+module.exports = { 
+  createUser, 
+  loginUser, 
+  logoutUser, 
+  deleteUser,
+  changeUserPassword
+};
