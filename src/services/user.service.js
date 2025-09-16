@@ -1,6 +1,8 @@
 const bcrypt = require("bcrypt");  // 비밀번호 해시 라이브러리
 const jwt = require("jsonwebtoken");  // JWT 발급 라이브러리
 const { Sequelize } = require("sequelize");  // Sequelize 에러 객체 활용
+const crypto = require("crypto");  // 랜덤 토큰 생성
+const { sendMail } = require("../utils/mailer");  // 이메일 전송 함수
 const User = require("../models/user");  // User 모델 불러오기
 
 // bcrypt 해시 강도 (기본 10, .env에서 BCRYPT_SALT_ROUNDS 가져오기)
@@ -206,10 +208,91 @@ async function changeUserPassword(id, currentPassword, newPassword) {
   return true; 
 }
 
+/**
+ * 비밀번호 재설정 요청 서비스
+ * - 이메일로 사용자 조회
+ * - 랜덤 토큰 생성 (crypto) 및 만료 시간 저장
+ * - 비밀번호 재설정 링크를 이메일로 발송
+ */
+async function requestPasswordReset(email) {
+  // 이메일로 사용자 조회
+  const user = await User.findOne({ where: { email} });
+  if (!user) {
+    const err = new Error("해당 이메일의 사용자를 찾을 수 없습니다.");
+    err.status = 404;
+    err.code = "USER_NOT_FOUND";
+    throw err;
+  }
+
+  // 토큰 생성 (랜덤 32바이트 16진수)
+  const token = crypto.randomBytes(32).toString("hex");
+  const expires = new Date(Date.now() + 3600000);  // 1시간
+
+  // DB에 토큰과 만료 시간 저장
+  user.resetToken = token;
+  user.resetTokenExpiry = expires;
+  await user.save();
+
+  // 비밀번호 재설정 링크를 이메일로 발송
+  const resetLink = `http://localhost:4000/reset-password?token=${token}&email=${email}`;
+  await sendMail(
+  user.email,
+  "비밀번호 재설정 안내",
+  `아래 링크를 눌러 비밀번호를 재설정 하세요: ${resetLink}`, 
+  `<p>아래 링크를 눌러 비밀번호를 재설정 하세요:</p>
+   <a href="${resetLink}">${resetLink}</a>
+   <p>이 링크는 1시간 동안만 유효합니다.</p>` 
+);
+
+  return true;
+}
+
+/**
+ * 비밀번호 재설정 서비스
+ * - 이메일, 토큰 검증
+ * - 새 비밀번호 해시 후 저장
+ */
+async function resetUserPassword(email, token, newPassword) {
+  // 이메일로 사용자 조회
+  const user = await User.findOne({ where: { email } });
+  if (!user) {
+    const err = new Error("사용자를 찾을 수 없습니다.");
+    err.status = 404;
+    err.code = "USER_NOT_FOUND";
+    throw err;
+  }
+
+  // 토큰 검증
+  if (
+    !user.resetToken ||
+    user.resetToken !== token ||
+    !user.resetTokenExpiry ||
+    user.resetTokenExpiry < Date.now()
+  ) {
+    const err = new Error("토큰이 유효하지 않거나 만료되었습니다.");
+    err.status = 400;
+    err.code = "INVALID_OR_EXPIRED_TOKEN";
+    throw err;
+  }
+
+  // 새 비밀번호 해시 후 저장
+  const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+  user.password = hashedNewPassword;
+
+  // 토큰 무효화
+  user.resetToken = null;
+  user.resetTokenExpiry = null;
+
+  await user.save();
+  return true;
+}
+
 module.exports = { 
   createUser, 
   loginUser, 
   logoutUser, 
   deleteUser,
-  changeUserPassword
+  changeUserPassword,
+  requestPasswordReset,
+  resetUserPassword
 };

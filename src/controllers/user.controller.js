@@ -3,7 +3,9 @@ const {
   loginUser, 
   logoutUser, 
   deleteUser: deleteUserService,
-  changeUserPassword 
+  changeUserPassword,
+  requestPasswordReset,
+  resetUserPassword 
 } = require("../services/user.service");
 
 
@@ -82,7 +84,7 @@ async function deleteUser(req, res, next) {
 async function changePassword(req, res, next) {
   try {
     // authMiddleware에서 추가한 req.user 객체에서 id를 가져옴
-    const { id} = req.user;
+    const { id } = req.user;
     // req.body에서 현재 비밀번호와 새 비밀번호를 가져옴
     const { currentPassword, newPassword } = req.body;
 
@@ -97,5 +99,47 @@ async function changePassword(req, res, next) {
   }
 }
 
-module.exports = { signup, login, logout, deleteUser, changePassword };
+// 비밀번호 재설정 요청 처리 컨트롤러
+async function forgotPassword(req, res, next) {
+  try {
+    // req.body에서 이메일 가져옴
+    const { email } = req.body;
+
+    // 서비스 호출 -> resetToken 생성 및 이메일 발송
+    await requestPasswordReset(email);
+
+    return res.status(200).json({
+      message: "비밀번호 재설정 이메일이 전송되었습니다."
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// 비밀번호 재설정 처리 컨트롤러
+async function resetPassword(req, res, next) {
+  try {
+    // req.body에서 이메일, 토큰, 새 비밀번호 가져옴
+    const { email, token, newPassword } = req.body;
+
+    // 서비스 호출 -> 토큰 검증 후 DB 비밀번호 업데이트
+    await resetUserPassword(email, token, newPassword);
+
+    return res.status(200).json({
+      message: "비밀번호가 성공적으로 재설정되었습니다."
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { 
+  signup, 
+  login, 
+  logout,
+  deleteUser, 
+  changePassword,
+  forgotPassword,
+  resetPassword
+};
 

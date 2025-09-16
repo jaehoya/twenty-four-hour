@@ -1,5 +1,18 @@
 const { body, validationResult } = require("express-validator");
 
+// 공통 검증 결과 처리
+function handleValidationResult(req, res, next) {
+  const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        state: 400,
+        code: "VALIDATION_ERROR",
+        errors: errors.array().map(e => ({ field: e.path, message: e.msg }))
+      });
+    }
+  next();
+}
+
 // 회원가입 검증
 const signupValidator = [
   // email: 필수, 이메일 형식, 최대 120자  
@@ -20,17 +33,7 @@ const signupValidator = [
     .isLength({ min: 8, max: 64 }).withMessage("비밀번호는 8~64자입니다."),
 
   // 검증 결과 처리
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        state: 400,
-        code: "VALIDATION_ERROR",
-        errors: errors.array().map(e => ({ field: e.path, message: e.msg }))
-      });
-    }
-    next();
-  }
+  handleValidationResult
 ];
 
 //로그인 검증
@@ -46,17 +49,7 @@ const loginValidator = [
     .isLength({ min: 8, max: 64 }).withMessage("비밀번호는 8~64자입니다."),
 
   // 검증 결과 처리
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if(!errors.isEmpty()) {
-      return res.status(400).json({
-        state: 400,
-        code: "VALIDATION_ERROR",
-        errors: errors.array().map(e => ({ field: e.path, message: e.msg }))
-      });
-    }
-    next();
-  }
+  handleValidationResult
 ];
 
 // 회원탈퇴 검증
@@ -67,17 +60,7 @@ const deleteUserValidator = [
     .isLength({ min: 8, max: 64 }).withMessage("비밀번호는 8~64자입니다."),
 
   // 검증 결과 처리
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if(!errors.isEmpty()) {
-      return res.status(400).json({
-        state: 400,
-        code: "VALIDATION_ERROR",
-        errors: errors.array().map(e => ({ field: e.path, message: e.msg }))
-      });
-    }
-    next();
-  }
+  handleValidationResult
 ];
 
 // 비밀번호 변경 검증
@@ -93,22 +76,47 @@ const changePasswordValidator = [
     .isLength({ min: 8, max: 64 }).withMessage("비밀번호는 8~64자입니다."), 
     
   // 검증 결과 처리
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if(!errors.isEmpty()) {
-      return res.status(400).json({
-        state: 400,
-        code: "VALIDATION_ERROR",
-        errors: errors.array().map(e => ({ field: e.path, message: e.msg }))
-      });
-    }
-    next();
-  }
+  handleValidationResult
+];
+
+// 비밀번호 재설정 요청 검증
+const forgotPasswordValidator = [
+  // email: 필수, 이메일 형식, 최대 120자  
+  body("email")
+    .trim()
+    .isEmail().withMessage("유효한 이메일을 입력하세요.")
+    .isLength({ max: 120 }).withMessage("이메일은 최대 120자입니다."),
+
+  // 검증 결과 처리
+  handleValidationResult
+];
+
+// 비밀번호 재설정 완료 검증
+const resetPasswordValidator = [
+  // email: 필수, 이메일 형식, 최대 120자  
+  body("email")
+    .trim()
+    .isEmail().withMessage("유효한 이메일을 입력하세요.")
+    .isLength({ max: 120 }).withMessage("이메일은 최대 120자입니다."),
+
+  // token: 필수, 문자열
+  body("token")
+    .isString().withMessage("토큰은 문자열이어야 합니다."),
+
+  // newPassword: 필수, 8~64자
+  body("newPassword")
+    .isString().withMessage("비밀번호는 문자열이어야 합니다.")
+    .isLength({ min: 8, max: 64 }).withMessage("비밀번호는 8~64자입니다."),
+
+  // 검증 결과 처리
+  handleValidationResult
 ];
 
 module.exports = { 
   signupValidator, 
   loginValidator, 
   deleteUserValidator, 
-  changePasswordValidator 
+  changePasswordValidator,
+  forgotPasswordValidator,
+  resetPasswordValidator 
 };
