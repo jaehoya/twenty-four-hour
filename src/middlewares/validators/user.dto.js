@@ -112,11 +112,22 @@ const resetPasswordValidator = [
   handleValidationResult
 ];
 
+// 프로필 수정 검증
+const updateProfileValidator = [
+  body("username")
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 20 }).withMessage("username은 2~20자입니다.")
+    .matches(/^[a-zA-Z0-9가-힣_]+$/).withMessage("영문/숫자/한글/밑줄(_)만 허용합니다."),
+  handleValidationResult
+];
+
 module.exports = { 
   signupValidator, 
   loginValidator, 
   deleteUserValidator, 
   changePasswordValidator,
   forgotPasswordValidator,
-  resetPasswordValidator 
+  resetPasswordValidator,
+  updateProfileValidator
 };

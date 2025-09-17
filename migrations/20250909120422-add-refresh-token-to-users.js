@@ -4,10 +4,13 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     // users 테이블에 refreshToken 컬럼 추가
-    await queryInterface.addColumn('users', 'refreshToken', {
-      type: Sequelize.STRING(500),
-      allowNull: true,
-    });
+    const table = await queryInterface.describeTable('users');
+    if (!table.refreshToken) {
+      await queryInterface.addColumn('users', 'refreshToken', {
+        type: Sequelize.STRING(500),
+        allowNull: true,
+      });
+    }
   },
 
   async down (queryInterface, Sequelize) {
