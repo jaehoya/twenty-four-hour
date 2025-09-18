@@ -8,6 +8,8 @@ const Folder = require("./folder");
 User.hasOne(UserProfile, { foreignKey: 'userId' });
 UserProfile.belongsTo(User, { foreignKey: 'userId' });
 
+UserProfile.belongsTo(File, { as: 'ProfileImage', foreignKey: 'profileImageId' });
+
 User.hasMany(Folder, { foreignKey: 'userId' });
 Folder.belongsTo(User, { foreignKey: 'userId' });
 

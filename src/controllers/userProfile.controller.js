@@ -15,12 +15,12 @@ class UserProfileController {
     try {
       const userId = req.user.id;
       const { username } = req.body;
-      const profileImage = req.file ? req.file.path : null;
+      const profileImageFile = req.file;
 
       const updatedProfile = await userProfileService.updateProfile(
         userId,
         username,
-        profileImage
+        profileImageFile
       );
 
       res.status(200).json(updatedProfile);

@@ -13,8 +13,8 @@ const UserProfile = sequelize.define(
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
     },
-    profileImage: {
-      type: DataTypes.STRING,
+    profileImageId: {
+      type: DataTypes.BIGINT.UNSIGNED,
       allowNull: true,
     },
   },

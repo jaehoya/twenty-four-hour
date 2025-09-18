@@ -1,11 +1,17 @@
-const { User, UserProfile } = require("../models");
+const { User, UserProfile, File } = require("../models");
+const fileService = require("./file.service");
 
 class UserProfileService {
   async getProfile(userId) {
     const user = await User.findByPk(userId, {
       include: [{
         model: UserProfile,
-        attributes: ['profileImage'],
+        include: [{
+          model: File,
+          as: 'ProfileImage',
+          attributes: ['path'],
+        }],
+        attributes: { exclude: ['userId', 'profileImageId', 'createdAt', 'updatedAt'] },
       }],
       attributes: ['email', 'username'],
     });
@@ -17,7 +23,7 @@ class UserProfileService {
     return user;
   }
 
-  async updateProfile(userId, username, profileImage) {
+  async updateProfile(userId, username, profileImageFile) {
     const user = await User.findByPk(userId);
     if (!user) {
       throw new Error("User not found");
@@ -34,8 +40,9 @@ class UserProfileService {
       userProfile = await UserProfile.create({ userId });
     }
 
-    if (profileImage) {
-      userProfile.profileImage = profileImage;
+    if (profileImageFile) {
+      const savedFile = await fileService.saveFileMetadata(userId, profileImageFile);
+      userProfile.profileImageId = savedFile.id;
       await userProfile.save();
     }
 
