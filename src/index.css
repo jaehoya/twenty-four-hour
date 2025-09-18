@@ -16,3 +16,13 @@
         height: 100%;
     }
 }
+
+/* 스크롤바 숨기기 유틸리티 */
+@layer utilities {
+  .scrollbar-hide {
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    scrollbar-width: none;
+  }
+}

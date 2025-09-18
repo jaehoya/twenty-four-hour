@@ -21,7 +21,7 @@ function Detail({ selectedItem = null }) {
     const isEmpty = selectedItem.type === "folder" && itemCount === 0;
 
     return (
-        <div className="hidden md:block md:w-[20.93svw] md:h-[90svh] md:m-3 md:px-[2.65svw] md:pt-28 rounded-[10px] border-[1px] overflow-auto border-[#DAE0E9] bg-white p-6">
+        <div className="hidden md:block md:w-[20.93svw] scrollbar-hide md:h-auto md:m-3 md:px-[2.65svw] md:pt-28 rounded-[10px] border-[1px] overflow-auto border-[#DAE0E9] bg-white p-6">
             {/* 아이콘 */}
             <div className="flex justify-center mb-6">
                 {selectedItem.type === "folder" ? (
