@@ -18,16 +18,16 @@ function Detail({ selectedItem = null }) {
     };
 
     const itemCount = getItemCount(selectedItem.count);
-    const isEmpty = selectedItem.type === "folder" && itemCount === 0;
+    const isEmpty = selectedItem.mime_type === "folder" && itemCount === 0;
 
     return (
         <div className="hidden md:block md:w-[20.93svw] scrollbar-hide md:h-auto md:m-3 md:px-[2.65svw] md:pt-28 rounded-[10px] border-[1px] overflow-auto border-[#DAE0E9] bg-white p-6">
             {/* 아이콘 */}
             <div className="flex justify-center mb-6">
-                {selectedItem.type === "folder" ? (
+                {selectedItem.mime_type === "folder" ? (
                     <img 
                         src={isEmpty ? EmptyFolderIcon : FolderIcon} 
-                        alt={selectedItem.type} 
+                        alt={selectedItem.mime_type} 
                         className="md:w-[135px] md:h-[101px]"
                     />
                 ) : (
@@ -46,10 +46,10 @@ function Detail({ selectedItem = null }) {
             <div className="space-y-10">
                 <div className="flex flex-col justify-left">
                     <span className="text-[9pt] font-semibold text-[#34475C]">유형</span>
-                    <span className="text-[9pt] font-normal text-[#667687]">{selectedItem.type === "folder" ? "폴더" : "파일"}</span>
+                    <span className="text-[9pt] font-normal text-[#667687]">{selectedItem.mime_type === "folder" ? "폴더" : "파일"}</span>
                 </div>
                 
-                {selectedItem.type === "folder" && (
+                {selectedItem.mime_type === "folder" && (
                     <div className="flex flex-col justify-left">
                         <span className="text-[9pt] font-semibold text-[#34475C]">항목 수</span>
                         <span className="text-[9pt] font-normal text-[#667687]">{itemCount}</span>
@@ -58,17 +58,17 @@ function Detail({ selectedItem = null }) {
                 
                 <div className="flex flex-col justify-left">
                     <span className="text-[9pt] font-semibold text-[#34475C]">위치</span>
-                    <span className="text-[9pt] font-normal text-[#667687]">/{selectedItem.name}</span>
+                    <span className="text-[9pt] font-normal text-[#667687]">/{selectedItem.original_name}</span>
                 </div>
                 
                 <div className="flex flex-col justify-left">
                     <span className="text-[9pt] font-semibold text-[#34475C]">생성 날짜</span>
-                    <span className="text-[9pt] font-normal text-[#667687]">{selectedItem.date} 오전 11:02</span>
+                    <span className="text-[9pt] font-normal text-[#667687]">{new Date(selectedItem.createdAt).toLocaleDateString()} 오전 11:02</span>
                 </div>
                 
                 <div className="flex flex-col justify-left">
                     <span className="text-[9pt] font-semibold text-[#34475C]">수정 날짜</span>
-                    <span className="text-[9pt] font-normal text-[#667687]">{selectedItem.date} 오후 09:15</span>
+                    <span className="text-[9pt] font-normal text-[#667687]">{new Date(selectedItem.updatedAt).toLocaleDateString()} 오후 09:15</span>
                 </div>
             </div>
         </div>

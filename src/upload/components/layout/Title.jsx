@@ -25,11 +25,11 @@ function Title() {
                         onClick={handleSortClick}
                         className="w-16 h-7 md:w-auto md:h-[30px] flex flex-row items-center justify-center p-1 md:p-2 md:pl-6 rounded-[25px] border-[1px] border-[#C7CFDB] shadow-[0_0_10px_rgba(0,0,0,0.06)]"
                     >
-                        <span className="text-xs md:text-[9.5pt] text-[#3C4860] font-normal mr-1 md:mr-3">정렬</span>
+                        <span className="text-xs md:text-[9.5pt] md:mt-0.5 text-[#3C4860] font-normal mr-1 md:mr-3">정렬</span>
                         <img 
                             src={Arrow_icon} 
                             alt="arrow_icon" 
-                            className={`w-3 h-3 md:mt-1 transition-transform ${isSortOpen ? 'rotate-180' : ''}`}
+                            className={`w-3 h-3 transition-transform ${isSortOpen ? 'rotate-180' : ''}`}
                         />
                     </button>
                     
@@ -53,8 +53,8 @@ function Title() {
                 </div>
                 
                 <button className="w-16 h-7 md:w-auto md:h-[30px] flex flex-row items-center justify-center p-1 md:p-2 md:pl-6 rounded-[25px] border-[1px] border-[#C7CFDB] md:ml-2 shadow-[0_0_10px_rgba(0,0,0,0.06)]">
-                    <span className="text-xs md:text-[9.5pt] text-[#3C4860] font-normal mr-1 md:mr-3">필터</span>
-                    <img src={Arrow_icon} alt="arrow_icon" className="w-3 h-3 md:mt-1"/>
+                    <span className="text-xs md:text-[9.5pt] md:mt-0.5 text-[#3C4860] font-normal mr-1 md:mr-3">필터</span>
+                    <img src={Arrow_icon} alt="arrow_icon" className="w-3 h-3"/>
                 </button>
             </div>
         </div>

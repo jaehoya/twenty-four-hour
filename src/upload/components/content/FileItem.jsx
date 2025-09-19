@@ -10,8 +10,8 @@ function FileItem({ item, isSelected = false, onClick }) {
         return parseInt(count.split('개의 항목')[0]);
     };
 
-    const itemCount = getItemCount(item.count);
-    const isEmpty = item.type === "folder" && itemCount === 0;
+    const itemCount = (item.count) ? getItemCount(item.id) : 0;
+    const isEmpty = item.mime_type === "folder" && itemCount === 0;
 
     return (
         <div 
@@ -22,7 +22,7 @@ function FileItem({ item, isSelected = false, onClick }) {
         >
             {/* 아이콘 */}
             <div className="flex items-center justify-center h-[65%]">
-                {item.type === "folder" ? (
+                {item.mime_type === "folder" ? (
                     <img 
                         src={isEmpty ? EmptyFolderIcon : FolderIcon} 
                         alt="folder" 
@@ -38,12 +38,12 @@ function FileItem({ item, isSelected = false, onClick }) {
                 <div className="h-px w-full max-w-[102px] bg-[#E5EBF2] mb-3 md:hidden" />
             {/* 이름 */}
                 <span className="text-[0.6875rem] md:text-[0.875rem] font-semibold text-[#34475C] text-center md:mt-2">
-                    {item.name}
+                    {item.original_name}
                 </span>
             
             {/* 메타데이터 */}
                 <span className="text-[0.4375rem] md:text-[0.6875rem] text-[#9AA9B9] font-normal text-center">
-                    {item.count ? `${item.date} | ${item.count}` : item.date}
+                    {item.count ? `${item.updatedAt} | ${item.count}` : new Date(item.updatedAt).toLocaleDateString()}
                 </span>
             </div>
         </div>

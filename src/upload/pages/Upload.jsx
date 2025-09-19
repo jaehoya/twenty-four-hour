@@ -23,6 +23,7 @@ function Upload() {
         
         return () => window.removeEventListener('resize', checkIsMobile);
     }, []);
+    
     return (
         <div className="h-screen bg-[#EFF3FA] flex flex-col justify-center">
             
