@@ -15,8 +15,8 @@ function FileItem({ item, isSelected = false, onClick }) {
 
     return (
         <div 
-            className={`rounded-[15px] border p-3 md:p-4 flex flex-col md:justify-center items-center cursor-pointer h-[149px] md:h-[229px] min-h-[149px] md:min-h-[229px] ${
-                isSelected ? "bg-[#E6F3FF] border-[3px] border-[#1C91FF]" : "bg-white border-gray-200"
+            className={`rounded-[15px] border-[3px] p-3 md:p-4 flex flex-col md:justify-center items-center cursor-pointer h-[149px] md:h-[229px] min-h-[149px] md:min-h-[229px] ${
+                isSelected ? "bg-[#E6F3FF] border-[#1C91FF]" : "bg-white border-gray-200"
             }`}
             onClick={onClick}
         >
@@ -29,7 +29,7 @@ function FileItem({ item, isSelected = false, onClick }) {
                         className="w-[57px] h-[43px] md:w-[135px] md:h-[101px]"
                     />
                 ) : (
-                    <div className="bg-white flex items-center justify-center relative">
+                    <div className="flex items-center justify-center relative">
                         <img src={FileIcon} alt="file" className="w-[44px] h-[55px] md:w-[100px] md:h-[125px]" />
                     </div>
                 )}
