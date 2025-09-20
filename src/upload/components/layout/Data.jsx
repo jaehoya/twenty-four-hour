@@ -3,7 +3,7 @@ import FileItem from "../content/FileItem";
 import AddNewItem from "../content/AddNewItem";
 import api from "../../../utils/api";
 
-function Data({ selectedItem, onItemSelect }) {
+function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpen }) {
     // // 샘플 데이터
     // const items = [
     //     { id: 1, name: "folder_00", type: "folder", date: "2025/08/26", count: "1개의 항목" },
@@ -30,9 +30,9 @@ function Data({ selectedItem, onItemSelect }) {
     }, []);
 
     return (
-        <div className="w-full rounded-[10px] relative mt-2 md:mt-3 overflow-auto">
+        <div className="w-full h-full rounded-[10px] relative overflow-auto">
             {/* 반응형 그리드 - 모바일: 3개, 데스크톱: 5개 */}
-            <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3 h-full">
                 {/* FileItem 컴포넌트들 */}
                 {files.map((file) => (
                     <FileItem 
@@ -44,7 +44,10 @@ function Data({ selectedItem, onItemSelect }) {
                 ))}
                 {/* 새 항목 추가 버튼 */}
                 <div className="hidden md:block">
-                    <AddNewItem />
+                    <AddNewItem 
+                        isAddNewItemOpen={isAddNewItemOpen}
+                        setIsAddNewItemOpen={setIsAddNewItemOpen}
+                    />
                 </div>
             </div>
             

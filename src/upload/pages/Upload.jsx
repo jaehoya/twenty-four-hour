@@ -12,6 +12,7 @@ import UpdateBtn from "../components/content/UpdateBtn";
 function Upload() {
     const [isMobile, setIsMobile] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [isAddNewItemOpen, setIsAddNewItemOpen] = useState(false);
 
     useEffect(() => {
         const checkIsMobile = () => {
@@ -38,10 +39,15 @@ function Upload() {
                 {/* 메인 콘텐츠 영역 */}
                 <div className="flex flex-col flex-1 relative">
                     <Banner />
-                    <div className="mx-2 md:mx-0 flex-1">
+                    <div className="mx-2 md:mx-0 flex-1 flex flex-col">
                         <Title />
-                        <div className="md:w-full md:h-[calc(100vh-8svh-10svh-3rem-12px)] md:mb-3 rounded-[10px]">
-                            <Data selectedItem={selectedItem} onItemSelect={setSelectedItem} />
+                        <div className={`flex-1 flex flex-col mt-3 md:mb-3 rounded-[10px] transition-all duration-300 relative ${isAddNewItemOpen ? 'bg-[#A4CFFF]/22 backdrop-blur-[20px] border-[3px] border-[#329CFF]' : ''}`}>
+                            <Data 
+                                selectedItem={selectedItem} 
+                                onItemSelect={setSelectedItem}
+                                isAddNewItemOpen={isAddNewItemOpen}
+                                setIsAddNewItemOpen={setIsAddNewItemOpen}
+                            />
                         </div>
                     </div>
                     

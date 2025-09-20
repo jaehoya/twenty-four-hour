@@ -1,15 +1,15 @@
 import React, { useState } from "react";
+import DragDropIcon from "../../../assets/upload/background_gradient.svg";
 
-function AddNewItem() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen }) {
     const [isDragOver, setIsDragOver] = useState(false);
 
     const handleClick = () => {
-        setIsModalOpen(true);
+        setIsAddNewItemOpen(true);
     };
 
     const handleCloseModal = () => {
-        setIsModalOpen(false);
+        setIsAddNewItemOpen(false);
         setIsDragOver(false);
     };
 
@@ -61,57 +61,57 @@ function AddNewItem() {
                 </div>
             </div>
 
-            {/* 모달 오버레이 */}
-            {isModalOpen && (
-                <div className="w-full h-full bg-[#A4CFFF]/22 flex items-center justify-center z-50">
+            {/* 모달 */}
+            {isAddNewItemOpen && (
+                <div className="absolute inset-0 flex items-center justify-center z-50">
                     <div 
-                        className={`bg-white rounded-[20px] p-8 w-[50vw] max-w-[500px] h-[60vh] max-h-[400px] flex flex-col items-center justify-center transition-all duration-300 ${
-                            isDragOver ? 'bg-blue-50 border-2 border-blue-300' : 'border-2 border-dashed border-gray-300'
+                        className={`bg-white rounded-[20px] p-8 md:w-[18.02svw] max-w-[346px] md:h-[35.92svh] max-h-[388px] flex flex-col items-center justify-center transition-all duration-300 shadow-[0_0_40px_rgba(36,49,82,0.1)] ${
+                            isDragOver ? 'bg-blue-50 border-2 border-blue-300' : ''
                         }`}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
+
                     >
                         {/* 닫기 버튼 */}
                         <button
                             onClick={handleCloseModal}
-                            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl"
+                            className="absolute top-2 right-4 text-gray-500 hover:text-gray-700 text-2xl"
                         >
                             ×
                         </button>
 
                         {/* 드래그 앤 드롭 영역 */}
                         <div className="flex flex-col items-center justify-center flex-1 w-full">
-                            <h2 className="text-xl md:text-2xl font-medium text-gray-800 mb-6">
+                            <h2 className="md:text-[20px] font-bold text-[#303642] mt-3 mb-15">
                                 이곳에 놓아주세요!
                             </h2>
                             
                             {/* 드롭 영역 그래픽 */}
-                            <div className="w-32 h-32 md:w-40 md:h-40 mb-6 relative">
-                                <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full opacity-60"></div>
-                                <div className="absolute inset-2 bg-gradient-to-br from-blue-200 to-purple-200 rounded-full opacity-40"></div>
-                                <div className="absolute inset-4 bg-gradient-to-br from-blue-300 to-purple-300 rounded-full opacity-20"></div>
+                            <div className="w-32 h-32 md:w-[8.59svw] md:h-[15.27svh] mb-6 rounded-full relative">
+                                <img 
+                                    src={DragDropIcon} 
+                                    alt="drag_drop" 
+                                    className={`w-full h-full rounded-full transition-transform duration-300 ${isDragOver ? '' : 'animate-slow-spin'}`}
+                                    style={{
+                                        filter: 'blur(34px)',
+                                        background: `
+                                            radial-gradient(circle at 20% 50%, #0D4CFF 0.9px, transparent 0.9px),
+                                            radial-gradient(circle at 80% 20%, #FFFFFF 0.9px, transparent 0.9px),
+                                            radial-gradient(circle at 40% 80%, #0D4CFF 0.9px, transparent 0.9px),
+                                            radial-gradient(circle at 60% 40%, #FFFFFF 0.9px, transparent 0.9px),
+                                            linear-gradient(45deg, #0D4CFF 90%, #FFFFFF 10%)
+                                        `,
+                                        backgroundSize: '20px 20px, 15px 15px, 25px 25px, 18px 18px, 100% 100%',
+                                    }}
+                                />
                                 
-                                {/* 중앙 점들 */}
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-2 h-2 bg-blue-400 rounded-full opacity-60"></div>
-                                </div>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-1 h-1 bg-purple-400 rounded-full opacity-40 animate-pulse"></div>
-                                </div>
                             </div>
-
-                            <p className="text-gray-600 text-center mb-4">
-                                파일을 드래그하여 여기에 놓거나<br />
-                                클릭하여 파일을 선택하세요
-                            </p>
-                            
-                            <button className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                                파일 선택
-                            </button>
                         </div>
                     </div>
                 </div>
+
+
             )}
         </>
     )
