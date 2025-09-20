@@ -13,10 +13,12 @@ sequelize.authenticate()
   .then(() => console.log("DB 연결 성공"))
   .catch((e) => console.error("DB 연결 실패:", e.message));
 
-// 라우터 등록 (회원가입 라우터 포함)
+// 라우터 등록 
 app.use("/api/users", require("./routes/user.routes"));
 app.use("/api/files", require("./routes/file.routes"));
 app.use("/api/profile", require("./routes/userProfile.routes"));
+app.use("/api/folders", require("./routes/folder.routes"));
+
 
 // 공통 에러 핸들러 (마지막에 두기)
 app.use((err, req, res, next) => {
