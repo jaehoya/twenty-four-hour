@@ -7,7 +7,7 @@ function Detail({ selectedItem = null }) {
     // 선택된 아이템이 없으면 빈 상태 표시
     if (!selectedItem) {
         return (
-            <div className="hidden md:block md:w-[20.93svw] md:h-[90svh] md:m-3 rounded-[10px] border-[1px] border-[#DAE0E9] bg-white p-6 flex items-center justify-center">
+            <div className="hidden md:block md:w-[20.93svw] md:h-auto md:m-3 rounded-[10px] border-[1px] border-[#DAE0E9] bg-white p-6 flex items-center justify-center">
             </div>
         )
     }

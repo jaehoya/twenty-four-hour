@@ -23,7 +23,7 @@ function Upload() {
         
         return () => window.removeEventListener('resize', checkIsMobile);
     }, []);
-    
+
     return (
         <div className="h-screen bg-[#EFF3FA] flex flex-col justify-center">
             
@@ -40,7 +40,9 @@ function Upload() {
                     <Banner />
                     <div className="mx-2 md:mx-0 flex-1">
                         <Title />
-                        <Data selectedItem={selectedItem} onItemSelect={setSelectedItem} />
+                        <div className="md:w-full md:h-[calc(100vh-8svh-10svh-3rem-12px)] md:mb-3 rounded-[10px]">
+                            <Data selectedItem={selectedItem} onItemSelect={setSelectedItem} />
+                        </div>
                     </div>
                     
                     {/* 24 로고 */}
