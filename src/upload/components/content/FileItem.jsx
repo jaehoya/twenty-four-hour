@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import FolderIcon from "../../../assets/upload/folder_icon.svg";
 import EmptyFolderIcon from "../../../assets/upload/empty_folder_icon.svg";
 import FileIcon from "../../../assets/upload/file_icon.svg";
 import ProgressCircle from "./ProgressCircle";
+import FileMenu from "./FileMenu";
 
 function FileItem({ item, isSelected = false, onClick }) {
+    const [showContextMenu, setShowContextMenu] = useState(false);
+    const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+    const longPressTimer = useRef(null);
     // 폴더의 항목 수 확인
     const getItemCount = (count) => {
         if (!count) return 0;
@@ -14,13 +18,66 @@ function FileItem({ item, isSelected = false, onClick }) {
     const itemCount = (item.count) ? getItemCount(item.id) : 0;
     const isEmpty = item.mime_type === "folder" && itemCount === 0;
 
+    // 길게 클릭 이벤트 핸들러
+    const handleMouseDown = (e) => {
+        longPressTimer.current = setTimeout(() => {
+            setContextMenuPosition({ x: e.clientX, y: e.clientY });
+            setShowContextMenu(true);
+        }, 500); // 500ms 후 컨텍스트 메뉴 표시
+    };
+
+    const handleMouseUp = () => {
+        if (longPressTimer.current) {
+            clearTimeout(longPressTimer.current);
+            longPressTimer.current = null;
+        }
+    };
+
+    const handleMouseLeave = () => {
+        if (longPressTimer.current) {
+            clearTimeout(longPressTimer.current);
+            longPressTimer.current = null;
+        }
+    };
+
+    // 컨텍스트 메뉴 닫기
+    const closeContextMenu = () => {
+        setShowContextMenu(false);
+    };
+
+    // 컨텍스트 메뉴 액션들
+    const handleDownload = () => {
+        console.log('다운로드:', item.original_name);
+        closeContextMenu();
+    };
+
+    const handleViewInfo = () => {
+        console.log('정보 보기:', item.original_name);
+        closeContextMenu();
+    };
+
+    const handleRename = () => {
+        console.log('이름 바꾸기:', item.original_name);
+        closeContextMenu();
+    };
+
+    const handleDelete = () => {
+        console.log('휴지통으로 이동:', item.original_name);
+        closeContextMenu();
+    };
+
+
     return (
-        <div 
-            className={`rounded-[15px] p-3 md:p-4 flex flex-col md:justify-center items-center cursor-pointer h-[149px] md:h-[229px] min-h-[149px] md:min-h-[229px] relative z-0 ${
-                isSelected ? "bg-[#E6F3FF] border-[#1C91FF] border-[3px]" : "bg-white border-gray-200 border-[1px]"
-            }`}
-            onClick={onClick}
-        >
+        <>
+            <div 
+                className={`rounded-[15px] p-3 md:p-4 flex flex-col md:justify-center items-center cursor-pointer h-[149px] md:h-[229px] min-h-[149px] md:min-h-[229px] relative z-0 ${
+                    isSelected ? "bg-[#E6F3FF] border-[#1C91FF] border-[3px]" : "bg-white border-gray-200 border-[1px]"
+                }`}
+                onClick={onClick}
+                onMouseDown={handleMouseDown}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseLeave}
+            >
             {/* 아이콘 */}
             <div className="flex items-center justify-center h-[65%] relative">
                 {item.mime_type === "folder" ? (
@@ -52,7 +109,20 @@ function FileItem({ item, isSelected = false, onClick }) {
                     {item.count ? `${item.updatedAt} | ${item.count}` : new Date(item.updatedAt).toLocaleDateString()}
                 </span>
             </div>
-        </div>
+            </div>
+
+            {/* 파일 메뉴 */}
+            <FileMenu
+                isVisible={showContextMenu}
+                position={contextMenuPosition}
+                onClose={closeContextMenu}
+                onDownload={handleDownload}
+                onViewInfo={handleViewInfo}
+                onRename={handleRename}
+                onDelete={handleDelete}
+                fileName={item.original_name}
+            />
+        </>
     )
 }
 

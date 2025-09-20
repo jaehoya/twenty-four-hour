@@ -17,7 +17,7 @@ function Title() {
     };
 
     return (
-        <div className="w-full h-[4.57svh] md:h-[7.12svh] bg-white border-[1px] border-[#DAE0E9] rounded-[15px] flex items-center px-4 py-2 md:px-6 justify-between relative">
+        <div className="w-full h-[4.57svh] md:h-[7.12svh] bg-white border-[1px] border-[#DAE0E9] rounded-[10px] md:rounded-[15px] flex items-center px-4 py-2 md:px-6 justify-between relative">
             <span className="font-semibold text-[0.81rem] md:text-[12pt] text-[#2A2D41]">내 저장소</span>
             <div className="flex flex-row space-x-2">
                 <div className="relative">

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import DragDropIcon from "../../../assets/upload/background_gradient.svg";
 import api from "../../../utils/api";
 
-function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen }) {
+function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload }) {
     const [isDragOver, setIsDragOver] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -41,7 +41,9 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen }) {
         handleCloseModal();
         
         // 파일 업로드 시작
-        await uploadFiles(files);
+        if (onFileUpload) {
+            onFileUpload(files);
+        }
     };
 
     const uploadFiles = async (files) => {

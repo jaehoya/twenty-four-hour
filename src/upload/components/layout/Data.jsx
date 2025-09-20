@@ -4,7 +4,7 @@ import AddNewItem from "../content/AddNewItem";
 import UploadedFiles from "../content/UploadedFiles";
 import api from "../../../utils/api";
 
-function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpen }) {
+function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload }) {
     // // 샘플 데이터
     // const items = [
     //     { id: 1, name: "folder_00", type: "folder", date: "2025/08/26", count: "1개의 항목" },
@@ -24,10 +24,13 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
     useEffect(() => {
         api.get('/files', { params: { search: undefined, sortBy: undefined, sortOrder: undefined } })
         .then((res) => {
-            console.log(res.data.files);
+            console.log('API 파일 목록:', res.data.files);
             setFiles(res.data.files);
         })
-        .catch((err) => {console.error(err);});
+        .catch((err) => {
+            console.log('API 호출 실패, 빈 배열로 설정:', err.message);
+            setFiles([]); // 에러 시 빈 배열로 설정
+        });
     }, []);
 
     return (
@@ -53,6 +56,7 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                     <AddNewItem 
                         isAddNewItemOpen={isAddNewItemOpen}
                         setIsAddNewItemOpen={setIsAddNewItemOpen}
+                        onFileUpload={onFileUpload}
                     />
                 </div>
             </div>
