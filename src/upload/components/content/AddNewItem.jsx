@@ -57,37 +57,15 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen }) {
                 // 파일 업로드 API 호출
                 console.log('업로드할 파일:', file.name, file.size);
                 
-                try {
-                    // 실제 API 호출 시도
-                    const response = await api.post('/upload', formData, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                        },
-                    });
-                    console.log('업로드 성공:', response.data);
-                } catch (apiError) {
-                    // API가 준비되지 않은 경우 시뮬레이션 - 단계별 진행률 표시
-                    console.log('API 호출 실패, 시뮬레이션 모드:', apiError.message);
-                    
-                    // 0%에서 시작
-                    setUploadProgress(0);
-                    
-                    // 25% 진행
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    setUploadProgress(25);
-                    
-                    // 50% 진행
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    setUploadProgress(50);
-                    
-                    // 75% 진행
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    setUploadProgress(75);
-                    
-                    // 100% 완료
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    setUploadProgress(100);
-                }
+                // 실제 API 호출
+                const token = localStorage.getItem('accessToken'); // 토큰 가져오기
+                const response = await api.post('/api/files/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                console.log('업로드 성공:', response.data);
                 
                 // 전체 파일 진행률 업데이트
                 setUploadProgress(((i + 1) / files.length) * 100);
@@ -117,10 +95,9 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen }) {
             const updatedFiles = [...existingFiles, ...uploadedFiles];
             console.log('업데이트된 파일 목록:', updatedFiles);
             
-            // 진행률을 부드럽게 증가시키면서 localStorage에 저장 (새로 업로드되는 파일만)
             const updateProgress = async () => {
-                const duration = 3000; // 3초 동안 진행
-                const steps = 60; // 60단계로 나누어 부드럽게
+                const duration = 3000; 
+                const steps = 60; 
                 const stepDuration = duration / steps;
                 
                 for (let step = 0; step <= steps; step++) {
