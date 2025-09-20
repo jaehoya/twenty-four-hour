@@ -1,4 +1,4 @@
-const { Folder } = require("../models");
+const { Folder, File } = require("../models");
 const fs = require("fs");
 const path = require("path");
 
@@ -43,5 +43,24 @@ async function createFolder(userId, name, parentId = null) {
     return folder;
 }
 
+// 하위 폴더 조회
+async function getSubFolders(userId, parentId = null) {
+    return await Folder.findAll({
+        where: { userId, parentId },
+        order: [["createdAt", "ASC"]],
+    });
+}
 
-module.exports = { createFolder };
+// 특정 폴더 안 파일 조회
+async function getFilesInFolder(userId, folderId = null) {
+    return await File.findAll({
+        where: { user_id: userId, folderId },
+        order: [["createdAt", "ASC"]],
+    });
+}
+
+module.exports = { 
+    createFolder,
+    getSubFolders,
+    getFilesInFolder
+};

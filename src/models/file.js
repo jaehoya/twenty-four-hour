@@ -2,7 +2,12 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 
 const File = sequelize.define("File", {
-  user_id: { type: DataTypes.BIGINT },
+  id: { 
+    type: DataTypes.BIGINT.UNSIGNED,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  user_id: { type: DataTypes.BIGINT.UNSIGNED },
   folderId: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
   original_name: { type: DataTypes.STRING },
   stored_name: { type: DataTypes.STRING },
