@@ -2,7 +2,7 @@ import React from "react";
 
 function Usage() {
     return (
-        <div className="hide md:mr-3 md:mb-3 md:block md:w-auto md:h-18 bg-white border-[1px] border-[#DAE0E9] rounded-[10px] md:ml-3 p-4 flex flex-col justify-center">
+        <div className="hide md:mr-3 md:mb-3 md:block md:w-auto md:h-18 bg-white border-[1px] border-[#DAE0E9] rounded-[15px] md:ml-3 p-4 flex flex-col justify-center">
             <div className="flex justify-between items-center mb-1">
                 <span className="text-[#2A2D41] font-medium text-[9pt]">사용량</span>
                 <span className="text-[#989AA9] text-[9pt]">0GB / 2GB</span>

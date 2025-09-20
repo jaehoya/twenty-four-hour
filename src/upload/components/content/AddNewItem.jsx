@@ -37,6 +37,10 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen }) {
         const files = e.dataTransfer.files;
         if (files.length === 0) return;
         
+        // 드래그앤드롭 순간 모달 닫기
+        handleCloseModal();
+        
+        // 파일 업로드 시작
         await uploadFiles(files);
     };
 
@@ -50,9 +54,6 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen }) {
                 const formData = new FormData();
                 formData.append('file', file);
                 
-                // 업로드 진행률 업데이트
-                setUploadProgress(((i + 1) / files.length) * 100);
-                
                 // 파일 업로드 API 호출
                 console.log('업로드할 파일:', file.name, file.size);
                 
@@ -65,16 +66,37 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen }) {
                     });
                     console.log('업로드 성공:', response.data);
                 } catch (apiError) {
-                    // API가 준비되지 않은 경우 시뮬레이션
+                    // API가 준비되지 않은 경우 시뮬레이션 - 단계별 진행률 표시
                     console.log('API 호출 실패, 시뮬레이션 모드:', apiError.message);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // 0%에서 시작
+                    setUploadProgress(0);
+                    
+                    // 25% 진행
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    setUploadProgress(25);
+                    
+                    // 50% 진행
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    setUploadProgress(50);
+                    
+                    // 75% 진행
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    setUploadProgress(75);
+                    
+                    // 100% 완료
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    setUploadProgress(100);
                 }
+                
+                // 전체 파일 진행률 업데이트
+                setUploadProgress(((i + 1) / files.length) * 100);
             }
             
             // 파일 업로드 완료 후 localStorage에 파일 정보 저장
             console.log('모든 파일 업로드 완료');
             
-            // 업로드된 파일들을 localStorage에 저장
+            // 업로드된 파일들을 localStorage에 저장 (진행률 표시용)
             const uploadedFiles = Array.from(files).map((file, index) => ({
                 id: Date.now() + index,
                 name: file.name,
@@ -83,7 +105,8 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen }) {
                 size: file.size,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
-                count: null
+                count: null,
+                progress: 0 // 진행률 표시를 위해 0으로 시작
             }));
             
             // 기존 파일 목록에 새 파일들 추가
@@ -94,17 +117,53 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen }) {
             const updatedFiles = [...existingFiles, ...uploadedFiles];
             console.log('업데이트된 파일 목록:', updatedFiles);
             
-            localStorage.setItem('uploadedFiles', JSON.stringify(updatedFiles));
-            console.log('localStorage에 저장 완료');
+            // 진행률을 부드럽게 증가시키면서 localStorage에 저장 (새로 업로드되는 파일만)
+            const updateProgress = async () => {
+                const duration = 3000; // 3초 동안 진행
+                const steps = 60; // 60단계로 나누어 부드럽게
+                const stepDuration = duration / steps;
+                
+                for (let step = 0; step <= steps; step++) {
+                    const progress = Math.round((step / steps) * 100);
+                    
+                    // 기존 파일들은 그대로 두고, 새로 업로드되는 파일들만 progress 추가
+                    const filesWithProgress = updatedFiles.map(file => {
+                        // 새로 업로드되는 파일인지 확인 (uploadedFiles에 있는 파일들)
+                        const isNewFile = uploadedFiles.some(newFile => newFile.id === file.id);
+                        
+                        if (isNewFile) {
+                            return { ...file, progress: progress };
+                        } else {
+                            return file; // 기존 파일은 그대로
+                        }
+                    });
+                    
+                    localStorage.setItem('uploadedFiles', JSON.stringify(filesWithProgress));
+                    window.dispatchEvent(new CustomEvent('filesUpdated'));
+                    
+                    if (step < steps) {
+                        await new Promise(resolve => setTimeout(resolve, stepDuration));
+                    }
+                }
+                
+                // 100% 완료 후 새로 업로드된 파일들에서만 progress 속성 제거
+                const finalFiles = updatedFiles.map(file => {
+                    const isNewFile = uploadedFiles.some(newFile => newFile.id === file.id);
+                    
+                    if (isNewFile) {
+                        const { progress, ...fileWithoutProgress } = file;
+                        return fileWithoutProgress;
+                    } else {
+                        return file; // 기존 파일은 그대로
+                    }
+                });
+                
+                localStorage.setItem('uploadedFiles', JSON.stringify(finalFiles));
+                window.dispatchEvent(new CustomEvent('filesUpdated'));
+                console.log('localStorage에 저장 완료');
+            };
             
-            // 커스텀 이벤트 발생시켜 Data 컴포넌트에 알림
-            window.dispatchEvent(new CustomEvent('filesUpdated'));
-            console.log('filesUpdated 이벤트 발생');
-            
-            // 업로드 완료 후 모달 닫기
-            setTimeout(() => {
-                handleCloseModal();
-            }, 1000);
+            updateProgress();
             
         } catch (error) {
             console.error('파일 업로드 실패:', error);
@@ -117,7 +176,7 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen }) {
     return (
         <>
             <div 
-                className="relative rounded-[20px] p-3 md:p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition-colors h-[149px] md:h-[229px] min-h-[149px] md:min-h-[229px]"
+                className="relative rounded-[20px] p-3 md:p-4 flex flex-col items-center justify-center cursor-pointer transition-colors h-[149px] md:h-[229px] min-h-[149px] md:min-h-[229px] z-0"
                 onClick={handleClick}
             >
                 {/* SVG 점선 테두리 */}
@@ -145,10 +204,15 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen }) {
 
             {/* 모달 */}
             {isAddNewItemOpen && (
-                <div className="absolute inset-0 flex items-center justify-center z-50">
+                <>
+                    {/* 배경 오버레이 */}
+                    <div className="fixed inset-0 backdrop-blur-sm z-[100] border-[3px] border-[#329CFF] rounded-[15px]" />
+                    
+                    {/* 모달 */}
+                    <div className="fixed inset-0 flex items-center justify-center z-[110]">
                     <div 
                         className={`bg-white rounded-[20px] p-8 md:w-[18.02svw] max-w-[346px] md:h-[35.92svh] max-h-[388px] flex flex-col items-center justify-center transition-all duration-300 shadow-[0_0_40px_rgba(36,49,82,0.1)] ${
-                            isDragOver ? 'bg-blue-50 border-2 border-blue-300' : ''
+                            isDragOver ? 'bg-blue-50' : ''
                         }`}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
@@ -164,7 +228,7 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen }) {
 
                         {/* 드래그 앤 드롭 영역 */}
                         <div className="flex flex-col items-center justify-center flex-1 w-full">
-                            <h2 className="md:text-[20px] font-bold text-[#303642] mt-3 mb-15">
+                            <h2 className="text-[0.875rem] md:text-[1.25rem] font-bold text-[#303642] mt-3 mb-15 whitespace-nowrap">
                                 이곳에 놓아주세요!
                             </h2>
                             
@@ -188,23 +252,10 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen }) {
                                 />
                             </div>
 
-                            {/* 업로드 진행률 표시 */}
-                            {isUploading && (
-                                <div className="w-full mb-4">
-                                    <div className="bg-gray-200 rounded-full h-2">
-                                        <div 
-                                            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                                            style={{ width: `${uploadProgress}%` }}
-                                        ></div>
-                                    </div>
-                                    <p className="text-sm text-gray-600 mt-2 text-center">
-                                        업로드 중... {Math.round(uploadProgress)}%
-                                    </p>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>
+                </>
             )}
         </>
     )

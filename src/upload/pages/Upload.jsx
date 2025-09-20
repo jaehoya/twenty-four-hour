@@ -31,7 +31,7 @@ function Upload() {
     }, [isAddNewItemOpen]);
 
     return (
-        <div className="h-screen bg-[#EFF3FA] flex flex-col justify-center">
+        <div className="h-screen bg-[#EFF3FA] flex flex-col">
             
             <Header />
             <div className="flex flex-col md:flex-row flex-1 relative z-10 overflow-hidden">
@@ -42,11 +42,11 @@ function Upload() {
                 </div>
                 
                 {/* 메인 콘텐츠 영역 */}
-                <div className="flex flex-col flex-1 relative">
-                    <Banner />
-                    <div className={`mx-2 md:mx-0 flex-1 flex flex-col transition-all duration-300 ${isAddNewItemOpen ? 'bg-[#A4CFFF]/22 backdrop-blur-[20px]' : ''}`}>
+                <div className="flex flex-col flex-1 relative md:h-full">
+                    <div className="mx-2 md:mx-0 flex-1 flex flex-col  md:h-full">
+                        <Banner />
                         <Title />
-                        <div className={`flex-1 flex flex-col mt-3 md:mb-3 rounded-[10px] transition-all duration-300 relative ${isAddNewItemOpen ? 'bg-[#A4CFFF]/22 backdrop-blur-[20px] border-[3px] border-[#329CFF]' : ''}`}>
+                        <div className={`flex-1 flex flex-col mt-3 md:mb-3 rounded-[15px] transition-all duration-300 relative min-h-0 max-h-[calc(100vh-200px)] md:max-h-[calc(100vh-180px)] ${isAddNewItemOpen ? 'bg-[#A4CFFF]/22 backdrop-blur-[20px] relative z-10' : ''}`}>
                             <Data 
                                 selectedItem={selectedItem} 
                                 onItemSelect={setSelectedItem}
