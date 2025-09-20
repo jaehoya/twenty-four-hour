@@ -13,22 +13,22 @@ function SideBar() {
     const getButtonStyles = (buttonName) => {
         const isActive = activeButton === buttonName;
         return {
-            button: `flex flex-row items-center p-4 w-full rounded-[15px] transition-all duration-300 ease-in-out ${
+            button: `flex flex-row items-center p-4 w-full h-11 rounded-[8px] transition-all duration-300 ease-in-out ${
                 isActive 
                     ? "bg-gradient-to-r from-[#0D4CFF] to-[#33AAFF]" 
                     : "hover:bg-gray-50"
             }`,
-            text: `font-normal text-[0.9375rem] transition-colors duration-300 ease-in-out ${
+            text: `font-normal text-[9pt] transition-colors duration-300 ease-in-out ${
                 isActive ? "text-[#FFFFFF]" : "text-[#2A2D41]"
             }`,
-            icon: `pr-3 transition-all duration-300 ease-in-out ${
+            icon: `pr-2 w-7 transition-all duration-300 ease-in-out ${
                 isActive ? "brightness-0 invert" : ""
             }`
         };
     };
 
     return (
-        <div className="hidden md:block md:w-[14.68svw] md:h-[80.92svh] bg-white md:m-3 md:p-2 rounded-[10px] border-[1px] border-[#DAE0E9] flex flex-row md:flex-col">
+        <div className="hidden md:block md:h-full bg-white md:m-3 md:p-2 rounded-[10px] border-[1px] border-[#DAE0E9] flex flex-row md:flex-col">
             <button 
                 className={getButtonStyles("내 저장소").button}
                 onClick={() => handleButtonClick("내 저장소")}

@@ -23,19 +23,20 @@ function Upload() {
         
         return () => window.removeEventListener('resize', checkIsMobile);
     }, []);
+    
     return (
         <div className="h-screen bg-[#EFF3FA] flex flex-col justify-center">
             
             <Header />
             <div className="flex flex-col md:flex-row flex-1 relative z-10 overflow-hidden">
                 {/* 데스크톱 사이드바 */}
-                <div className="hidden md:flex md:flex-col">
+                <div className="hidden md:flex md:w-60 md:flex-col md:h-full">
                     <SideBar />
                     <Usage />
                 </div>
                 
                 {/* 메인 콘텐츠 영역 */}
-                <div className="flex flex-col w-full md:w-[62.08svw] flex-1 relative">
+                <div className="flex flex-col flex-1 relative">
                     <Banner />
                     <div className="mx-2 md:mx-0 flex-1">
                         <Title />
