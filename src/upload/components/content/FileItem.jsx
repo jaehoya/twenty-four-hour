@@ -34,15 +34,15 @@ function FileItem({ item, isSelected = false, onClick }) {
                     </div>
                 )}
             </div>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center w-full px-2">
                 <div className="h-px w-full max-w-[102px] bg-[#E5EBF2] mb-3 md:hidden" />
             {/* 이름 */}
-                <span className="text-[0.6875rem] md:text-[0.875rem] font-semibold text-[#34475C] text-center md:mt-2">
+                <span className="text-[0.6875rem] md:text-[0.875rem] font-semibold text-[#34475C] text-center md:mt-2 truncate w-full max-w-full" title={item.original_name}>
                     {item.original_name}
                 </span>
             
             {/* 메타데이터 */}
-                <span className="text-[0.4375rem] md:text-[0.6875rem] text-[#9AA9B9] font-normal text-center">
+                <span className="text-[0.4375rem] md:text-[0.6875rem] text-[#9AA9B9] font-normal text-center truncate w-full max-w-full">
                     {item.count ? `${item.updatedAt} | ${item.count}` : new Date(item.updatedAt).toLocaleDateString()}
                 </span>
             </div>

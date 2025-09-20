@@ -25,6 +25,11 @@ function Upload() {
         return () => window.removeEventListener('resize', checkIsMobile);
     }, []);
 
+    // 디버깅용 useEffect
+    useEffect(() => {
+        console.log('Upload 컴포넌트 isAddNewItemOpen 상태 변경:', isAddNewItemOpen);
+    }, [isAddNewItemOpen]);
+
     return (
         <div className="h-screen bg-[#EFF3FA] flex flex-col justify-center">
             
@@ -39,7 +44,7 @@ function Upload() {
                 {/* 메인 콘텐츠 영역 */}
                 <div className="flex flex-col flex-1 relative">
                     <Banner />
-                    <div className="mx-2 md:mx-0 flex-1 flex flex-col">
+                    <div className={`mx-2 md:mx-0 flex-1 flex flex-col transition-all duration-300 ${isAddNewItemOpen ? 'bg-[#A4CFFF]/22 backdrop-blur-[20px]' : ''}`}>
                         <Title />
                         <div className={`flex-1 flex flex-col mt-3 md:mb-3 rounded-[10px] transition-all duration-300 relative ${isAddNewItemOpen ? 'bg-[#A4CFFF]/22 backdrop-blur-[20px] border-[3px] border-[#329CFF]' : ''}`}>
                             <Data 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import FileItem from "../content/FileItem";
 import AddNewItem from "../content/AddNewItem";
+import UploadedFiles from "../content/UploadedFiles";
 import api from "../../../utils/api";
 
 function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpen }) {
@@ -33,6 +34,11 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
         <div className="w-full h-full rounded-[10px] relative overflow-auto">
             {/* 반응형 그리드 - 모바일: 3개, 데스크톱: 5개 */}
             <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3 h-full">
+                {/* 업로드된 파일들 */}
+                <UploadedFiles 
+                    selectedItem={selectedItem}
+                    onItemSelect={onItemSelect}
+                />
                 {/* FileItem 컴포넌트들 */}
                 {files.map((file) => (
                     <FileItem 
