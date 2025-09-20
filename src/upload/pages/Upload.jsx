@@ -161,6 +161,8 @@ function Upload() {
         uploadFiles(files);
     };
 
+
+
     return (
         <div className="h-screen bg-[#EFF3FA] flex flex-col">
             
@@ -227,6 +229,7 @@ function Upload() {
                 {/* 데스크톱 상세 정보 */}
                 <Detail selectedItem={selectedItem} />
                 
+                
             </div>
             
             {/* 모바일 플로팅 액션 버튼 */}
@@ -241,6 +244,7 @@ function Upload() {
             <div className="mx-2 mb-2">
                 <MobileNavBar />
             </div>}
+            
             
         </div>
     )

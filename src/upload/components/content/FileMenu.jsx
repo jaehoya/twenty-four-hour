@@ -51,7 +51,7 @@ function FileMenu({
     return (
         <div 
             ref={contextMenuRef}
-            className="fixed bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-gray-200 py-2 z-[1000] min-w-[160px]"
+            className="fixed bg-white rounded-[8px] shadow-[0_2px_12px_rgba(0,0,0,0.1)] border border-gray-200 py-1 z-[9999] min-w-[120px]"
             style={{
                 left: `${position.x}px`,
                 top: `${position.y}px`,
@@ -60,26 +60,26 @@ function FileMenu({
         >
             <button 
                 onClick={onDownload}
-                className="w-full px-4 py-3 text-left text-[14px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
+                className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
             >
                 다운로드
             </button>
             <button 
                 onClick={onViewInfo}
-                className="w-full px-4 py-3 text-left text-[14px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
+                className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
             >
                 정보 보기
             </button>
             <button 
                 onClick={onRename}
-                className="w-full px-4 py-3 text-left text-[14px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
+                className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
             >
                 이름 바꾸기
             </button>
             <div className="border-t border-gray-100 my-1"></div>
             <button 
                 onClick={onDelete}
-                className="w-full px-4 py-3 text-left text-[14px] text-[#FF4757] hover:bg-[#FFF5F5] transition-colors"
+                className="w-full px-3 py-2 text-left text-[12px] text-[#FF4757] hover:bg-[#FFF5F5] transition-colors"
             >
                 휴지통으로 이동
             </button>

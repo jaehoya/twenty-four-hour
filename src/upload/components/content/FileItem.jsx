@@ -40,6 +40,29 @@ function FileItem({ item, isSelected = false, onClick }) {
         }
     };
 
+    // 모바일 터치 이벤트 핸들러
+    const handleTouchStart = (e) => {
+        const touch = e.touches[0];
+        longPressTimer.current = setTimeout(() => {
+            setContextMenuPosition({ x: touch.clientX, y: touch.clientY });
+            setShowContextMenu(true);
+        }, 500); // 500ms 후에 컨텍스트 메뉴 표시
+    };
+
+    const handleTouchEnd = () => {
+        if (longPressTimer.current) {
+            clearTimeout(longPressTimer.current);
+            longPressTimer.current = null;
+        }
+    };
+
+    const handleTouchCancel = () => {
+        if (longPressTimer.current) {
+            clearTimeout(longPressTimer.current);
+            longPressTimer.current = null;
+        }
+    };
+
     // 컨텍스트 메뉴 닫기
     const closeContextMenu = () => {
         setShowContextMenu(false);
@@ -54,6 +77,8 @@ function FileItem({ item, isSelected = false, onClick }) {
     const handleViewInfo = () => {
         console.log('정보 보기:', item.original_name);
         closeContextMenu();
+        // 기본 동작 (파일 선택)
+        onClick();
     };
 
     const handleRename = () => {
@@ -77,6 +102,9 @@ function FileItem({ item, isSelected = false, onClick }) {
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseLeave}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                onTouchCancel={handleTouchCancel}
             >
             {/* 아이콘 */}
             <div className="flex items-center justify-center h-[65%] relative">
