@@ -8,10 +8,12 @@ import Data from "../components/layout/Data";
 import Detail from "../components/layout/Detail";
 import MobileNavBar from "../components/layout/MobileNavBar";
 import UpdateBtn from "../components/content/UpdateBtn";
+import api from "../../utils/api";
 
 function Upload() {
     const [isMobile, setIsMobile] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [isAddNewItemOpen, setIsAddNewItemOpen] = useState(false);
 
     useEffect(() => {
         const checkIsMobile = () => {
@@ -23,9 +25,146 @@ function Upload() {
         
         return () => window.removeEventListener('resize', checkIsMobile);
     }, []);
-    
+
+
+    // 파일 업로드 함수
+    const uploadFiles = async (files) => {
+        console.log('uploadFiles 함수 시작:', files?.length, '개 파일');
+        try {
+            // files를 배열로 변환하여 복사본 생성
+            const filesArray = Array.from(files);
+            console.log('filesArray:', filesArray);
+            
+            for (let i = 0; i < filesArray.length; i++) {
+                const file = filesArray[i];
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                // 토큰 확인
+                const token = localStorage.getItem('accessToken');
+                
+                if (token) {
+                    try {
+                        // 실제 API 호출
+                        console.log('API 호출 시도:', '/files/upload');
+                        console.log('토큰:', token.substring(0, 20) + '...');
+                        console.log('파일 정보:', file.name, file.size, file.type);
+                        
+                        const response = await api.post('/files/upload', formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                                'Authorization': `Bearer ${token}`,
+                            },
+                        });
+                        
+                        console.log('API 호출 성공:', response.data);
+                    } catch (apiError) {
+                        // API가 준비되지 않은 경우 시뮬레이션
+                        console.error('API 호출 실패:', apiError.message);
+                        console.error('상태 코드:', apiError.response?.status);
+                        console.error('에러 데이터:', apiError.response?.data);
+                        console.log('시뮬레이션 모드로 진행');
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                } else {
+                    // 토큰이 없는 경우 시뮬레이션 모드
+                    console.log('토큰이 없음, 시뮬레이션 모드로 진행');
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+            
+            // 업로드된 파일들을 localStorage에 저장
+            console.log('localStorage 저장 시작');
+            console.log('전달받은 files:', files);
+            console.log('files.length:', files.length);
+            console.log('Array.from(files):', Array.from(files));
+            const uploadedFiles = filesArray.map((file, index) => ({
+                id: Date.now() + index,
+                name: file.name,
+                original_name: file.name,
+                mime_type: file.type.startsWith('image/') ? 'image' : 'file',
+                size: file.size,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                count: null,
+                progress: 0
+            }));
+            
+            console.log('생성된 uploadedFiles:', uploadedFiles);
+            
+            // 기존 파일 목록에 새 파일들 추가
+            const existingFiles = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+            const updatedFiles = [...existingFiles, ...uploadedFiles];
+            console.log('기존 파일:', existingFiles.length, '개, 새 파일:', uploadedFiles.length, '개');
+            
+            // 진행률을 부드럽게 증가시키면서 localStorage에 저장
+            const updateProgress = async () => {
+                const duration = 3000; 
+                const steps = 60; 
+                const stepDuration = duration / steps;
+                
+                for (let step = 0; step <= steps; step++) {
+                    const progress = Math.round((step / steps) * 100);
+                    
+                    const filesWithProgress = updatedFiles.map(file => {
+                        const isNewFile = uploadedFiles.some(newFile => newFile.id === file.id);
+                        
+                        if (isNewFile) {
+                            return { ...file, progress: progress };
+                        } else {
+                            return file;
+                        }
+                    });
+                    
+                    localStorage.setItem('uploadedFiles', JSON.stringify(filesWithProgress));
+                    window.dispatchEvent(new CustomEvent('filesUpdated'));
+                    
+                    if (step < steps) {
+                        await new Promise(resolve => setTimeout(resolve, stepDuration));
+                    }
+                }
+                
+                // 100% 완료 후 progress 속성 제거
+                const finalFiles = updatedFiles.map(file => {
+                    const isNewFile = uploadedFiles.some(newFile => newFile.id === file.id);
+                    
+                    if (isNewFile) {
+                        const { progress, ...fileWithoutProgress } = file;
+                        return fileWithoutProgress;
+                    } else {
+                        return file;
+                    }
+                });
+                
+                localStorage.setItem('uploadedFiles', JSON.stringify(finalFiles));
+                window.dispatchEvent(new CustomEvent('filesUpdated'));
+                console.log('파일 업로드 완료, filesUpdated 이벤트 발생');
+            };
+            
+            console.log('updateProgress 함수 시작');
+            updateProgress();
+            
+        } catch (error) {
+            console.error('파일 업로드 실패:', error);
+            // 시뮬레이션 모드에서는 에러 알림을 표시하지 않음
+            if (error.message !== 'Network Error') {
+                alert('파일 업로드에 실패했습니다.');
+            }
+        }
+    };
+
+    // 모바일에서 파일 선택 핸들러
+    const handleMobileFileSelect = (files) => {
+        console.log('handleMobileFileSelect 호출됨:', files);
+        console.log('files 타입:', typeof files);
+        console.log('files.length:', files?.length);
+        uploadFiles(files);
+    };
+
+
+
     return (
-        <div className="h-screen bg-[#EFF3FA] flex flex-col justify-center">
+        <div className="h-screen bg-[#EFF3FA] flex flex-col">
             
             <Header />
             <div className="flex flex-col md:flex-row flex-1 relative z-10 overflow-hidden">
@@ -36,11 +175,19 @@ function Upload() {
                 </div>
                 
                 {/* 메인 콘텐츠 영역 */}
-                <div className="flex flex-col flex-1 relative">
-                    <Banner />
-                    <div className="mx-2 md:mx-0 flex-1">
+                <div className="flex flex-col flex-1 relative md:h-full">
+                    <div className="mx-2 md:mx-0 flex-1 flex flex-col  md:h-full">
+                        <Banner />
                         <Title />
-                        <Data selectedItem={selectedItem} onItemSelect={setSelectedItem} />
+                        <div className={`flex-1 flex flex-col mt-2 md:mt-3 mb-2 md:mb-3 rounded-[15px] transition-all duration-300 relative min-h-0 max-h-[calc(100vh-200px)] md:max-h-[calc(100vh-180px)] ${isAddNewItemOpen ? 'bg-[#A4CFFF]/22 backdrop-blur-[20px] relative z-10' : ''}`}>
+                            <Data 
+                                selectedItem={selectedItem} 
+                                onItemSelect={setSelectedItem}
+                                isAddNewItemOpen={isAddNewItemOpen}
+                                setIsAddNewItemOpen={setIsAddNewItemOpen}
+                                onFileUpload={uploadFiles}
+                            />
+                        </div>
                     </div>
                     
                     {/* 24 로고 */}
@@ -82,12 +229,13 @@ function Upload() {
                 {/* 데스크톱 상세 정보 */}
                 <Detail selectedItem={selectedItem} />
                 
+                
             </div>
             
             {/* 모바일 플로팅 액션 버튼 */}
             {isMobile && (
                 <div className="fixed bottom-28 right-6 z-50">
-                    <UpdateBtn />
+                    <UpdateBtn onFileSelect={handleMobileFileSelect} />
                 </div>
             )}
             
@@ -96,6 +244,7 @@ function Upload() {
             <div className="mx-2 mb-2">
                 <MobileNavBar />
             </div>}
+            
             
         </div>
     )

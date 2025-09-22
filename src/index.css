@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
-
 @layer base {
     html {
         height: 100%;
@@ -17,12 +16,26 @@
     }
 }
 
+
 /* 스크롤바 숨기기 유틸리티 */
+
 @layer utilities {
-  .scrollbar-hide {
-    &::-webkit-scrollbar {
-      display: none;
+    .scrollbar-hide {
+        &::-webkit-scrollbar {
+            display: none;
+        }
+        scrollbar-width: none;
     }
-    scrollbar-width: none;
-  }
+    /* 천천히 회전하는 애니메이션 */
+    .animate-slow-spin {
+        animation: slow-spin 4s linear infinite;
+    }
+    @keyframes slow-spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
 }

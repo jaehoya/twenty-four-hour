@@ -28,7 +28,7 @@ function SideBar() {
     };
 
     return (
-        <div className="hidden md:block md:h-full bg-white md:m-3 md:p-2 rounded-[10px] border-[1px] border-[#DAE0E9] flex flex-row md:flex-col">
+        <div className="hidden md:block md:h-full bg-white md:m-3 md:p-2 rounded-[15px] border-[1px] border-[#DAE0E9] flex flex-row md:flex-col">
             <button 
                 className={getButtonStyles("내 저장소").button}
                 onClick={() => handleButtonClick("내 저장소")}

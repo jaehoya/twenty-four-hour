@@ -7,7 +7,7 @@ function Detail({ selectedItem = null }) {
     // 선택된 아이템이 없으면 빈 상태 표시
     if (!selectedItem) {
         return (
-            <div className="hidden md:block md:w-[20.93svw] md:h-[90svh] md:m-3 rounded-[10px] border-[1px] border-[#DAE0E9] bg-white p-6 flex items-center justify-center">
+            <div className="hidden md:block md:w-[20.93svw] md:h-auto md:m-3 rounded-[10px] border-[1px] border-[#DAE0E9] bg-white p-6 flex items-center justify-center">
             </div>
         )
     }
@@ -21,7 +21,7 @@ function Detail({ selectedItem = null }) {
     const isEmpty = selectedItem.mime_type === "folder" && itemCount === 0;
 
     return (
-        <div className="hidden md:block md:w-[20.93svw] scrollbar-hide md:h-auto md:m-3 md:px-[2.65svw] md:pt-28 rounded-[10px] border-[1px] overflow-auto border-[#DAE0E9] bg-white p-6">
+        <div className="hidden md:block md:w-[20.93svw] scrollbar-hide md:h-auto md:m-3 md:px-[2.65svw] md:pt-28 rounded-[15px] border-[1px] overflow-auto border-[#DAE0E9] bg-white p-6">
             {/* 아이콘 */}
             <div className="flex justify-center mb-6">
                 {selectedItem.mime_type === "folder" ? (
