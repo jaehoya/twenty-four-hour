@@ -3,9 +3,7 @@ const app = require("./app");
 const sequelize = require("./config/database");
 const db = require("./models");
 
-
 const PORT = process.env.PORT || 4000;
-
 
 (async () => {
   try {

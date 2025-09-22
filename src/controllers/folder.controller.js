@@ -1,10 +1,3 @@
-/*
-const service = require("../services/folder.service");
-console.log("service exports in controller:", service);
-
-const { createFolder, getSubFolders, getFilesInFolder } = service;
-console.log("typeof createFolder:", typeof createFolder);
-*/
 const { 
     createFolder,
     getSubFolders,
