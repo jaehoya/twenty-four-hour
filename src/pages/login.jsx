@@ -1,10 +1,12 @@
-// 로그인 페이지
-// - InputField: 아이디, 비밀번호 입력칸
-// - Button: 로그인 버튼
-
+// src/pages/login.jsx
 import { useState } from "react";
-import InputField from "../components/common/InputField";
+import { Link } from "react-router-dom";
+import logoUrl from "../assets/24_logo.svg";
+import backgroundGradient from "../assets/background_gradient.png";
 import Button from "../components/common/Button";
+import InputField from "../components/common/InputField";
+import idIcon from "../assets/id_icon.svg";
+import keyIcon from "../assets/key_icon.svg";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,31 +18,62 @@ export default function Login() {
   };
 
   return (
-    <div className="login-page">
-      <h1>로그인</h1>
-      <form onSubmit={handleSubmit} className="login-form">
-        <InputField
-          id="email"
-          label="아이디"
-          type="text"
-          placeholder="아이디를 입력하세요"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <InputField
-          id="password"
-          label="비밀번호"
-          type="password"
-          placeholder="비밀번호를 입력하세요"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <Button type="submit" className="login-btn">
-          로그인
-        </Button>
-      </form>
-    </div>
+    <main className="w-full min-h-screen flex items-center justify-center md:grid md:w-[60svw] md:h-[60svh] md:place-items-center p-4">
+      <div className="flex w-full text-[0.9375rem] md:max-w-6xl p-4 rounded-3xl bg-white md:shadow-[0_0_70px_0_rgba(73,91,134,0.2)]">
+        <div className="hidden md:block w-full rounded-r-2xl md:w-3/5 h-auto">
+          <img
+            src={backgroundGradient}
+            alt="background_gradient"
+            className="w-auto h-full object-cover"
+          />
+        </div>
+        <form
+          onSubmit={handleSubmit}
+          className="w-full md:p-8 space-y-8 md:w-2/5 md:grid place-items-center"
+        >
+          <div>
+            <img src={logoUrl} alt="24_logo" className="h-auto max-w-[56px] md:max-w-[82px]" />
+          </div>
+          <div className="w-full space-y-2 flex flex-col">
+            <div className="block md:hidden">
+              <h2 className="">로그인</h2>
+            </div>
+            <InputField
+              id="email"
+              label="이메일"
+              type="text"
+              icon={idIcon}
+              placeholder="이메일을 입력하세요"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <InputField
+              id="password"
+              label="패스워드"
+              type="password"
+              icon={keyIcon}
+              placeholder="비밀번호를 입력하세요"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Link to="/find-password" className="text-[12px] text-sky-500 mt-0 md:ml-4">
+              비밀번호를 잊으셨나요?
+            </Link>
+          </div>
+            <hr className="w-full border-[#DDE4EE]" />
+          <div className="w-full flex flex-col place-items-center space-y-4">
+            <Button
+              type="submit"
+              className="w-full h-12 rounded-lg bg-gradient-to-r from-[#0D4CFF] to-[#33AAFF]"
+            >
+              로그인
+            </Button>
+            <Link to="/signup" className="text-sm underline">
+              회원가입
+            </Link>
+          </div>
+        </form>
+      </div>
+    </main>
   );
 }
