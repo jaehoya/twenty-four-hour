@@ -1,6 +1,10 @@
-// tailwind.config.js
 export default {
-  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
-  theme: { extend: {} },
-  plugins: [],
-}
+  plugins: ["@tailwindcss/postcss"],
+  theme: {
+    extend: {
+      colors: {
+        primary: "#3888FF",
+      },
+    },
+  },
+};
