@@ -1,6 +1,21 @@
 const { Folder, File } = require("../models");
-const fs = require("fs");
+const fs = require("fs").promises;
 const path = require("path");
+
+// src/uploads 기준 경로 고정
+const UPLOADS_BASE = path.resolve(__dirname, "../uploads");
+
+/**
+ * 경로 탈출 방지용 안전한 경로 생성
+ */
+function safeResolve(...segments) {
+    const targetPath = path.resolve(UPLOADS_BASE, ...segments);
+    if (!targetPath.startsWith(UPLOADS_BASE)) {
+        throw new Error("Invalid folder path");
+    }
+    return targetPath;
+}
+
 
 /**
  * parentId를 따라 최상위까지 올라가며 경로를 생성
@@ -17,7 +32,7 @@ async function buildFolderPath(folder) {
         currentParentId = parent.parentId;  // 상위 부모로 이동
     }
 
-    return path.join("src/uploads", ...segments);
+    return safeResolve(...segments);  // 항상 src/uploads 밑으로 제한
 }
 
 /**
@@ -31,13 +46,14 @@ async function createFolder(userId, name, parentId = null) {
         name,
     });
 
-    // parentId 기준으로 경로 계산
-    const relativePath = await buildFolderPath(folder);
-    const absolutePath = path.join(__dirname, "../..", relativePath);
+    // 안전한 절대 경로 계산
+    const absolutePath = await buildFolderPath(folder);
 
     // 실제 디렉토리 생성 (있으면 패스)
-    if (!fs.existsSync(absolutePath)) {
-        fs.mkdirSync(absolutePath, { recursive: true });
+    try {
+        await fs.mkdir(absolutePath, { recursive: true });
+    } catch (err) {
+        if (err.code !== "EEXIST")  throw err;
     }
 
     return folder;
