@@ -66,4 +66,25 @@ async function deleteFileById(userId, fileId) {
     await file.destroy();
 }
 
-module.exports = { saveFileMetadata, getFilesByUserId, getFileById, deleteFileById };
+/**
+ * 파일 이름 변경
+ * @param {number} userId - 사용자 ID
+ * @param {number} fileId - 파일 ID
+ * @param {string} newName - 새 파일 이름
+ */
+async function renameFileById(userId, fileId, newName) {
+    const file = await File.findOne({ where: { id: fileId, user_id: userId } });
+
+    if (!file) {
+        const error = new Error("파일을 찾을 수 없거나 수정할 권한이 없습니다.");
+        error.status = 404;
+        throw error;
+    }
+
+    file.original_name = newName;
+    await file.save();
+
+    return file;
+}
+
+module.exports = { saveFileMetadata, getFilesByUserId, getFileById, deleteFileById, renameFileById };

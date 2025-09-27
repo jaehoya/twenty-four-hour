@@ -1,8 +1,9 @@
-const { 
+const {
     saveFileMetadata, 
     getFilesByUserId, 
     deleteFileById,
-    getFileById 
+    getFileById, 
+    renameFileById
 } = require("../services/file.service");
 
 
@@ -92,4 +93,32 @@ async function downloadFile(req, res, next) {
     }
 }
 
-module.exports = { uploadFile, getUserFiles, deleteFile, downloadFile };
+// 파일 이름 변경 컨트롤러
+async function renameFile(req, res, next) {
+    try {
+        const userId = req.user.id;
+        const fileId = req.params.id;
+        const { newName } = req.body;
+
+        if (!newName) {
+            return res.status(400).json({
+                state: 400,
+                code: "NO_NEW_NAME",
+                message: "새 파일 이름을 입력해주세요.",
+            });
+        }
+
+        const updatedFile = await renameFileById(userId, fileId, newName);
+
+        return res.status(200).json({
+            state: 200,
+            code: "FILE_RENAMED",
+            message: "파일 이름이 성공적으로 변경되었습니다.",
+            file: updatedFile,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+module.exports = { uploadFile, getUserFiles, deleteFile, downloadFile, renameFile };
