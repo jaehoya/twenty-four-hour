@@ -69,7 +69,8 @@ async function removeFavoriteController(req, res, next) {
       return res.status(404).json({
         state: 404,
         code: "FAVORITE_NOT_FOUND",
-        message: "즐겨찾기가 존재하지 않습니다.",
+        message: "즐겨찾기 상태가 아니거나 존재하지 않습니다.",
+        target: { targetId, targetType },
       });
     }
 
@@ -77,6 +78,7 @@ async function removeFavoriteController(req, res, next) {
       state: 200,
       code: "FAVORITE_REMOVED",
       message: "즐겨찾기 제거 성공",
+      target: { targetId, targetType },
     });
   } catch (err) {
     next(err);
