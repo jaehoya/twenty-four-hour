@@ -91,11 +91,26 @@ async function getFavoritesController(req, res, next) {
     const userId = req.user.id;
     const favorites = await getFavorites(userId);
 
+    const result = favorites.map(fav => ({
+        id: fav.id,
+        targetType: fav.targetType,
+        createdAt: fav.createdAt,
+        file: fav.targetType === "file"  && fav.File ? {
+            id: fav.File.id,
+            name: fav.File.original_name,
+            size: fav.File.size,
+        } : null,
+        folder: fav.targetType === "folder" && fav.Folder ? {
+            id: fav.Folder.id,
+            name: fav.Folder.name
+        } : null,
+    }));
+
     return res.status(200).json({
       state: 200,
       code: "FAVORITES_LIST",
       message: "즐겨찾기 목록 조회 성공",
-      favorites,
+      favorites: result,
     });
   } catch (err) {
     next(err);

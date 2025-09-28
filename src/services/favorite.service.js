@@ -1,4 +1,4 @@
-const { Favorite } = require("../models");
+const { Favorite, File, Folder } = require("../models");
 
 // 즐겨찾기 추가
 async function addFavorite(userId, targetId, targetType) {
@@ -22,6 +22,10 @@ async function removeFavorite(userId, targetId, targetType) {
 async function getFavorites(userId) {
     return await Favorite.findAll({
         where: { userId },
+        include: [
+            { model: File, attributes: ["id", "original_name", "size"], required: false },
+            { model: Folder, attributes: ["id", "name"], required: false },
+        ],
         order: [["createdAt", "DESC"]],
     });
 }
