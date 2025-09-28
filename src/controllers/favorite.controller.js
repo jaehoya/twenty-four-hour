@@ -18,6 +18,15 @@ async function addFavoriteController(req, res, next) {
             });
         }
 
+        // targetType 검증
+        if (!["file", "folder"].includes(targetType)) {
+            return res.status(400).json({
+                state: 400,
+                code: "INVALID_TARGET_TYPE",
+                message: "targetType은 'file' 또는 'folder'여야 합니다.",
+            });
+        }
+
         const favorite = await addFavorite(userId, targetId, targetType);
 
         return res.status(201).json({
@@ -43,6 +52,15 @@ async function removeFavoriteController(req, res, next) {
         code: "INVALID_INPUT",
         message: "targetId와 targetType(file|folder)은 필수입니다.",
       });
+    }
+
+    // targetType 검증
+    if (!["file", "folder"].includes(targetType)) {
+        return res.status(400).json({
+            state: 400,
+            code: "INVALID_TARGET_TYPE",
+            message: "targetType은 'file' 또는 'folder'여야 합니다.",
+        });
     }
 
     const deleted = await removeFavorite(userId, targetId, targetType);
