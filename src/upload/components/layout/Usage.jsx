@@ -13,7 +13,7 @@ function Usage() {
         const fetchUsageData = async () => {
             try {
                 setLoading(true);
-                const response = await fetch('/api/usage');
+                const response = await fetch('/api/disk/usage');
                 if (response.ok) {
                     const result = await response.json();
                     // 백엔드 응답 구조: { message, data: { total, used, free } }
