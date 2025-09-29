@@ -13,10 +13,11 @@ function Usage() {
         const fetchUsageData = async () => {
             try {
                 setLoading(true);
-                // TODO: 실제 API 엔드포인트로 변경
                 const response = await fetch('/api/usage');
                 if (response.ok) {
-                    const data = await response.json();
+                    const result = await response.json();
+                    // 백엔드 응답 구조: { message, data: { total, used, free } }
+                    const { data } = result;
                     const percentage = (data.used / data.total) * 100;
                     setUsageData({
                         used: data.used,
