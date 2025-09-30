@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 function FileMenu({ 
     isVisible, 
@@ -11,6 +11,19 @@ function FileMenu({
     fileName 
 }) {
     const contextMenuRef = useRef(null);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // 모바일 여부 확인
+    useEffect(() => {
+        const checkIsMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        checkIsMobile();
+        window.addEventListener('resize', checkIsMobile);
+
+        return () => window.removeEventListener('resize', checkIsMobile);
+    }, []);
 
     // 외부 클릭 시 메뉴 닫기
     useEffect(() => {
@@ -64,12 +77,17 @@ function FileMenu({
             >
                 다운로드
             </button>
-            <button 
-                onClick={onViewInfo}
-                className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
-            >
-                정보 보기
-            </button>
+            
+            {/* 모바일에서만 정보 보기 메뉴 표시 */}
+            {isMobile && (
+                <button 
+                    onClick={onViewInfo}
+                    className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
+                >
+                    정보 보기
+                </button>
+            )}
+            
             <button 
                 onClick={onRename}
                 className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
