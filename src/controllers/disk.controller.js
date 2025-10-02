@@ -10,7 +10,9 @@ class DiskController {
       const free = total - used;
 
       res.status(200).json({
-        message: 'Disk usage retrieved successfully',
+        state: 200,
+        code: "DISK_USAGE_RETRIEVED",
+        message: '디스크 사용량 조회 성공',
         data: {
           total,
           used,
@@ -18,7 +20,11 @@ class DiskController {
         },
       });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ 
+        state: 500,
+        code: "DISK_USAGE_ERROR",
+        message: "디스크 사용량 정보를 가져오는 중 오류가 발생했습니다.",
+      });
     }
   }
 }

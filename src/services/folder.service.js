@@ -1,4 +1,4 @@
-const { Folder, File } = require("../models");
+const { Folder, File, Favorite } = require("../models");
 const fs = require("fs").promises;
 const path = require("path");
 
@@ -61,18 +61,50 @@ async function createFolder(userId, name, parentId = null) {
 
 // 하위 폴더 조회
 async function getSubFolders(userId, parentId = null) {
-    return await Folder.findAll({
-        where: { userId, parentId },
-        order: [["createdAt", "ASC"]],
-    });
+    const folders = await Folder.findAll({
+    where: { userId, parentId },
+    order: [["createdAt", "ASC"]],
+    include: [
+      {
+        model: Favorite,
+        required: false,
+        where: { userId, targetType: "folder" },
+        attributes: ["id"],
+      },
+    ],
+  });
+
+  return folders.map(f => ({
+    id: f.id,
+    name: f.name,
+    createdAt: f.createdAt,
+    isFavorite: f.Favorites.length > 0,
+  }));
 }
 
 // 특정 폴더 안 파일 조회
 async function getFilesInFolder(userId, folderId = null) {
-    return await File.findAll({
-        where: { user_id: userId, folderId },
-        order: [["createdAt", "ASC"]],
-    });
+    const files = await File.findAll({
+    where: { user_id: userId, folderId },
+    order: [["createdAt", "ASC"]],
+    include: [
+      {
+        model: Favorite,
+        required: false,
+        where: { userId, targetType: "file" },
+        attributes: ["id"],
+      },
+    ],
+  });
+
+  return files.map(f => ({
+    id: f.id,
+    name: f.original_name,
+    size: f.size,
+    mimeType: f.mime_type,
+    createdAt: f.createdAt,
+    isFavorite: f.Favorites.length > 0,
+  }));
 }
 
 module.exports = { 

@@ -19,6 +19,7 @@ app.use("/api/files", require("./routes/file.routes"));
 app.use("/api/profile", require("./routes/userProfile.routes"));
 app.use("/api/folders", require("./routes/folder.routes"));
 app.use("/api/disk", require("./routes/disk.routes"));
+app.use("/api/favorites", require("./routes/favorite.routes"));
 
 // 공통 에러 핸들러 (마지막에 두기)
 app.use((err, req, res, next) => {
