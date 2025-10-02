@@ -28,20 +28,27 @@ function Upload() {
 
 
     // 파일 업로드 함수
-    const uploadFiles = async (files) => {
+    const uploadFiles = async (files, folderId = null) => {
         console.log('uploadFiles 함수 시작:', files?.length, '개 파일');
         try {
             // files를 배열로 변환하여 복사본 생성
             const filesArray = Array.from(files);
             console.log('filesArray:', filesArray);
             
+            const token = localStorage.getItem('accessToken');
+            let apiSuccess = false;
+            const successfulUploads = [];
+            const failedUploads = [];
+            
             for (let i = 0; i < filesArray.length; i++) {
                 const file = filesArray[i];
                 const formData = new FormData();
                 formData.append('file', file);
                 
-                // 토큰 확인
-                const token = localStorage.getItem('accessToken');
+                // folderId가 제공된 경우에만 추가
+                if (folderId !== null && folderId !== undefined) {
+                    formData.append('folderId', folderId);
+                }
                 
                 if (token) {
                     try {
@@ -49,6 +56,7 @@ function Upload() {
                         console.log('API 호출 시도:', '/files/upload');
                         console.log('토큰:', token.substring(0, 20) + '...');
                         console.log('파일 정보:', file.name, file.size, file.type);
+                        console.log('폴더 ID:', folderId);
                         
                         const response = await api.post('/files/upload', formData, {
                             headers: {
@@ -58,12 +66,69 @@ function Upload() {
                         });
                         
                         console.log('API 호출 성공:', response.data);
+                        
+                        // API 응답이 성공인 경우 (201 상태 코드)
+                        if (response.status === 201 && response.data.state === 201) {
+                            console.log('파일 업로드 성공:', response.data.file);
+                            apiSuccess = true;
+                            
+                            // 성공한 파일 정보를 저장
+                            const uploadedFile = {
+                                id: response.data.file.id,
+                                name: response.data.file.original_name,
+                                original_name: response.data.file.original_name,
+                                stored_name: response.data.file.stored_name,
+                                mime_type: response.data.file.mime_type,
+                                size: response.data.file.size,
+                                path: response.data.file.path,
+                                createdAt: response.data.file.createdAt,
+                                updatedAt: response.data.file.updatedAt,
+                                count: null
+                            };
+                            
+                            successfulUploads.push(uploadedFile);
+                        }
                     } catch (apiError) {
-                        // API가 준비되지 않은 경우 시뮬레이션
                         console.error('API 호출 실패:', apiError.message);
                         console.error('상태 코드:', apiError.response?.status);
                         console.error('에러 데이터:', apiError.response?.data);
-                        console.log('시뮬레이션 모드로 진행');
+                        
+                        // API 에러 응답이 있는 경우 (400, 401, 403 등)
+                        if (apiError.response?.data) {
+                            const errorData = apiError.response.data;
+                            console.error('API 에러 응답:', errorData);
+                            
+                            // 에러 코드에 따른 처리
+                            if (errorData.code === 'NO_FILE') {
+                                alert('업로드할 파일을 선택해주세요.');
+                            } else if (errorData.code === 'INVALID_TYPE') {
+                                alert('허용되지 않은 파일 형식입니다.');
+                            } else if (errorData.code === 'UNAUTHORIZED') {
+                                alert('인증이 필요합니다. 다시 로그인해주세요.');
+                                // 토큰 제거 및 로그인 페이지로 리다이렉트 로직 추가 가능
+                            } else if (errorData.code === 'FORBIDDEN') {
+                                alert('파일 업로드 권한이 없습니다.');
+                            } else if (errorData.code === 'FILE_TOO_LARGE') {
+                                alert('파일 크기가 너무 큽니다.');
+                            } else if (errorData.message) {
+                                alert(`파일 업로드 실패: ${errorData.message}`);
+                            } else {
+                                alert('파일 업로드에 실패했습니다.');
+                            }
+                            
+                            // 실패한 파일 정보 저장
+                            failedUploads.push({
+                                fileName: file.name,
+                                error: errorData.message || '알 수 없는 오류',
+                                code: errorData.code
+                            });
+                            
+                            // 에러 발생 시 해당 파일 건너뛰고 다음 파일 처리
+                            continue;
+                        }
+                        
+                        // 네트워크 에러나 기타 에러의 경우 시뮬레이션 모드
+                        console.log('네트워크 에러 또는 기타 에러 - 시뮬레이션 모드로 진행');
                         await new Promise(resolve => setTimeout(resolve, 1000));
                     }
                 } else {
@@ -73,7 +138,30 @@ function Upload() {
                 }
             }
             
-            // 업로드된 파일들을 localStorage에 저장
+            // API가 성공한 경우 실제 응답 데이터를 사용
+            if (apiSuccess && successfulUploads.length > 0) {
+                console.log('API 성공으로 실제 데이터 사용:', successfulUploads);
+                
+                // 기존 파일 목록에 새 파일들 추가
+                const existingFiles = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+                const updatedFiles = [...existingFiles, ...successfulUploads];
+                localStorage.setItem('uploadedFiles', JSON.stringify(updatedFiles));
+                window.dispatchEvent(new CustomEvent('filesUpdated'));
+                
+                // 업로드 결과 요약 표시
+                if (failedUploads.length > 0) {
+                    const successCount = successfulUploads.length;
+                    const failCount = failedUploads.length;
+                    alert(`업로드 완료: ${successCount}개 성공, ${failCount}개 실패\n\n실패한 파일들:\n${failedUploads.map(f => `- ${f.fileName}: ${f.error}`).join('\n')}`);
+                } else {
+                    alert(`${successfulUploads.length}개 파일이 성공적으로 업로드되었습니다.`);
+                }
+                
+                return; // 시뮬레이션 로직 건너뛰기
+            }
+            
+            // API가 실패한 경우 시뮬레이션 모드로 진행
+            console.log('API 실패 또는 토큰 없음 - 시뮬레이션 모드로 진행');
             console.log('localStorage 저장 시작');
             console.log('전달받은 files:', files);
             console.log('files.length:', files.length);
@@ -154,11 +242,11 @@ function Upload() {
     };
 
     // 모바일에서 파일 선택 핸들러
-    const handleMobileFileSelect = (files) => {
+    const handleMobileFileSelect = (files, folderId = null) => {
         console.log('handleMobileFileSelect 호출됨:', files);
         console.log('files 타입:', typeof files);
         console.log('files.length:', files?.length);
-        uploadFiles(files);
+        uploadFiles(files, folderId);
     };
 
 
