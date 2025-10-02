@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 import DragDropIcon from "../../../assets/upload/background_gradient.svg";
-import api from "../../../utils/api";
 
 function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload }) {
     const [isDragOver, setIsDragOver] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(0);
 
     const handleClick = () => {
         console.log('AddNewItem 클릭됨, 현재 상태:', isAddNewItemOpen);
@@ -16,8 +13,6 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload }) {
     const handleCloseModal = () => {
         setIsAddNewItemOpen(false);
         setIsDragOver(false);
-        setIsUploading(false);
-        setUploadProgress(0);
     };
 
     const handleDragOver = (e) => {
@@ -40,117 +35,12 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload }) {
         // 드래그앤드롭 순간 모달 닫기
         handleCloseModal();
         
-        // 파일 업로드 시작
+        // 파일 업로드 시작 (folderId는 null로 전달)
         if (onFileUpload) {
-            onFileUpload(files);
+            onFileUpload(files, null);
         }
     };
 
-    const uploadFiles = async (files) => {
-        setIsUploading(true);
-        setUploadProgress(0);
-        
-        try {
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const formData = new FormData();
-                formData.append('file', file);
-                
-                // 파일 업로드 API 호출
-                console.log('업로드할 파일:', file.name, file.size);
-                
-                // 실제 API 호출
-                const token = localStorage.getItem('accessToken'); // 토큰 가져오기
-                const response = await api.post('/api/files/upload', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-                console.log('업로드 성공:', response.data);
-                
-                // 전체 파일 진행률 업데이트
-                setUploadProgress(((i + 1) / files.length) * 100);
-            }
-            
-            // 파일 업로드 완료 후 localStorage에 파일 정보 저장
-            console.log('모든 파일 업로드 완료');
-            
-            // 업로드된 파일들을 localStorage에 저장 (진행률 표시용)
-            const uploadedFiles = Array.from(files).map((file, index) => ({
-                id: Date.now() + index,
-                name: file.name,
-                original_name: file.name,
-                mime_type: file.type.startsWith('image/') ? 'image' : 'file',
-                size: file.size,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                count: null,
-                progress: 0 // 진행률 표시를 위해 0으로 시작
-            }));
-            
-            // 기존 파일 목록에 새 파일들 추가
-            const existingFiles = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
-            console.log('기존 파일들:', existingFiles);
-            console.log('새로 업로드된 파일들:', uploadedFiles);
-            
-            const updatedFiles = [...existingFiles, ...uploadedFiles];
-            console.log('업데이트된 파일 목록:', updatedFiles);
-            
-            const updateProgress = async () => {
-                const duration = 3000; 
-                const steps = 60; 
-                const stepDuration = duration / steps;
-                
-                for (let step = 0; step <= steps; step++) {
-                    const progress = Math.round((step / steps) * 100);
-                    
-                    // 기존 파일들은 그대로 두고, 새로 업로드되는 파일들만 progress 추가
-                    const filesWithProgress = updatedFiles.map(file => {
-                        // 새로 업로드되는 파일인지 확인 (uploadedFiles에 있는 파일들)
-                        const isNewFile = uploadedFiles.some(newFile => newFile.id === file.id);
-                        
-                        if (isNewFile) {
-                            return { ...file, progress: progress };
-                        } else {
-                            return file; // 기존 파일은 그대로
-                        }
-                    });
-                    
-                    localStorage.setItem('uploadedFiles', JSON.stringify(filesWithProgress));
-                    window.dispatchEvent(new CustomEvent('filesUpdated'));
-                    
-                    if (step < steps) {
-                        await new Promise(resolve => setTimeout(resolve, stepDuration));
-                    }
-                }
-                
-                // 100% 완료 후 새로 업로드된 파일들에서만 progress 속성 제거
-                const finalFiles = updatedFiles.map(file => {
-                    const isNewFile = uploadedFiles.some(newFile => newFile.id === file.id);
-                    
-                    if (isNewFile) {
-                        const { progress, ...fileWithoutProgress } = file;
-                        return fileWithoutProgress;
-                    } else {
-                        return file; // 기존 파일은 그대로
-                    }
-                });
-                
-                localStorage.setItem('uploadedFiles', JSON.stringify(finalFiles));
-                window.dispatchEvent(new CustomEvent('filesUpdated'));
-                console.log('localStorage에 저장 완료');
-            };
-            
-            updateProgress();
-            
-        } catch (error) {
-            console.error('파일 업로드 실패:', error);
-            alert('파일 업로드에 실패했습니다.');
-            setIsUploading(false);
-            setUploadProgress(0);
-        }
-    };
 
     return (
         <>
