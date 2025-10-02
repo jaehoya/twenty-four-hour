@@ -1,9 +1,9 @@
 import { useState } from "react";
 import EmailIcon from "../../assets/signup/email_icon.svg";
 import KeyIcon from "../../assets/signup/key_icon.svg";
-import NameIcon from "../../assets/signup/nickname_icon.svg";
 import { useNavigate } from "react-router-dom";
 import InputField from "./InputField";
+import api from "../../utils/api";
 
 function LoginForm() {
     const [email, setEmail] = useState("");
@@ -19,49 +19,15 @@ function LoginForm() {
         if (loading) return;
         setFormError("");
 
-        if (password !== passwordCheck) {
-            setPasswordError(true);
-            setFormError("비밀번호가 일치하지 않습니다.")
-            return;
-        }
-
-        setPasswordError(false);
         setLoading(true);
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         try {
-            const response = await fetch("/api/users/signup", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, username, password }),
-                signal: controller.signal,
-            });
-
-            const ct = response.headers.get("content-type") || "";
-            let body = null;
-            try {
-                body = ct.includes("application/json") ? await response.json() : await response.text();
-            } catch (_) {
-                body = null;
-            }
-
-            if (!response.ok) {
-                if (response.status === 409) {
-                    setFormError("이미 사용 중인 아이디입니다.");
-                } else if (response.status === 400 || response.status === 422) {
-                    const msg = (body && (body.message || body.error)) || "입력값을 확인해주세요.";
-                    setFormError(msg);
-                } else {
-                    const msg = (body && (body.message || body.error)) || `회원가입 실패 (HTTP ${response.status})`;
-                    setFormError(msg);
-                }
-                return;
-            }
-
-            alert("회원가입 성공!");
-            navigate("/login");
+            alert("login");
+            // TODO: Login Logic
+            // const response = await api.post("/users/login", { email, password });
         } catch (err) {
             if (err.name === "AbortError") {
             setFormError("요청 시간이 초과되었습니다. 네트워크 상태를 확인해주세요.");
@@ -88,7 +54,10 @@ function LoginForm() {
                     icon={EmailIcon}
                     inputProps={{ autoComplete: "email" }}
                 />
-                
+
+                <span onClick={() => { alert("비밀번호 찾기 페이지로 이동"); }} className="hidden md:block cursor-pointer absolute right-0 text-[9pt] text-[#33AAFF]">
+                    비밀번호를 잊으셨나요?
+                </span>
                 <label htmlFor="password" className="hidden md:block text-[0.9375rem] font-medium text-[#2A2D41]">비밀번호</label>
                 <InputField
                     id="password"
@@ -99,6 +68,10 @@ function LoginForm() {
                     icon={KeyIcon}
                     inputProps={{ autoComplete: "new-password" }}
                 />
+                <span onClick={() => { alert("비밀번호 찾기 페이지로 이동"); }} className="md:hidden text-[10pt] text-[#33AAFF]">
+                    비밀번호를 잊으셨나요?
+                </span>
+                <div className="md:h-[40px]" />
             </div>
         </form>
     )
