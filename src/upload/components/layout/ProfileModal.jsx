@@ -1,20 +1,33 @@
+import Usage from './Usage';
+import Profile from '../content/Profile';
 
-export default function ProfileModal() {
+export default function ProfileModal({ isOpen, setIsOpen }) {
+    // type: 'gradient' | 'flat' | 'text'
+    const MyButton = ({ value = '버튼', type = 'flat', onClick = () => {} }) => {
+        return (
+            <button
+                onClick={onClick}
+                className={`block w-full h-[45px] mx-auto rounded-[7px] text-sm md:text-sm
+                    ${(type === 'gradient') ? 'bg-gradient-to-r from-[#0D4CFF] to-[#33AAFF] shadow-lg text-white' : 'text-black'}
+                    ${(type === 'flat') && 'border-[1px] border-[#DAE0E9] text-[#222]'}
+                    ${(type === 'text') && 'underline'}
+                    `}
+            >{value}</button>
+        );
+    };
     return (
-        <div className="fixed w-full h-full top-0 left-0 bg-[#00000077] flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded shadow-md">
-                <h2 className="text-lg font-semibold mb-4">Profile Modal</h2>
-                <p className="text-sm text-gray-600">test profile modal</p>
-                <button
-                    type="submit"
-                    form="signupForm"
-                    className="block w-full h-[55px] mx-auto rounded-[7px]
-                                text-white text-sm md:text-base font-semibold
-                                bg-gradient-to-r from-[#0D4CFF] to-[#33AAFF]
-                                shadow-lg"
-                >
-                가입하기
-                </button>
+        <div className={`fixed w-full h-full top-0 left-0 bg-[#00000077] flex justify-center items-center z-50 ${isOpen ? '' : 'hidden'}`}>
+            <div className="bg-white w-[400px] p-6 rounded-[10px] shadow-md">
+                <div className='flex justify-center mb-2 px-30'>
+                    <Profile />
+                </div>
+                <h2 className="text-[11pt] flex justify-center mb-4">sample1234@email.com</h2>
+                <Usage />
+                <div className='px-3 flex flex-col gap-2'>
+                    <MyButton value='로그아웃' type='gradient' />
+                    <MyButton value='회원탈퇴' type='flat' />
+                    <MyButton value='닫기' type='text' onClick={() => setIsOpen(false)} />
+                </div>
             </div>
         </div>
     );

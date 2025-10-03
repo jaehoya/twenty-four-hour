@@ -16,6 +16,8 @@ function Upload() {
     const [selectedItem, setSelectedItem] = useState(null);
     const [isAddNewItemOpen, setIsAddNewItemOpen] = useState(false);
 
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(true);
+
     useEffect(() => {
         const checkIsMobile = () => {
             setIsMobile(window.innerWidth < 768);
@@ -254,8 +256,8 @@ function Upload() {
 
     return (
         <div className="h-screen bg-[#EFF3FA] flex flex-col">
-            <ProfileModal />
-            <Header />
+            <ProfileModal isOpen={isProfileModalOpen} setIsOpen={setIsProfileModalOpen} />
+            <Header setIsProfileModalOpen={setIsProfileModalOpen} />
             <div className="flex flex-col md:flex-row flex-1 relative z-10 overflow-hidden">
                 {/* 데스크톱 사이드바 */}
                 <div className="hidden md:flex md:w-60 md:flex-col md:h-full">
