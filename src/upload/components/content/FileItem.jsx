@@ -4,8 +4,11 @@ import EmptyFolderIcon from "../../../assets/upload/empty_folder_icon.svg";
 import FileIcon from "../../../assets/upload/file_icon.svg";
 import ProgressCircle from "./ProgressCircle";
 import FileMenu from "./FileMenu";
+import { useModalStore } from '../../../store/store';
 
 function FileItem({ item, isSelected = false, onClick }) {
+    const { setIsOpenRenameModal } = useModalStore();
+
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
     const longPressTimer = useRef(null);
@@ -84,6 +87,7 @@ function FileItem({ item, isSelected = false, onClick }) {
     const handleRename = () => {
         console.log('이름 바꾸기:', item.original_name);
         closeContextMenu();
+        setIsOpenRenameModal(true);
     };
 
     const handleDelete = () => {

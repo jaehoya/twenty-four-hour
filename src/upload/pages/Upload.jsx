@@ -9,6 +9,8 @@ import Detail from "../components/layout/Detail";
 import MobileNavBar from "../components/layout/MobileNavBar";
 import UpdateBtn from "../components/content/UpdateBtn";
 import api from "../../utils/api";
+import ProfileModal from "../components/layout/ProfileModal";
+import RenameModal from "../components/layout/RenameModal";
 
 function Upload() {
     const [isMobile, setIsMobile] = useState(false);
@@ -253,7 +255,9 @@ function Upload() {
 
     return (
         <div className="h-screen bg-[#EFF3FA] flex flex-col">
-            
+            <ProfileModal />
+            <RenameModal />
+
             <Header />
             <div className="flex flex-col md:flex-row flex-1 relative z-10 overflow-hidden">
                 {/* 데스크톱 사이드바 */}
