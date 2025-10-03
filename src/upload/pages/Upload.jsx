@@ -10,13 +10,15 @@ import MobileNavBar from "../components/layout/MobileNavBar";
 import UpdateBtn from "../components/content/UpdateBtn";
 import api from "../../utils/api";
 import ProfileModal from "../components/layout/ProfileModal";
+import RenameModal from "../components/layout/RenameModal";
 
 function Upload() {
     const [isMobile, setIsMobile] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [isAddNewItemOpen, setIsAddNewItemOpen] = useState(false);
 
-    const [isProfileModalOpen, setIsProfileModalOpen] = useState(true);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [isRenameModalOpen, setIsRenameModalOpen] = useState(true);
 
     useEffect(() => {
         const checkIsMobile = () => {
@@ -257,6 +259,8 @@ function Upload() {
     return (
         <div className="h-screen bg-[#EFF3FA] flex flex-col">
             <ProfileModal isOpen={isProfileModalOpen} setIsOpen={setIsProfileModalOpen} />
+            <RenameModal isOpen={isRenameModalOpen} setIsOpen={setIsRenameModalOpen} />
+
             <Header setIsProfileModalOpen={setIsProfileModalOpen} />
             <div className="flex flex-col md:flex-row flex-1 relative z-10 overflow-hidden">
                 {/* 데스크톱 사이드바 */}
