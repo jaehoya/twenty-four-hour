@@ -1,8 +1,11 @@
 import Usage from './Usage';
 import Profile from '../content/Profile';
 import api from '../../../utils/api';
+import { useModalStore } from '../../../store/store';
 
-export default function ProfileModal({ isOpen, setIsOpen }) {
+export default function ProfileModal() {
+    const {isOpenProfileModal, setIsOpenProfileModal} = useModalStore();
+
     // type: 'gradient' | 'flat' | 'text'
     function MyButton({ value = '버튼', type = 'flat', onClick = () => {} }) {
         return (
@@ -30,7 +33,7 @@ export default function ProfileModal({ isOpen, setIsOpen }) {
     }
 
     return (
-        <div className={`fixed w-full h-full top-0 left-0 bg-[#00000077] flex justify-center items-center z-50 ${isOpen ? '' : 'hidden'}`}>
+        <div className={`fixed w-full h-full top-0 left-0 bg-[#00000077] flex justify-center items-center z-50 ${isOpenProfileModal ? '' : 'hidden'}`}>
             <div className="bg-white w-[400px] p-6 rounded-[10px] shadow-md">
                 {/* Profile Image */}
                 <div className='flex justify-center mb-2 px-30'>
@@ -44,7 +47,7 @@ export default function ProfileModal({ isOpen, setIsOpen }) {
                 <div className='px-3 flex flex-col gap-2'>
                     <MyButton value='로그아웃' type='gradient' onClick={() => logout()} />
                     <MyButton value='회원탈퇴' type='flat' />
-                    <MyButton value='닫기' type='text' onClick={() => setIsOpen(false)} />
+                    <MyButton value='닫기' type='text' onClick={() => setIsOpenProfileModal(false)} />
                 </div>
             </div>
         </div>

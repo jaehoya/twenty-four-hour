@@ -1,6 +1,9 @@
 import InputField from "../content/InputField";
+import { useModalStore } from '../../../store/store';
 
-export default function ProfileModal({ isOpen, setIsOpen }) {
+export default function RenameModal() {
+    const {isOpenRenameModal, setIsOpenRenameModal} = useModalStore();
+
     // type: 'gradient' | 'flat' | 'text'
     function MyButton({ value = '버튼', type = 'flat', onClick = () => {}}) {
         return (
@@ -16,7 +19,7 @@ export default function ProfileModal({ isOpen, setIsOpen }) {
     }
 
     return (
-        <div className={`fixed w-full h-full top-0 left-0 bg-[#00000077] flex justify-center items-center z-50 ${isOpen ? '' : 'hidden'}`}>
+        <div className={`fixed w-full h-full top-0 left-0 bg-[#00000077] flex justify-center items-center z-50 ${isOpenRenameModal ? '' : 'hidden'}`}>
             <div className="bg-white w-[500px] p-6 rounded-[10px] shadow-md">
                 <div className="text-[13pt]">항목 이름 변경</div>
                 <InputField
@@ -27,7 +30,7 @@ export default function ProfileModal({ isOpen, setIsOpen }) {
                 {/* Buttons */}
                 <div className='flex gap-2'>
                     <div className="w-300" />
-                    <MyButton value='취소' type='text' onClick={() => setIsOpen(false)} />
+                    <MyButton value='취소' type='text' onClick={() => setIsOpenRenameModal(false)} />
                     <MyButton value='확인' type='gradient' />
                 </div>
             </div>
