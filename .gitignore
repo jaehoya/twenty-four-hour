@@ -1,0 +1,57 @@
+# ===================================================================
+# Visual Studio (IDE)
+# ===================================================================
+# 사용자별 설정 및 임시 파일
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ===================================================================
+# 민감한 정보 및 로그 (Sensitive & Log Files)
+# ===================================================================
+# 환경 변수 파일 
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# 업로드된 파일 저장소
+src/uploads/
+
+# 로그 파일
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+
+# ===================================================================
+# 프론트용
+# ===================================================================
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
