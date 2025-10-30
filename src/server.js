@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 4000;
     await db.sequelize.sync();
 
     // 서버 실행
-    app.listen(PORT, () =>
+    app.listen(PORT, "0.0.0.0", () =>
       console.log(`🚀 Server running on http://localhost:${PORT}`)
     );
   } catch (e) {

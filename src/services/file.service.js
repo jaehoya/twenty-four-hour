@@ -1,4 +1,4 @@
-const { File } = require("../models");
+const { File, Favorite } = require("../models");
 const fs = require("fs");
 const path = require("path");
 const { Op } = require("sequelize");
@@ -19,7 +19,7 @@ async function saveFileMetadata(userId, file) {
     });
 }
 
-// 사용자 파일 목록 조회
+// 사용자 파일 목록 조회 
 async function getFilesByUserId(userId, search, sortBy, sortOrder) {
     const where = { user_id: userId };
     if (search) {
@@ -33,7 +33,27 @@ async function getFilesByUserId(userId, search, sortBy, sortOrder) {
         order.push(["createdAt", "DESC"]);
     }
 
-    return await File.findAll({ where, order });
+    const files = await File.findAll({
+        where,
+        order,
+        include: [
+            {
+                model: Favorite,
+                required: false,
+                where: { userId, targetType: "file" },
+                attributes: ["id"],
+            },
+        ],
+    });
+
+    return files.map(f => ({
+    id: f.id,
+    name: f.original_name,
+    size: f.size,
+    mimeType: f.mime_type,
+    createdAt: f.createdAt,
+    isFavorite: f.Favorites.length > 0,
+  }));
 }
 
 // 파일 ID로 파일 조회 (다운로드용)

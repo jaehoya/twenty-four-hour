@@ -6,6 +6,9 @@ const sequelize = require("./config/database"); // DB 연결 객체
 const cors = require("cors");  // CORS 미들웨어 추가
 app.use(cors());  // 모든 도메인 허용
 
+const morgan = require("morgan"); // 요청 로깅 미들웨어 추가
+app.use(morgan("combined")); // 요청 로깅
+
 app.use(express.json()); // JSON 요청 파싱
 
 // DB 연결 확인
@@ -19,6 +22,7 @@ app.use("/api/files", require("./routes/file.routes"));
 app.use("/api/profile", require("./routes/userProfile.routes"));
 app.use("/api/folders", require("./routes/folder.routes"));
 app.use("/api/disk", require("./routes/disk.routes"));
+app.use("/api/favorites", require("./routes/favorite.routes"));
 
 // 공통 에러 핸들러 (마지막에 두기)
 app.use((err, req, res, next) => {
