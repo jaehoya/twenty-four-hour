@@ -6,6 +6,9 @@ const sequelize = require("./config/database"); // DB 연결 객체
 const cors = require("cors");  // CORS 미들웨어 추가
 app.use(cors());  // 모든 도메인 허용
 
+const morgan = require("morgan"); // 요청 로깅 미들웨어 추가
+app.use(morgan("combined")); // 요청 로깅
+
 app.use(express.json()); // JSON 요청 파싱
 
 // DB 연결 확인
