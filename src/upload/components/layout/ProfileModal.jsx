@@ -21,7 +21,7 @@ export default function ProfileModal() {
     }
 
     function logout() {
-        api.post('/user/logout')
+        api.post('/users/logout', {}, { headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` } })
             .then((res) => {
                 alert('로그아웃 되었습니다.');
                 window.location.href = '/login';

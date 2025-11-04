@@ -21,22 +21,35 @@ function LoginForm() {
 
         setLoading(true);
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
-
         try {
-            alert("login");
-            // TODO: Login Logic
-            // const response = await api.post("/users/login", { email, password });
+            const res = await api.post('/users/login', { email, password })
+            console.log(res.data);
+            const { accessToken } = res.data;
+
+            localStorage.setItem("accessToken", accessToken);
+            alert("로그인 성공!");
+            navigate("/upload");
         } catch (err) {
             if (err.name === "AbortError") {
             setFormError("요청 시간이 초과되었습니다. 네트워크 상태를 확인해주세요.");
+            if (err.response) {
+                if (err.response.status === 401) {
+                    setFormError("이메일 또는 비밀번호가 올바르지 않습니다.");
+                } else if (err.response.status === 400 || err.response.status === 422) {
+                    const msg = err.response.data.message || "입력값을 확인해주세요.";
+                    setFormError(msg);
+                } else {
+                    const msg = err.response.data.message || `로그인 실패 (HTTP ${err.response.status})`;
+                    setFormError(msg);
+                }
+            } else {
+                setFormError("서버 또는 네트워크 오류가 발생했습니다.");
+            }
         } else {
             setFormError("서버 또는 네트워크 오류가 발생했습니다.");
         }
             console.error(err);
         } finally {
-            clearTimeout(timeoutId);
             setLoading(false);
         }
     }
