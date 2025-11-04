@@ -41,7 +41,7 @@
 
 * **GitHub Repository:** [https://github.com/jaehoya/twenty-four-hour](https://github.com/jaehoya/twenty-four-hour.git)
 * **API 명세서:** [Google Sheets 링크](https://docs.google.com/spreadsheets/d/1HpxpgWXMhMn5KrXR33hrWOytBmL50dOpmEKxlOBzlcM/edit?usp=drive_link)
-* **Figma:** 디자인 리소스 [디자인 리소스](figma.com/design/N63MC6KHzNeK2tKbmaQhq5/TFH_design?node-id=0-1&t=zVf9N83OhpnsmIhO-1)
+* **Figma:** 디자인 리소스 [디자인 리소스](https://figma.com/design/N63MC6KHzNeK2tKbmaQhq5/TFH_design?node-id=0-1&t=zVf9N83OhpnsmIhO-1)
 
 ## 🚀 주요 기능
 
