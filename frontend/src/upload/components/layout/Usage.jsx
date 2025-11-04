@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import api from "../../../utils/api";
 
 function Usage() {
     const [usageData, setUsageData] = useState({
@@ -13,27 +14,18 @@ function Usage() {
         const fetchUsageData = async () => {
             try {
                 setLoading(true);
-                const response = await fetch('/api/disk/usage');
-                if (response.ok) {
-                    const result = await response.json();
-                    // 백엔드 응답 구조: { message, data: { total, used, free } }
-                    const { data } = result;
-                    const percentage = (data.used / data.total) * 100;
-                    setUsageData({
-                        used: data.used,
-                        total: data.total,
-                        percentage: Math.min(percentage, 100) // 100% 초과 방지
-                    });
-                } else {
-                    // API 실패 시 기본값 사용
-                    console.warn('사용량 데이터를 가져올 수 없습니다. 기본값을 사용합니다.');
-                }
-            } catch (error) {
-                console.error('사용량 데이터 로딩 중 오류:', error);
-                // 오류 시 기본값 사용
-            } finally {
-                setLoading(false);
+                const response = await api.get('/disk/usage', { headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` } });
+
+                const { used, total } = response.data.data;
+                let percentage = (used / total) * 100;
+                setUsageData({
+                    used: used,
+                    total: total,
+                    percentage: Math.min(percentage, 100) // 100% 초과 방지
+                });
             }
+            catch (error) { console.error('사용량 데이터 로딩 중 오류:', error);}
+            finally { setLoading(false); }
         };
 
         fetchUsageData();

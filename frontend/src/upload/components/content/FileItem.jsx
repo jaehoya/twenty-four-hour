@@ -4,8 +4,11 @@ import EmptyFolderIcon from "../../../assets/upload/empty_folder_icon.svg";
 import FileIcon from "../../../assets/upload/file_icon.svg";
 import ProgressCircle from "./ProgressCircle";
 import FileMenu from "./FileMenu";
+import { useModalStore } from '../../../store/store';
 
 function FileItem({ item, isSelected = false, onClick }) {
+    const { setIsOpenRenameModal } = useModalStore();
+
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
     const longPressTimer = useRef(null);
@@ -84,6 +87,7 @@ function FileItem({ item, isSelected = false, onClick }) {
     const handleRename = () => {
         console.log('이름 바꾸기:', item.original_name);
         closeContextMenu();
+        setIsOpenRenameModal(true);
     };
 
     const handleDelete = () => {
@@ -129,12 +133,12 @@ function FileItem({ item, isSelected = false, onClick }) {
                 <div className="h-px w-full max-w-[102px] bg-[#E5EBF2] mb-3 md:hidden" />
             {/* 이름 */}
                 <span className="text-[0.6875rem] md:text-[0.875rem] font-semibold text-[#34475C] text-center md:mt-1 truncate w-full max-w-full" title={item.original_name}>
-                    {item.original_name}
+                    {item.name}
                 </span>
             
             {/* 메타데이터 */}
                 <span className="text-[0.4375rem] md:text-[0.6875rem] text-[#9AA9B9] font-normal text-center truncate w-full max-w-full">
-                    {item.count ? `${item.updatedAt} | ${item.count}` : new Date(item.updatedAt).toLocaleDateString()}
+                    {item.count ? `${item.updatedAt} | ${item.count}` : new Date(item.createdAt).toLocaleDateString()}
                 </span>
             </div>
             </div>
@@ -148,7 +152,7 @@ function FileItem({ item, isSelected = false, onClick }) {
                 onViewInfo={handleViewInfo}
                 onRename={handleRename}
                 onDelete={handleDelete}
-                fileName={item.original_name}
+                fileName={item.name}
             />
         </>
     )
