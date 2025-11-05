@@ -1,8 +1,15 @@
+// React
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+// Assets
 import EmailIcon from "../../assets/signup/email_icon.svg";
 import KeyIcon from "../../assets/signup/key_icon.svg";
-import { useNavigate } from "react-router-dom";
+
+// Components
 import InputField from "./InputField";
+
+// Utils
 import api from "../../utils/api";
 
 function LoginForm() {
