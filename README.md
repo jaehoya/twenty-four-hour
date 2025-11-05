@@ -18,6 +18,7 @@
 
 | 이름 | 역할 | 이메일 |
 | ----- | ----- | ----- |
+| **조유찬** | Mento |  |
 | **이재호** | PM, Backend | hmujaeho@gmail.com |
 | **정유지** | Backend (총괄) | yuyuyu2635@gmail.com |
 | **김채윤** | Frontend (총괄) | jinbaaaaang@gmail.com |
