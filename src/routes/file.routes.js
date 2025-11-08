@@ -19,7 +19,7 @@ router.get("/", authenticateToken, getUserFiles);
 router.get("/:id/download", authenticateToken, downloadFile);
 
 // GET /api/files/:id/preview -> 파일 미리보기
-router.get("/:id/preview", authenticateToken, previewFile);
+router.get("/:id/preview", previewFile);
 
 // DELETE /api/files/:id -> 파일 삭제
 router.delete("/:id", authenticateToken, deleteFile);

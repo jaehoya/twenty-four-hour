@@ -1,3 +1,6 @@
+const jwt = require("jsonwebtoken");
+const path = require("path");
+
 const {
     saveFileMetadata, 
     getFilesByUserId, 
@@ -5,8 +8,6 @@ const {
     getFileById, 
     renameFileById
 } = require("../services/file.service");
-const path = require("path")
-
 
 // 파일 업로드 처리 컨트롤러
 async function uploadFile(req, res, next) {
@@ -125,6 +126,30 @@ async function renameFile(req, res, next) {
 // 파일 미리보기 컨트롤러
 async function previewFile(req, res, next) {
     try {
+        const token = req.query.token;
+
+        if (!token) {
+            return res.status(401).json({
+                state: 401, 
+                code: "NO_TOKEN",
+                message: "토큰이 필요합니다."
+            })
+        }
+
+        // 토큰 검증
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+            req.user = decoded;
+        } catch (err) {
+            return res.status(401).json({
+                state: 401,
+                code: "INVALID_TOKEN",
+                message: "유효하지 않은 토큰입니다.",
+            });
+        }
+
+        // 파일 조회
         const fileId = req.params.id;
         const file = await getFileById(fileId);
 
@@ -136,6 +161,7 @@ async function previewFile(req, res, next) {
             });
         }
 
+        // 미리보기 가능한 타입인지 확인
         const allowedTypes = ["image/", "application/pdf", "text/plain"];
         const isPreviewable = allowedTypes.some(type => file.mime_type.startsWith(type));
 
@@ -147,6 +173,7 @@ async function previewFile(req, res, next) {
             });
         }
 
+        // 파일 스트림 전송
         const absolutePath = path.resolve(file.path); 
         res.setHeader("Content-Type", file.mime_type);
         return res.sendFile(absolutePath);
