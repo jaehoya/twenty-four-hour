@@ -5,6 +5,7 @@ const {
     getFileById, 
     renameFileById
 } = require("../services/file.service");
+const path = require("path")
 
 
 // 파일 업로드 처리 컨트롤러
@@ -138,7 +139,7 @@ async function previewFile(req, res, next) {
         const allowedTypes = ["image/", "application/pdf", "text/plain"];
         const isPreviewable = allowedTypes.some(type => file.mime_type.startsWith(type));
 
-        if (!isPreviwable) {
+        if (!isPreviewable) {
             return res.status(400).json({
                 state: 400,
                 code: "UNSUPPORTED_TYPE",
@@ -146,8 +147,9 @@ async function previewFile(req, res, next) {
             });
         }
 
+        const absolutePath = path.resolve(file.path); 
         res.setHeader("Content-Type", file.mime_type);
-        return res.sendFile(file.path, { root: path.join(__dirname, "../..") }); 
+        return res.sendFile(absolutePath);
     } catch (err) {
         next(err);
     }

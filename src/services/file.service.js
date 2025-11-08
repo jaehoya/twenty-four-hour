@@ -9,7 +9,7 @@ const { Op } = require("sequelize");
  * -file: multer가 제공하는 파일 객체
  */
 async function saveFileMetadata(userId, file) {
-    const fileRecore = await File.create({
+    const fileRecord = await File.create({
         user_id: userId,
         original_name: file.originalname,
         stored_name: file.filename,
@@ -21,7 +21,7 @@ async function saveFileMetadata(userId, file) {
     const previewUrl = `/api/files/${fileRecord.id}/preview`;
 
     return {
-        ...fileRecord.toJson(),
+        ...fileRecord.toJSON(),
         previewUrl,
     };
 }
@@ -113,7 +113,7 @@ async function renameFileById(userId, fileId, newName) {
     await file.save();
 
     return {
-        ...file.toJson(),
+        ...file.toJSON(),
         previewUrl: `/api/files/${f.id}/preview`,
     }
 }
