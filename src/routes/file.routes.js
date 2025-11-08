@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../middlewares/upload");
-const { uploadFile, getUserFiles, deleteFile, downloadFile, renameFile } = require("../controllers/file.controller");
+const { uploadFile, getUserFiles, deleteFile, downloadFile, renameFile, previewFile } = require("../controllers/file.controller");
 const authenticateToken = require("../middlewares/auth");
 
 // POST /api/files/upload -> 파일 업로드 (필드명: file)
@@ -17,6 +17,9 @@ router.get("/", authenticateToken, getUserFiles);
 
 // GET /api/files/:id/download -> 파일 다운로드
 router.get("/:id/download", authenticateToken, downloadFile);
+
+// GET /api/files/:id/preview -> 파일 미리보기
+router.get("/:id/preview", authenticateToken, previewFile);
 
 // DELETE /api/files/:id -> 파일 삭제
 router.delete("/:id", authenticateToken, deleteFile);

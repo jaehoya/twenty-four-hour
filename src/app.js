@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 require("dotenv").config(); // .env 환경변수 로드
 const sequelize = require("./config/database"); // DB 연결 객체
+const path = require("path");
 
 const cors = require("cors");  // CORS 미들웨어 추가
 app.use(cors());  // 모든 도메인 허용
@@ -10,6 +11,8 @@ const morgan = require("morgan"); // 요청 로깅 미들웨어 추가
 app.use(morgan("combined")); // 요청 로깅
 
 app.use(express.json()); // JSON 요청 파싱
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // DB 연결 확인
 sequelize.authenticate()

@@ -121,4 +121,36 @@ async function renameFile(req, res, next) {
     }
 }
 
-module.exports = { uploadFile, getUserFiles, deleteFile, downloadFile, renameFile };
+// 파일 미리보기 컨트롤러
+async function previewFile(req, res, next) {
+    try {
+        const fileId = req.params.id;
+        const file = await getFileById(fileId);
+
+        if (!file) {
+            return res.status(404).json({
+                state: 404, 
+                code: "FILE_NOT_FOUND",
+                message: "파일을 찾을 수 없습니다.",
+            });
+        }
+
+        const allowedTypes = ["image/", "application/pdf", "text/plain"];
+        const isPreviewable = allowedTypes.some(type => file.mime_type.startsWith(type));
+
+        if (!isPreviwable) {
+            return res.status(400).json({
+                state: 400,
+                code: "UNSUPPORTED_TYPE",
+                message: "이 파일 형식은 미리보기를 지원하지 않습니다.",
+            });
+        }
+
+        res.setHeader("Content-Type", file.mime_type);
+        return res.sendFile(file.path, { root: path.join(__dirname, "../..") }); 
+    } catch (err) {
+        next(err);
+    }
+}
+
+module.exports = { uploadFile, getUserFiles, deleteFile, downloadFile, renameFile, previewFile };

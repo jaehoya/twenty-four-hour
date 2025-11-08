@@ -9,7 +9,7 @@ const { Op } = require("sequelize");
  * -file: multer가 제공하는 파일 객체
  */
 async function saveFileMetadata(userId, file) {
-    return await File.create({
+    const fileRecore = await File.create({
         user_id: userId,
         original_name: file.originalname,
         stored_name: file.filename,
@@ -17,6 +17,13 @@ async function saveFileMetadata(userId, file) {
         size: file.size,
         path: "src/uploads/" + file.filename,
     });
+
+    const previewUrl = `/api/files/${fileRecord.id}/preview`;
+
+    return {
+        ...fileRecord.toJson(),
+        previewUrl,
+    };
 }
 
 // 사용자 파일 목록 조회 
@@ -53,6 +60,7 @@ async function getFilesByUserId(userId, search, sortBy, sortOrder) {
     mimeType: f.mime_type,
     createdAt: f.createdAt,
     isFavorite: f.Favorites.length > 0,
+    previewUrl: `/api/files/${f.id}/preview`,
   }));
 }
 
@@ -104,7 +112,10 @@ async function renameFileById(userId, fileId, newName) {
     file.original_name = newName;
     await file.save();
 
-    return file;
+    return {
+        ...file.toJson(),
+        previewUrl: `/api/files/${f.id}/preview`,
+    }
 }
 
 module.exports = { saveFileMetadata, getFilesByUserId, getFileById, deleteFileById, renameFileById };
