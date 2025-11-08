@@ -94,7 +94,7 @@ async function loginUser({ email, password }) {
   const accessToken = jwt.sign(
     { id: user.id, email: user.email },  // payload
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || "15m "}
+    { expiresIn: process.env.JWT_EXPIRES_IN || "7d"}
   );
 
   // JWT RefreshToken 발급 (7일 유효)
