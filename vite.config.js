@@ -5,10 +5,15 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
     plugins: [react(), svgr({
-        svgrOptions: {
-            svgo: true,
-            svgoConfig: { plugins: [{ name: "prefixIds" }] },
-        },
-    }),
-    tailwindcss(),],
+            svgrOptions: {
+                svgo: true,
+                svgoConfig: { plugins: [{ name: "prefixIds" }] },
+            },
+        }),
+        tailwindcss(),
+    ],
+    server: {
+        host: 'localhost',
+        port: 5173,
+    },
 });

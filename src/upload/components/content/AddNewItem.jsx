@@ -5,9 +5,7 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload }) {
     const [isDragOver, setIsDragOver] = useState(false);
 
     const handleClick = () => {
-        console.log('AddNewItem 클릭됨, 현재 상태:', isAddNewItemOpen);
         setIsAddNewItemOpen(true);
-        console.log('setIsAddNewItemOpen(true) 호출됨');
     };
 
     const handleCloseModal = () => {
@@ -47,6 +45,10 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload }) {
             <div 
                 className="relative rounded-[20px] p-3 md:p-4 flex flex-col items-center justify-center cursor-pointer transition-colors h-[149px] md:h-[229px] min-h-[149px] md:min-h-[229px] z-0"
                 onClick={handleClick}
+                onContextMenu={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }}
             >
                 {/* SVG 점선 테두리 */}
                 <svg 
@@ -86,6 +88,10 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload }) {
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
+                        onContextMenu={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }}
                     >
                         {/* 닫기 버튼 */}
                         <button

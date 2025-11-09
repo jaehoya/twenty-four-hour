@@ -1,65 +1,50 @@
-// React
-import { useEffect, useState } from 'react';
-
-// Store
-import { useModalStore } from '../../../store/store';
-
-// Components
 import Usage from './Usage';
 import Profile from '../content/Profile';
-import MyButton from '../content/MyButton';
-
-// Utils
 import api from '../../../utils/api';
+import { useModalStore } from '../../../store/store';
 
 export default function ProfileModal() {
-    // Store
-    const { isOpenProfileModal, setIsOpenProfileModal } = useModalStore();
+    const {isOpenProfileModal, setIsOpenProfileModal} = useModalStore();
 
-    // State
-    const [ userData, setUserData ] = useState(null);
+    // type: 'gradient' | 'flat' | 'text'
+    function MyButton({ value = '버튼', type = 'flat', onClick = () => {} }) {
+        return (
+            <button
+                onClick={onClick}
+                className={`block w-full h-[45px] mx-auto rounded-[7px] text-sm md:text-sm
+                    ${(type === 'gradient') ? 'bg-gradient-to-r from-[#0D4CFF] to-[#33AAFF] shadow-lg text-white' : 'text-black'}
+                    ${(type === 'flat') && 'border-[1px] border-[#DAE0E9] text-[#222]'}
+                    ${(type === 'text') && 'underline'}
+                    `}
+            >{value}</button>
+        );
+    }
 
-    // Init
-    useEffect(() => {
-        api.get('/profile/me')
+    function logout() {
+        api.post('/users/logout', {}, { headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` } })
             .then((res) => {
-                setUserData(res.data);
-            })
-            .catch((err) => { console.error('Error fetching user data:', err); });
-    }, []);
-
-    // Handler
-    function handleLogout() {
-        api.post('/users/logout')
-            .then(() => {
                 alert('로그아웃 되었습니다.');
                 window.location.href = '/login';
             })
             .catch((err) => {
                 alert('로그아웃에 실패했습니다.');
-                console.error('Logout error:', err);
             });
     }
 
     return (
-        <div className={`${isOpenProfileModal ? '' : 'hidden'} fixed w-full h-full top-0 left-0 bg-[#00000077] flex justify-center items-center z-100`}>
-            <div className="bg-white w-[80%] md:w-[400px] p-6 rounded-[10px] shadow-md">
+        <div className={`fixed w-full h-full top-0 left-0 bg-[#00000077] flex justify-center items-center z-50 ${isOpenProfileModal ? '' : 'hidden'}`}>
+            <div className="bg-white w-[400px] p-6 rounded-[10px] shadow-md">
                 {/* Profile Image */}
-                <div className='flex justify-center mb-2 px-22 md:px-30'>
+                <div className='flex justify-center mb-2 px-30'>
                     <Profile />
                 </div>
-                
                 {/* Email */}
-                <h2 className="text-[11pt] flex justify-center mb-4">
-                    {userData?.email || 'unknown'}
-                </h2>
-                
+                <h2 className="text-[11pt] flex justify-center mb-4">sample1234@email.com</h2>
                 {/* Usage */}
                 <Usage />
-                
                 {/* Buttons */}
-                <div className='px-0 py-1 md:px-3 flex flex-col gap-1 md:gap-2'>
-                    <MyButton value='로그아웃' type='gradient' onClick={() => handleLogout()} />
+                <div className='px-3 flex flex-col gap-2'>
+                    <MyButton value='로그아웃' type='gradient' onClick={() => logout()} />
                     <MyButton value='회원탈퇴' type='flat' />
                     <MyButton value='닫기' type='text' onClick={() => setIsOpenProfileModal(false)} />
                 </div>
