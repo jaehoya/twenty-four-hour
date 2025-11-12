@@ -68,7 +68,7 @@ function LoginForm() {
                     inputProps={{ autoComplete: "email" }}
                 />
 
-                <span onClick={() => { alert("비밀번호 찾기 페이지로 이동"); }} className="hidden md:block cursor-pointer absolute right-0 text-[9pt] text-[#33AAFF]">
+                <span onClick={() => navigate("/find-password")} className="hidden md:block cursor-pointer absolute right-0 text-[9pt] text-[#33AAFF]">
                     비밀번호를 잊으셨나요?
                 </span>
                 <label htmlFor="password" className="hidden md:block text-[0.9375rem] font-medium text-[#2A2D41]">비밀번호</label>
@@ -81,7 +81,7 @@ function LoginForm() {
                     icon={KeyIcon}
                     inputProps={{ autoComplete: "new-password" }}
                 />
-                <span onClick={() => { alert("비밀번호 찾기 페이지로 이동"); }} className="md:hidden text-[10pt] text-[#33AAFF] cursor-pointer self-end mb-3">
+                <span onClick={() => navigate("/find-password")} className="md:hidden text-[10pt] text-[#33AAFF] cursor-pointer self-end mb-3">
                     비밀번호를 잊으셨나요?
                 </span>
                 <div className="md:h-[40px]" />

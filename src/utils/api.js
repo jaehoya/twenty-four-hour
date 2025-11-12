@@ -133,6 +133,108 @@ api.interceptors.request.use(
                 };
                 return Promise.reject(mockError);
             }
+            
+            // POST /users/reset-password 요청 (비밀번호 재설정 - 이메일 링크)
+            if (config.method === 'post' && config.url?.includes('/users/reset-password')) {
+                const { email, token, newPassword } = config.data || {};
+                
+                // email만 있는 경우는 재설정 요청 (이미 처리됨)
+                // email, token, newPassword가 모두 있는 경우는 비밀번호 재설정
+                if (email && token && newPassword) {
+                    // 토큰이 'invalid' 또는 'expired'로 시작하면 에러 반환
+                    if (token.startsWith('invalid') || token.startsWith('expired')) {
+                        const mockError = new Error('MOCK_RESPONSE');
+                        mockError.isMockResponse = true;
+                        mockError.config = config;
+                        mockError.response = {
+                            data: {
+                                state: 400,
+                                code: 'INVALID_OR_EXPIRED_TOKEN',
+                                message: '토큰이 유효하지 않거나 만료되었습니다.'
+                            },
+                            status: 400,
+                            statusText: 'Bad Request',
+                            headers: {},
+                            config,
+                        };
+                        return Promise.reject(mockError);
+                    }
+                    
+                    // 정상적인 경우 성공 응답
+                    const mockError = new Error('MOCK_RESPONSE');
+                    mockError.isMockResponse = true;
+                    mockError.config = config;
+                    mockError.response = {
+                        data: {
+                            message: '비밀번호가 성공적으로 재설정되었습니다.'
+                        },
+                        status: 200,
+                        statusText: 'OK',
+                        headers: {},
+                        config,
+                    };
+                    return Promise.reject(mockError);
+                }
+            }
+            
+            // POST /users/change-password 요청 (프로필 비밀번호 변경)
+            if (config.method === 'post' && config.url?.includes('/users/change-password')) {
+                const { currentPassword, newPassword } = config.data || {};
+                const authHeader = config.headers?.Authorization;
+                
+                // 인증 토큰이 없으면 에러
+                if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                    const mockError = new Error('MOCK_RESPONSE');
+                    mockError.isMockResponse = true;
+                    mockError.config = config;
+                    mockError.response = {
+                        data: {
+                            state: 401,
+                            code: 'UNAUTHORIZED',
+                            message: '인증이 필요합니다.'
+                        },
+                        status: 401,
+                        statusText: 'Unauthorized',
+                        headers: {},
+                        config,
+                    };
+                    return Promise.reject(mockError);
+                }
+                
+                // 현재 비밀번호가 'wrong'으로 시작하면 에러
+                if (currentPassword && currentPassword.startsWith('wrong')) {
+                    const mockError = new Error('MOCK_RESPONSE');
+                    mockError.isMockResponse = true;
+                    mockError.config = config;
+                    mockError.response = {
+                        data: {
+                            state: 400,
+                            code: 'INVALID_CURRENT_PASSWORD',
+                            message: '현재 비밀번호가 일치하지 않습니다.'
+                        },
+                        status: 400,
+                        statusText: 'Bad Request',
+                        headers: {},
+                        config,
+                    };
+                    return Promise.reject(mockError);
+                }
+                
+                // 정상적인 경우 성공 응답
+                const mockError = new Error('MOCK_RESPONSE');
+                mockError.isMockResponse = true;
+                mockError.config = config;
+                mockError.response = {
+                    data: {
+                        message: '비밀번호 변경 성공'
+                    },
+                    status: 200,
+                    statusText: 'OK',
+                    headers: {},
+                    config,
+                };
+                return Promise.reject(mockError);
+            }
         }
         
         return config;
@@ -231,6 +333,88 @@ api.interceptors.response.use(
                     data: { message: '회원가입 성공 (모킹)' },
                     status: 201,
                     statusText: 'Created',
+                    headers: {},
+                    config,
+                });
+            }
+            
+            // POST /users/reset-password 요청 (비밀번호 재설정 - 이메일 링크)
+            if (config.method === 'post' && config.url?.includes('/users/reset-password')) {
+                const { email, token, newPassword } = config.data || {};
+                
+                // email만 있는 경우는 재설정 요청 (이미 처리됨)
+                // email, token, newPassword가 모두 있는 경우는 비밀번호 재설정
+                if (email && token && newPassword) {
+                    // 토큰이 'invalid' 또는 'expired'로 시작하면 에러 반환
+                    if (token.startsWith('invalid') || token.startsWith('expired')) {
+                        return Promise.resolve({
+                            data: {
+                                state: 400,
+                                code: 'INVALID_OR_EXPIRED_TOKEN',
+                                message: '토큰이 유효하지 않거나 만료되었습니다.'
+                            },
+                            status: 400,
+                            statusText: 'Bad Request',
+                            headers: {},
+                            config,
+                        });
+                    }
+                    
+                    // 정상적인 경우 성공 응답
+                    return Promise.resolve({
+                        data: {
+                            message: '비밀번호가 성공적으로 재설정되었습니다.'
+                        },
+                        status: 200,
+                        statusText: 'OK',
+                        headers: {},
+                        config,
+                    });
+                }
+            }
+            
+            // POST /users/change-password 요청 (프로필 비밀번호 변경)
+            if (config.method === 'post' && config.url?.includes('/users/change-password')) {
+                const { currentPassword, newPassword } = config.data || {};
+                const authHeader = config.headers?.Authorization;
+                
+                // 인증 토큰이 없으면 에러
+                if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                    return Promise.resolve({
+                        data: {
+                            state: 401,
+                            code: 'UNAUTHORIZED',
+                            message: '인증이 필요합니다.'
+                        },
+                        status: 401,
+                        statusText: 'Unauthorized',
+                        headers: {},
+                        config,
+                    });
+                }
+                
+                // 현재 비밀번호가 'wrong'으로 시작하면 에러
+                if (currentPassword && currentPassword.startsWith('wrong')) {
+                    return Promise.resolve({
+                        data: {
+                            state: 400,
+                            code: 'INVALID_CURRENT_PASSWORD',
+                            message: '현재 비밀번호가 일치하지 않습니다.'
+                        },
+                        status: 400,
+                        statusText: 'Bad Request',
+                        headers: {},
+                        config,
+                    });
+                }
+                
+                // 정상적인 경우 성공 응답
+                return Promise.resolve({
+                    data: {
+                        message: '비밀번호 변경 성공'
+                    },
+                    status: 200,
+                    statusText: 'OK',
                     headers: {},
                     config,
                 });
