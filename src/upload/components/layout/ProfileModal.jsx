@@ -18,15 +18,30 @@ export default function ProfileModal() {
 
     // State
     const [ userData, setUserData ] = useState(null);
+    const [ profileImageUrl, setProfileImageUrl ] = useState(null);
 
     // Init
     useEffect(() => {
+        if (isOpenProfileModal) {
+            fetchUserData();
+        }
+    }, [isOpenProfileModal]);
+
+    const fetchUserData = () => {
         api.get('/profile/me')
             .then((res) => {
                 setUserData(res.data);
+                if (res.data?.UserProfile?.ProfileImage?.path) {
+                    const baseURL = import.meta.env.VITE_API_ENDPOINT || 'http://localhost:4000/api';
+                    const imagePath = res.data.UserProfile.ProfileImage.path;
+                    const imageUrl = imagePath.startsWith('http') 
+                        ? imagePath 
+                        : `${baseURL.replace('/api', '')}/${imagePath}`;
+                    setProfileImageUrl(imageUrl);
+                }
             })
             .catch((err) => { console.error('Error fetching user data:', err); });
-    }, []);
+    };
 
     // Handler
     function handleLogout() {
@@ -41,12 +56,18 @@ export default function ProfileModal() {
             });
     }
 
+    const handleImageUpdate = (newImageUrl) => {
+        setProfileImageUrl(newImageUrl);
+        // 사용자 데이터도 새로고침
+        fetchUserData();
+    };
+
     return (
         <div className={`${isOpenProfileModal ? '' : 'hidden'} fixed w-full h-full top-0 left-0 bg-[#00000077] flex justify-center items-center z-100`}>
             <div className="bg-white w-[80%] md:w-[400px] p-6 rounded-[10px] shadow-md">
                 {/* Profile Image */}
                 <div className='flex justify-center mb-2 px-22 md:px-30'>
-                    <Profile />
+                    <Profile editable={true} onImageUpdate={handleImageUpdate} />
                 </div>
                 
                 {/* Email */}
