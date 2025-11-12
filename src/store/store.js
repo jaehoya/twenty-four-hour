@@ -18,20 +18,39 @@ export const usePathStore = create((set) => ({
     currentPath: 'root',
     setCurrentPath: (path) => set({ currentPath: path }),
     
+    // 현재 경로 이름 (사용자에게 표시되는 경로, 예: "내 저장소 > test > subfolder")
+    currentPathName: '내 저장소',
+    setCurrentPathName: (pathName) => set({ currentPathName: pathName }),
+    
     // 경로 히스토리 (뒤로가기 기능을 위해)
     pathHistory: ['root'],
     addToHistory: (path) => set((state) => ({ 
         pathHistory: [...state.pathHistory, path] 
     })),
+    
+    // 경로 이름 히스토리
+    pathNameHistory: ['내 저장소'],
+    addToPathNameHistory: (pathName) => set((state) => ({
+        pathNameHistory: [...state.pathNameHistory, pathName]
+    })),
+    
     goBack: () => set((state) => {
         if (state.pathHistory.length > 1) {
             const newHistory = state.pathHistory.slice(0, -1);
+            const newNameHistory = state.pathNameHistory.slice(0, -1);
             return {
                 pathHistory: newHistory,
-                currentPath: newHistory[newHistory.length - 1]
+                pathNameHistory: newNameHistory,
+                currentPath: newHistory[newHistory.length - 1],
+                currentPathName: newNameHistory[newNameHistory.length - 1]
             };
         }
         return state;
     }),
-    resetPath: () => set({ currentPath: 'root', pathHistory: ['root'] }),
+    resetPath: () => set({ 
+        currentPath: 'root', 
+        pathHistory: ['root'],
+        currentPathName: '내 저장소',
+        pathNameHistory: ['내 저장소']
+    }),
 }));

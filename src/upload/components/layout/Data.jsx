@@ -6,7 +6,7 @@ import UploadedFiles from "../content/UploadedFiles";
 import api from "../../../utils/api";
 import { usePathStore } from "../../../store/store";
 
-function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, activeTab, sortOption = '이름' }) {
+function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, activeTab, sortOption = '이름', searchQuery = '' }) {
     const [ files, setFiles ] = useState([]);
     const [ isDragOver, setIsDragOver ] = useState(false);
     const { currentPath, goBack, resetPath } = usePathStore();
@@ -125,6 +125,20 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
         return arr;
     }
 
+    // 검색 필터링 함수
+    const filterBySearch = (items, query) => {
+        if (!query || query.trim() === '') return items;
+        
+        const lowerQuery = query.toLowerCase().trim();
+        return items.filter(item => {
+            const name = (item.name || item.original_name || '').toLowerCase();
+            return name.includes(lowerQuery);
+        });
+    };
+
+    // 검색된 파일 목록
+    const filteredFiles = filterBySearch(files, searchQuery);
+
     useEffect(() => {
         fetchFiles();
     }, [fetchFiles]);
@@ -238,22 +252,18 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
         >
-            {/* 경로 표시 및 네비게이션 - 전체 저장소에서만 표시 */}
-            {activeTab === 'storage' && currentPath !== 'root' && (
-                <div className="flex items-center gap-2 mb-2">
-                    <button
-                        onClick={goBack}
-                        className="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-                    >
-                        ← 뒤로
-                    </button>
-                </div>
-            )}
-            
             {/* 반응형 그리드 - 모바일: 3개, 데스크톱: 5개 */}
             <div className="grid grid-cols-3 md:grid-cols-5 gap-x-2 md:gap-x-3 gap-y-1 md:gap-y-3 auto-rows-max">
+                {/* 검색 결과가 없을 때 */}
+                {searchQuery && filteredFiles.length === 0 && (
+                    <div className="col-span-3 md:col-span-5 flex flex-col items-center justify-center py-12 text-gray-500">
+                        <p className="text-lg mb-2">검색 결과가 없습니다</p>
+                        <p className="text-sm">'{searchQuery}'에 대한 파일이나 폴더를 찾을 수 없습니다</p>
+                    </div>
+                )}
+                
                 {/* 폴더 먼저 렌더링 */}
-                {files
+                {filteredFiles
                     .filter(item => item.mimeType === 'folder')
                     .map((folder) => (
                         <FolderItem
@@ -267,7 +277,7 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                 }
                 
                 {/* 파일 나중에 렌더링 */}
-                {files
+                {filteredFiles
                     .filter(item => item.mimeType !== 'folder')
                     .map((file) => (
                         <FileItem
@@ -280,8 +290,8 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                     ))
                 }
                 
-                {/* 새 항목 추가 버튼 - 전체 저장소에서만 표시 */}
-                {activeTab === 'storage' && (
+                {/* 새 항목 추가 버튼 - 전체 저장소에서만 표시, 검색 중이 아닐 때만 */}
+                {activeTab === 'storage' && !searchQuery && (
                     <div className="hidden md:block">
                         <AddNewItem
                             isAddNewItemOpen={isAddNewItemOpen}

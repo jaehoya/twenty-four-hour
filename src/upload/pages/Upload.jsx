@@ -17,6 +17,7 @@ function Upload() {
     const [selectedItem, setSelectedItem] = useState(null);
     const [isAddNewItemOpen, setIsAddNewItemOpen] = useState(false);
     const [sortOption, setSortOption] = useState('이름');
+    const [searchQuery, setSearchQuery] = useState('');
     const location = useLocation();
     const navigate = useNavigate();
     
@@ -316,7 +317,7 @@ function Upload() {
             <ProfileModal />
             <RenameModal />
 
-            <Header />
+            <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
             <div className="flex flex-col md:flex-row flex-1 relative z-10 overflow-hidden">
                 {/* 데스크톱 사이드바 */}
                 <div className="hidden md:flex md:w-60 md:flex-col md:h-full">
@@ -328,7 +329,7 @@ function Upload() {
                 <div className="flex flex-col flex-1 relative md:h-full">
                     <div className="mx-2 md:mx-0 flex-1 flex flex-col  md:h-full">
                         <Banner />
-                        <Title selectedSort={sortOption} onSortChange={setSortOption} />
+                        <Title selectedSort={sortOption} onSortChange={setSortOption} activeTab={activeTab} />
                         <Outlet context={{ 
                             selectedItem, 
                             onItemSelect: setSelectedItem,
@@ -336,7 +337,8 @@ function Upload() {
                             setIsAddNewItemOpen,
                             onFileUpload: uploadFiles,
                             sortOption,
-                            setSortOption
+                            setSortOption,
+                            searchQuery
                         }} />
                     </div>
                     

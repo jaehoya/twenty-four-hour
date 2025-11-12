@@ -7,7 +7,7 @@ import api from "../../../utils/api";
 
 function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
     const { setIsOpenRenameModal } = useModalStore();
-    const { currentPath, setCurrentPath, addToHistory } = usePathStore();
+    const { currentPath, setCurrentPath, addToHistory, currentPathName, addToPathNameHistory } = usePathStore();
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
     const longPressTimer = useRef(null);
@@ -88,6 +88,8 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
     const handleDoubleClick = () => {
         // 경로 히스토리에 추가
         addToHistory(item.id);
+        // 경로 이름 히스토리에 추가
+        addToPathNameHistory(item.name);
         // 현재 경로를 폴더 ID로 변경
         setCurrentPath(item.id);
     };
