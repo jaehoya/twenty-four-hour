@@ -66,38 +66,24 @@ function Profile({ editable = false, onImageUpdate = null }) {
             const formData = new FormData();
             formData.append('profileImage', file);
 
-            const response = await api.put('/profile/me', formData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    // Content-Type은 FormData일 때 자동 설정
-                },
-            });
+            const response = await api.put('/profile/me', formData, { headers: { 'Authorization': `Bearer ${token}` } });
 
             if (response.status === 200 && response.data?.UserProfile?.ProfileImage?.path) {
                 const baseURL = import.meta.env.VITE_API_ENDPOINT || 'http://localhost:4000/api';
                 const imagePath = response.data.UserProfile.ProfileImage.path;
-                const imageUrl = imagePath.startsWith('http') 
-                    ? imagePath 
-                    : `${baseURL.replace('/api', '')}/${imagePath}`;
+                const imageUrl = imagePath.startsWith('http') ? imagePath : `${baseURL.replace('/api', '')}/${imagePath}`;
                 setProfileImage(imageUrl);
                 
                 // 부모 컴포넌트에 업데이트 알림
-                if (onImageUpdate) {
-                    onImageUpdate(imageUrl);
-                }
+                if (onImageUpdate) onImageUpdate(imageUrl);
                 
                 alert('프로필 사진이 변경되었습니다.');
             }
         } catch (error) {
             console.error('프로필 사진 업로드 실패:', error);
-            if (error.response?.data?.message) {
-                alert(`업로드 실패: ${error.response.data.message}`);
-            } else {
-                alert('프로필 사진 업로드에 실패했습니다.');
-            }
-        } finally {
-            setIsUploading(false);
-        }
+            if (error.response?.data?.message) alert(`업로드 실패: ${error.response.data.message}`);
+            else alert('프로필 사진 업로드에 실패했습니다.');
+        } finally { setIsUploading(false); }
     };
 
     return (
@@ -117,20 +103,14 @@ function Profile({ editable = false, onImageUpdate = null }) {
                 {editable && (
                     <>
                         <div
-                            className={`absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center cursor-pointer transition-opacity duration-200 ${
-                                isHovered ? 'opacity-60' : 'opacity-0'
-                            }`}
+                            className={`absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center cursor-pointer transition-opacity duration-200 ${ isHovered ? 'opacity-60' : 'opacity-0' }`}
                             onClick={handleEditClick}
                         >
-                            {isUploading ? (
-                                <div className="text-white text-sm font-light">
-                                    업로드 중...
-                                </div>
-                            ) : (
-                                <div className="text-white text-sm font-light">
-                                    편집
-                                </div>
-                            )}
+                            {isUploading ?
+                                <div className="text-white text-sm font-light">업로드 중...</div>
+                                :
+                                <div className="text-white text-sm font-light">편집</div>
+                            }
                         </div>
                         <input
                             ref={fileInputRef}

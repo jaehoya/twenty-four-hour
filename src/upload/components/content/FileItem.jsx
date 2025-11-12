@@ -8,7 +8,7 @@ import { useModalStore } from '../../../store/store';
 import api from "../../../utils/api";
 
 function FileItem({ item, isSelected = false, onClick, onFileDeleted }) {
-    const { setIsOpenRenameModal } = useModalStore();
+    const { setIsOpenRenameModal, setRenameItem } = useModalStore();
 
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
@@ -154,46 +154,7 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted }) {
             
             // 다운로드 성공 (브라우저가 자동으로 다운로드를 처리하므로 별도 알림은 생략)
         } catch (error) {
-            // 백엔드 연결 실패 시 모킹 다운로드
-            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError') || error.code === 'ECONNREFUSED') {
-                const fileName = item.original_name || item.name || 'sample_file';
-                const mockContent = `이것은 모킹 파일입니다.\n파일명: ${fileName}\n파일 ID: ${item.id}`;
-                
-                // 파일 확장자에 맞는 MIME 타입 결정
-                const getMimeType = (filename) => {
-                    const ext = filename.split('.').pop()?.toLowerCase();
-                    const mimeTypes = {
-                        'pdf': 'application/pdf',
-                        'jpg': 'image/jpeg',
-                        'jpeg': 'image/jpeg',
-                        'png': 'image/png',
-                        'gif': 'image/gif',
-                        'doc': 'application/msword',
-                        'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                        'xls': 'application/vnd.ms-excel',
-                        'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                        'txt': 'text/plain',
-                        'zip': 'application/zip',
-                    };
-                    return mimeTypes[ext] || 'application/octet-stream';
-                };
-                
-                // 모킹 파일은 텍스트 파일로 다운로드 (실제 파일 형식이 아니므로)
-                const blob = new Blob([mockContent], { type: 'text/plain;charset=utf-8' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                // 파일명에 _mock 추가하여 모킹 파일임을 표시
-                const mockFileName = fileName.replace(/\.[^/.]+$/, '') + '_mock.txt';
-                a.download = mockFileName;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-                alert('모킹 파일 다운로드 완료 (백엔드 연결 실패)\n참고: 실제 파일이 아닌 모킹 파일입니다.\n파일명: ' + mockFileName);
-            } else {
-                alert('파일 다운로드에 실패했습니다.');
-            }
+            console.error('파일 다운로드 실패:', error);
         }
         closeContextMenu();
     };
@@ -206,6 +167,7 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted }) {
 
     const handleRename = () => {
         closeContextMenu();
+        setRenameItem(item);
         setIsOpenRenameModal(true);
     };
 

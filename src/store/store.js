@@ -8,6 +8,8 @@ export const useModalStore = create((set) => ({
     // Rename Modal states
     isOpenRenameModal: false,
     setIsOpenRenameModal: (isOpen) => set({ isOpenRenameModal: isOpen }),
+    renameItem: null, // 이름을 변경할 아이템 정보
+    setRenameItem: (item) => set({ renameItem: item }),
 
     isOpenCreateItemModal: false,
     setIsOpenCreateItemModal: (isOpen) => set({ isOpenCreateItemModal: isOpen }),

@@ -7,10 +7,21 @@ import api from "../../../utils/api";
 
 function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
     const { setIsOpenRenameModal } = useModalStore();
-    const { currentPath, setCurrentPath, addToHistory, currentPathName, addToPathNameHistory } = usePathStore();
+    const { currentPath, setCurrentPath, addToHistory, currentPathName, addToPathNameHistory, setCurrentPathName } = usePathStore();
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+    const [isMobile, setIsMobile] = useState(false);
     const longPressTimer = useRef(null);
+
+    // 모바일 체크
+    React.useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // 폴더는 항상 일반 폴더 아이콘 사용
     const isEmpty = false; // API에서 폴더 내 항목 수를 제공하지 않으므로 항상 false
@@ -79,19 +90,34 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
         setShowContextMenu(false);
     };
 
-    // 싱글클릭 핸들러
-    const handleClick = (e) => {
-        if (onClick) onClick();
-    };
-
-    // 더블클릭 핸들러
-    const handleDoubleClick = () => {
+    // 폴더 진입 함수
+    const enterFolder = () => {
         // 경로 히스토리에 추가
         addToHistory(item.id);
         // 경로 이름 히스토리에 추가
         addToPathNameHistory(item.name);
         // 현재 경로를 폴더 ID로 변경
         setCurrentPath(item.id);
+        // 현재 경로 이름도 업데이트
+        setCurrentPathName(item.name);
+    };
+
+    // 싱글클릭 핸들러
+    const handleClick = (e) => {
+        if (isMobile) {
+            // 모바일: 싱글 클릭으로 폴더 진입
+            enterFolder();
+        } else {
+            // 데스크톱: 싱글 클릭으로 선택만
+            if (onClick) onClick();
+        }
+    };
+
+    // 더블클릭 핸들러 (데스크톱 전용)
+    const handleDoubleClick = () => {
+        if (!isMobile) {
+            enterFolder();
+        }
     };
 
     // 컨텍스트 메뉴 액션들

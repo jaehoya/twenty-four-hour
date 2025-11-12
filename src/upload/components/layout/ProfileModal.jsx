@@ -13,12 +13,34 @@ import MyButton from '../content/MyButton';
 import api from '../../../utils/api';
 
 export default function ProfileModal() {
+    // Username update handler
+    async function handleUsernameUpdate() {
+        if (!editedUsername || editedUsername === userData?.username) {
+            setIsEditingUsername(false);
+            return;
+        }
+        try {
+            const token = localStorage.getItem('accessToken');
+            const res = await api.put('/profile/me', { username: editedUsername }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            setUserData(res.data);
+            setIsEditingUsername(false);
+        } catch (err) {
+            alert('이름 수정에 실패했습니다.');
+            console.error('Username update error:', err);
+        }
+    }
     // Store
     const { isOpenProfileModal, setIsOpenProfileModal } = useModalStore();
 
     // State
     const [ userData, setUserData ] = useState(null);
     const [ profileImageUrl, setProfileImageUrl ] = useState(null);
+    const [ isEditingUsername, setIsEditingUsername ] = useState(false);
+    const [ editedUsername, setEditedUsername ] = useState('');
 
     // Init
     useEffect(() => {
@@ -69,12 +91,55 @@ export default function ProfileModal() {
                 <div className='flex justify-center mb-2 px-22 md:px-30'>
                     <Profile editable={true} onImageUpdate={handleImageUpdate} />
                 </div>
-                
-                {/* Email */}
-                <h2 className="text-[11pt] flex justify-center mb-4">
-                    {userData?.email || 'unknown'}
-                </h2>
-                
+
+                {/* Username and Email */}
+                <div className="w-full flex flex-col justify-center items-center relative" style={{ minHeight: '32px' }}>
+                    {isEditingUsername ? (
+                        <>
+                            <input
+                                type="text"
+                                value={editedUsername}
+                                onChange={e => setEditedUsername(e.target.value)}
+                                className="text-[11pt] text-center bg-transparent px-0 py-0 outline-none focus:border-b focus:border-blue-400"
+                                style={{ minWidth: '100px', border: 'none', borderBottom: '1.5px solid #e5e7eb', borderRadius: 0, margin: 0, height: '24px' }}
+                            />
+                            <div className="flex items-center gap-2 mt-2 mb-2">
+                                <button
+                                    className="bg-blue-500 text-white px-2 py-1 rounded text-[10pt]"
+                                    onClick={handleUsernameUpdate}
+                                >확인</button>
+                                <button
+                                    className="text-gray-500 px-2 py-1 text-[10pt]"
+                                    onClick={() => setIsEditingUsername(false)}
+                                >취소</button>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="flex items-center justify-center">
+                            <div className='w-7' />
+                            <h2 className="text-[11pt] text-center" style={{ margin: 0 }}>{userData?.username || 'unknown'}</h2>
+                            <button
+                                className="text-blue-500 hover:text-blue-700 ml-2"
+                                title="이름 편집"
+                                onClick={() => {
+                                    setIsEditingUsername(true);
+                                    setEditedUsername(userData?.username || '');
+                                }}
+                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                            >
+                                {/* Pencil icon*/}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M12 20h9" />
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                                </svg>
+                            </button>
+                        </div>
+                    )}
+                </div>
+                <span className="text-[9pt] font-normal w-full justify-center flex text-gray-500 mb-4">
+                    {userData?.email || 'Empty email'}
+                </span>
+
                 {/* Usage */}
                 <Usage />
                 

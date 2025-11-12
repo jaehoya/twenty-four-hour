@@ -62,8 +62,6 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, curre
             });
 
             if (response.status === 201 && response.data.state === 201) {
-                // alert(`폴더 "${response.data.folder.name}"가 생성되었습니다.`);
-                console.log(`폴더 "${response.data.folder.name}"가 생성되었습니다.`);
                 
                 // 폴더 목록 새로고침 이벤트 발생
                 window.dispatchEvent(new CustomEvent('foldersUpdated'));
@@ -159,7 +157,7 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, curre
             {isAddNewItemOpen && (
                 <>
                     {/* 배경 오버레이 */}
-                    <div className="fixed inset-0 backdrop-blur-sm z-[100]" onClick={handleCloseModal} />
+                    <div className="fixed inset-0 backdrop-blur-sm z-[100] rounded-[16px]" onClick={handleCloseModal} />
                     
                     {/* 모달 */}
                     <div className="fixed inset-0 flex items-center justify-center z-[110] pointer-events-none">

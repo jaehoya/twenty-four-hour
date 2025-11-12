@@ -69,7 +69,7 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                             userId: folder.userId,
                         }));
                     } catch (folderErr) {
-                        console.log('폴더 목록 조회 실패:', folderErr);
+                        console.error('폴더 목록 조회 실패:', folderErr);
                         folders = [];
                     }
 
@@ -87,7 +87,7 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                             mime_type: item.mimeType || item.mime_type || 'file',
                         }));
                     } catch (filesErr) {
-                        console.log('파일 목록 조회 실패:', filesErr);
+                        console.error('파일 목록 조회 실패:', filesErr);
                         files = [];
                     }
                     
@@ -259,6 +259,29 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                     <div className="col-span-3 md:col-span-5 flex flex-col items-center justify-center py-12 text-gray-500">
                         <p className="text-lg mb-2">검색 결과가 없습니다</p>
                         <p className="text-sm">'{searchQuery}'에 대한 파일이나 폴더를 찾을 수 없습니다</p>
+                    </div>
+                )}
+
+                {/* 파일/폴더가 없을 때 (검색 중이 아닐 때) - 모바일에서만 표시 */}
+                {!searchQuery && filteredFiles.length === 0 && (
+                    <div className="md:hidden col-span-3 flex flex-col items-center justify-center py-16 text-gray-400">
+                        <svg 
+                            className="w-16 h-16 mb-4 opacity-50" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth={1.5} 
+                                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" 
+                            />
+                        </svg>
+                        <p className="text-base mb-1 text-gray-500">파일이 없습니다</p>
+                        <p className="text-xs text-gray-400">
+                            {activeTab === 'storage' ? '파일을 업로드하거나 폴더를 생성해보세요' : '항목이 비어있습니다'}
+                        </p>
                     </div>
                 )}
                 
