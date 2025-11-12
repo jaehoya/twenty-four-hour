@@ -11,8 +11,6 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
     const longPressTimer = useRef(null);
-    const clickTimer = useRef(null);
-    const [clickCount, setClickCount] = useState(0);
 
     // 폴더는 항상 일반 폴더 아이콘 사용
     const isEmpty = false; // API에서 폴더 내 항목 수를 제공하지 않으므로 항상 false
@@ -20,6 +18,8 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
     // 길게 클릭 이벤트 핸들러
     const handleMouseDown = (e) => {
         longPressTimer.current = setTimeout(() => {
+            // 길게 눌렀을 때 선택
+            if (onClick) onClick();
             setContextMenuPosition({ x: e.clientX, y: e.clientY });
             setShowContextMenu(true);
         }, 500);
@@ -43,6 +43,8 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
     const handleTouchStart = (e) => {
         const touch = e.touches[0];
         longPressTimer.current = setTimeout(() => {
+            // 길게 눌렀을 때 선택
+            if (onClick) onClick();
             setContextMenuPosition({ x: touch.clientX, y: touch.clientY });
             setShowContextMenu(true);
         }, 500);
@@ -66,6 +68,8 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
     const handleContextMenu = (e) => {
         e.preventDefault();
         e.stopPropagation();
+        // 우클릭 시 폴더 선택
+        if (onClick) onClick();
         setContextMenuPosition({ x: e.clientX, y: e.clientY });
         setShowContextMenu(true);
     };
@@ -75,26 +79,12 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
         setShowContextMenu(false);
     };
 
-    // 더블클릭 핸들러
+    // 싱글클릭 핸들러
     const handleClick = (e) => {
-        // 싱글 클릭
-        if (clickCount === 0) {
-            setClickCount(1);
-            clickTimer.current = setTimeout(() => {
-                // 싱글 클릭 처리
-                if (onClick) onClick();
-                setClickCount(0);
-            }, 300);
-        } 
-        // 더블 클릭
-        else if (clickCount === 1) {
-            clearTimeout(clickTimer.current);
-            setClickCount(0);
-            // 폴더 안으로 이동
-            handleDoubleClick();
-        }
+        if (onClick) onClick();
     };
 
+    // 더블클릭 핸들러
     const handleDoubleClick = () => {
         // 경로 히스토리에 추가
         addToHistory(item.id);
@@ -166,6 +156,7 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
                     isSelected ? "bg-[#E6F3FF] border-[#1C91FF] border-[3px]" : "bg-white border-gray-200 border-[1px]"
                 }`}
                 onClick={handleClick}
+                onDoubleClick={handleDoubleClick}
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseLeave}

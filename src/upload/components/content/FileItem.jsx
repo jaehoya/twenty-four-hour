@@ -25,6 +25,8 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted }) {
     // 길게 클릭 이벤트 핸들러
     const handleMouseDown = (e) => {
         longPressTimer.current = setTimeout(() => {
+            // 길게 눌렀을 때 선택
+            if (onClick) onClick();
             setContextMenuPosition({ x: e.clientX, y: e.clientY });
             setShowContextMenu(true);
         }, 500); // 500ms 후 컨텍스트 메뉴 표시
@@ -48,6 +50,8 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted }) {
     const handleTouchStart = (e) => {
         const touch = e.touches[0];
         longPressTimer.current = setTimeout(() => {
+            // 길게 눌렀을 때 선택
+            if (onClick) onClick();
             setContextMenuPosition({ x: touch.clientX, y: touch.clientY });
             setShowContextMenu(true);
         }, 500); // 500ms 후에 컨텍스트 메뉴 표시
@@ -71,6 +75,8 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted }) {
     const handleContextMenu = (e) => {
         e.preventDefault();
         e.stopPropagation();
+        // 우클릭 시 파일 선택
+        if (onClick) onClick();
         setContextMenuPosition({ x: e.clientX, y: e.clientY });
         setShowContextMenu(true);
     };
