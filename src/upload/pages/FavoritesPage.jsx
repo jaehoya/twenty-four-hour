@@ -3,7 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import Data from "../components/layout/Data";
 
 function FavoritesPage() {
-    const { selectedItem, onItemSelect, onFileUpload } = useOutletContext();
+    const { selectedItem, onItemSelect, onFileUpload, sortOption, searchQuery } = useOutletContext();
     
     return (
         <div 
@@ -20,6 +20,8 @@ function FavoritesPage() {
                 setIsAddNewItemOpen={() => {}}
                 onFileUpload={onFileUpload}
                 activeTab="favorite"
+                sortOption={sortOption}
+                searchQuery={searchQuery}
             />
         </div>
     );

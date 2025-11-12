@@ -3,7 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import Data from "../components/layout/Data";
 
 function StoragePage() {
-    const { selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload } = useOutletContext();
+    const { selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, sortOption, searchQuery } = useOutletContext();
     
     return (
         <div 
@@ -20,6 +20,8 @@ function StoragePage() {
                 setIsAddNewItemOpen={setIsAddNewItemOpen}
                 onFileUpload={onFileUpload}
                 activeTab="storage"
+                sortOption={sortOption}
+                searchQuery={searchQuery}
             />
         </div>
     );
