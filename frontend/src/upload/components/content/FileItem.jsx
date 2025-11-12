@@ -5,9 +5,10 @@ import FileIcon from "../../../assets/upload/file_icon.svg";
 import ProgressCircle from "./ProgressCircle";
 import FileMenu from "./FileMenu";
 import { useModalStore } from '../../../store/store';
+import api from "../../../utils/api";
 
-function FileItem({ item, isSelected = false, onClick }) {
-    const { setIsOpenRenameModal } = useModalStore();
+function FileItem({ item, isSelected = false, onClick, onFileDeleted }) {
+    const { setIsOpenRenameModal, setRenameItem } = useModalStore();
 
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
@@ -24,6 +25,8 @@ function FileItem({ item, isSelected = false, onClick }) {
     // 길게 클릭 이벤트 핸들러
     const handleMouseDown = (e) => {
         longPressTimer.current = setTimeout(() => {
+            // 길게 눌렀을 때 선택
+            if (onClick) onClick();
             setContextMenuPosition({ x: e.clientX, y: e.clientY });
             setShowContextMenu(true);
         }, 500); // 500ms 후 컨텍스트 메뉴 표시
@@ -47,6 +50,8 @@ function FileItem({ item, isSelected = false, onClick }) {
     const handleTouchStart = (e) => {
         const touch = e.touches[0];
         longPressTimer.current = setTimeout(() => {
+            // 길게 눌렀을 때 선택
+            if (onClick) onClick();
             setContextMenuPosition({ x: touch.clientX, y: touch.clientY });
             setShowContextMenu(true);
         }, 500); // 500ms 후에 컨텍스트 메뉴 표시
@@ -66,32 +71,143 @@ function FileItem({ item, isSelected = false, onClick }) {
         }
     };
 
+    // 우클릭 이벤트 핸들러
+    const handleContextMenu = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // 우클릭 시 파일 선택
+        if (onClick) onClick();
+        setContextMenuPosition({ x: e.clientX, y: e.clientY });
+        setShowContextMenu(true);
+    };
+
     // 컨텍스트 메뉴 닫기
     const closeContextMenu = () => {
         setShowContextMenu(false);
     };
 
     // 컨텍스트 메뉴 액션들
-    const handleDownload = () => {
-        console.log('다운로드:', item.original_name);
+    const handleDownload = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            
+            // 토큰이 없으면 에러 (백엔드 연동 시 필요)
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                closeContextMenu();
+                return;
+            }
+
+            // 다운로드 시도
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+            };
+
+            const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT || 'http://localhost:4000/api'}/files/${item.id}/download`, {
+                method: 'GET',
+                headers: headers,
+            });
+
+            if (!response.ok) {
+                // 404 에러 처리
+                if (response.status === 404) {
+                    const errorData = await response.json().catch(() => ({}));
+                    if (errorData.code === 'FILE_NOT_FOUND') {
+                        alert('파일을 찾을 수 없습니다.');
+                    } else {
+                        alert('파일을 찾을 수 없습니다.');
+                    }
+                } else {
+                    alert('파일 다운로드에 실패했습니다.');
+                }
+                throw new Error('다운로드 실패');
+            }
+
+            // Content-Disposition 헤더에서 파일명 추출 (한글 파일명 지원)
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let fileName = item.original_name || item.name;
+            
+            if (contentDisposition) {
+                // filename*=UTF-8'' 형식에서 파일명 추출
+                const utf8Match = contentDisposition.match(/filename\*=UTF-8''(.+)/);
+                if (utf8Match) {
+                    fileName = decodeURIComponent(utf8Match[1]);
+                } else {
+                    // 일반 filename= 형식
+                    const filenameMatch = contentDisposition.match(/filename="?(.+?)"?$/);
+                    if (filenameMatch) {
+                        fileName = filenameMatch[1];
+                    }
+                }
+            }
+            
+            // 파일 다운로드를 위한 Blob 생성
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            // 다운로드 성공 (브라우저가 자동으로 다운로드를 처리하므로 별도 알림은 생략)
+        } catch (error) {
+            console.error('파일 다운로드 실패:', error);
+        }
         closeContextMenu();
     };
 
     const handleViewInfo = () => {
-        console.log('정보 보기:', item.original_name);
         closeContextMenu();
         // 기본 동작 (파일 선택)
         onClick();
     };
 
     const handleRename = () => {
-        console.log('이름 바꾸기:', item.original_name);
         closeContextMenu();
+        setRenameItem(item);
         setIsOpenRenameModal(true);
     };
 
-    const handleDelete = () => {
-        console.log('휴지통으로 이동:', item.original_name);
+    const handleDelete = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                closeContextMenu();
+                return;
+            }
+
+            // 삭제 확인
+            if (!confirm(`${item.original_name || item.name} 파일을 휴지통으로 이동하시겠습니까?`)) {
+                closeContextMenu();
+                return;
+            }
+
+            const response = await api.delete(`/files/${item.id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (response.status === 200 && response.data.code === 'FILE_DELETED') {
+                alert('파일이 휴지통으로 이동되었습니다.');
+                // 파일 목록 새로고침
+                if (onFileDeleted) {
+                    onFileDeleted();
+                }
+            } else {
+                throw new Error('파일 삭제 실패');
+            }
+        } catch (error) {
+            if (error.response?.data?.message) {
+                alert(`파일 삭제 실패: ${error.response.data.message}`);
+            } else {
+                alert('파일 삭제에 실패했습니다.');
+            }
+        }
         closeContextMenu();
     };
 
@@ -109,6 +225,7 @@ function FileItem({ item, isSelected = false, onClick }) {
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 onTouchCancel={handleTouchCancel}
+                onContextMenu={handleContextMenu}
             >
             {/* 아이콘 */}
             <div className="flex items-center justify-center h-[65%] relative">

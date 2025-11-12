@@ -1,24 +1,40 @@
 import React, { useState } from "react";
 import Arrow_icon from "../../../assets/upload/arrow_icon.svg";
+import { usePathStore } from "../../../store/store";
 
-function Title() {
+function Title({ selectedSort = "이름", onSortChange = () => {}, activeTab = "storage" }) {
     const [isSortOpen, setIsSortOpen] = useState(false);
-    const [selectedSort, setSelectedSort] = useState("이름");
 
-    const sortOptions = ["이름", "수정한 날짜", "생성한 날짜"];
+    const { goBack, currentPath, currentPathName, pathNameHistory } = usePathStore();
+
+    // const sortOptions = ["이름", "수정한 날짜", "생성한 날짜"];
+    const sortOptions = ["이름", "생성한 날짜"];
 
     const handleSortClick = () => {
         setIsSortOpen(!isSortOpen);
     };
 
     const handleSortSelect = (option) => {
-        setSelectedSort(option);
+        onSortChange(option);
         setIsSortOpen(false);
+    };
+
+    // 경로 이름을 "내 저장소 > test > subfolder" 형식으로 생성
+    const getDisplayPath = () => {
+        // 휴지통이나 즐겨찾기 탭인 경우 탭 이름 표시
+        if (activeTab === 'trash') return '휴지통';
+        if (activeTab === 'favorite') return '즐겨찾기';
+        
+        // 저장소 탭인 경우 경로 표시
+        return pathNameHistory.join(' > ');
     };
 
     return (
         <div className="w-full h-[4.57svh] md:h-[7.12svh] bg-white border-[1px] border-[#DAE0E9] rounded-[10px] md:rounded-[15px] flex items-center px-4 py-2 md:px-6 justify-between relative">
-            <span className="font-semibold text-[0.81rem] md:text-[12pt] text-[#2A2D41]">내 저장소</span>
+            {currentPath !== "root" && activeTab === "storage" && (
+                <span onClick={() => { goBack(); }} className="cursor-pointer w-7 scale-y-[1.4] mb-0.5 text-[#777]">&lt;</span>
+            )}
+            <span className="font-semibold mt-0.5 flex-1 text-[0.81rem] md:text-[12pt] text-[#2A2D41] truncate">{getDisplayPath()}</span>
             <div className="flex flex-row space-x-2">
                 <div className="relative">
                     <button 
@@ -52,10 +68,10 @@ function Title() {
                     )}
                 </div>
                 
-                <button className="w-16 h-7 md:w-auto md:h-[30px] flex flex-row items-center justify-center p-1 md:p-2 md:pl-6 rounded-[25px] border-[1px] border-[#C7CFDB] md:ml-2 shadow-[0_0_10px_rgba(0,0,0,0.06)]">
+                {/* <button className="w-16 h-7 md:w-auto md:h-[30px] flex flex-row items-center justify-center p-1 md:p-2 md:pl-6 rounded-[25px] border-[1px] border-[#C7CFDB] md:ml-2 shadow-[0_0_10px_rgba(0,0,0,0.06)]">
                     <span className="text-xs md:text-[9.5pt] md:mt-0.5 text-[#3C4860] font-normal mr-1 md:mr-3">필터</span>
                     <img src={Arrow_icon} alt="arrow_icon" className="w-3 h-3"/>
-                </button>
+                </button> */}
             </div>
         </div>
     )

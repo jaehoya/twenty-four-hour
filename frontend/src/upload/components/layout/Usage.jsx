@@ -24,7 +24,9 @@ function Usage() {
                     percentage: Math.min(percentage, 100) // 100% 초과 방지
                 });
             }
-            catch (error) { console.error('사용량 데이터 로딩 중 오류:', error);}
+            catch (error) {
+                // 에러 처리 (사용량 데이터 로딩 실패)
+            }
             finally { setLoading(false); }
         };
 
