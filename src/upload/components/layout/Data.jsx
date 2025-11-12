@@ -6,7 +6,7 @@ import UploadedFiles from "../content/UploadedFiles";
 import api from "../../../utils/api";
 import { usePathStore } from "../../../store/store";
 
-function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, activeTab }) {
+function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, activeTab, sortOption = '이름' }) {
     const [ files, setFiles ] = useState([]);
     const [ isDragOver, setIsDragOver ] = useState(false);
     const { currentPath, goBack, resetPath } = usePathStore();
@@ -41,7 +41,9 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                             createdAt: fav.createdAt,
                             isFavorite: true,
                         }));
-                    setFiles(favoriteFiles);
+                    // 정렬 적용
+                    const sortedFavs = sortItems(favoriteFiles, sortOption);
+                    setFiles(sortedFavs);
                 } else if (currentTab === 'trash') {
                     // 휴지통은 아직 API가 없으므로 빈 배열
                     // TODO: 휴지통 API 구현 후 추가
@@ -89,13 +91,39 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                         files = [];
                     }
                     
-                    // 폴더를 먼저, 파일을 나중에 표시
-                    setFiles([...folders, ...files]);
+                    // 정렬: 폴더와 파일은 각각 정렬하고 폴더를 먼저 표시
+                    const sortedFolders = sortItems(folders, sortOption);
+                    const sortedFiles = sortItems(files, sortOption);
+                    setFiles([...sortedFolders, ...sortedFiles]);
                 }
         } catch (err) {
             setFiles([]); // 에러 시 빈 배열로 설정
         }
     }, [activeTab, currentPath]);
+
+    // 정렬 유틸리티: 이름(오름차순), 생성한 날짜(최신순)
+    function sortItems(list, option) {
+        if (!Array.isArray(list)) return list;
+        const arr = [...list];
+
+        if (option === '이름') {
+            return arr.sort((a, b) => {
+                const na = (a.name || a.original_name || '').toString();
+                const nb = (b.name || b.original_name || '').toString();
+                return na.localeCompare(nb, 'ko');
+            });
+        }
+
+        if (option === '생성한 날짜') {
+            return arr.sort((a, b) => {
+                const ta = Date.parse(a.createdAt || a.updatedAt || 0) || 0;
+                const tb = Date.parse(b.createdAt || b.updatedAt || 0) || 0;
+                return tb - ta; // 최신순
+            });
+        }
+
+        return arr;
+    }
 
     useEffect(() => {
         fetchFiles();

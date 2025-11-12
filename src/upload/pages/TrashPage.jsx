@@ -3,7 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import Data from "../components/layout/Data";
 
 function TrashPage() {
-    const { selectedItem, onItemSelect, onFileUpload } = useOutletContext();
+    const { selectedItem, onItemSelect, onFileUpload, sortOption } = useOutletContext();
     
     return (
         <div 
@@ -20,6 +20,7 @@ function TrashPage() {
                 setIsAddNewItemOpen={() => {}}
                 onFileUpload={onFileUpload}
                 activeTab="trash"
+                sortOption={sortOption}
             />
         </div>
     );

@@ -66,10 +66,10 @@ function Detail({ selectedItem = null }) {
                     <span className="text-[9pt] font-normal text-[#667687]">{new Date(selectedItem.createdAt).toLocaleDateString()} 오전 11:02</span>
                 </div>
                 
-                <div className="flex flex-col justify-left">
+                {/* <div className="flex flex-col justify-left">
                     <span className="text-[9pt] font-semibold text-[#34475C]">수정 날짜</span>
                     <span className="text-[9pt] font-normal text-[#667687]">{new Date(selectedItem.updatedAt).toLocaleDateString()} 오후 09:15</span>
-                </div>
+                </div> */}
             </div>
         </div>
     )

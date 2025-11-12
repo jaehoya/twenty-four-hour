@@ -16,6 +16,7 @@ function Upload() {
     const [isMobile, setIsMobile] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [isAddNewItemOpen, setIsAddNewItemOpen] = useState(false);
+    const [sortOption, setSortOption] = useState('이름');
     const location = useLocation();
     const navigate = useNavigate();
     
@@ -327,13 +328,15 @@ function Upload() {
                 <div className="flex flex-col flex-1 relative md:h-full">
                     <div className="mx-2 md:mx-0 flex-1 flex flex-col  md:h-full">
                         <Banner />
-                        <Title />
+                        <Title selectedSort={sortOption} onSortChange={setSortOption} />
                         <Outlet context={{ 
                             selectedItem, 
                             onItemSelect: setSelectedItem,
                             isAddNewItemOpen,
                             setIsAddNewItemOpen,
-                            onFileUpload: uploadFiles
+                            onFileUpload: uploadFiles,
+                            sortOption,
+                            setSortOption
                         }} />
                     </div>
                     
