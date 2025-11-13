@@ -4,6 +4,7 @@ const File = require("./file");
 const UserProfile = require("./userProfile");
 const Folder = require("./folder");
 const Favorite = require("./favorite");
+const Share = require("./share")(sequelize, require("sequelize").DataTypes);
 
 // Associations
 User.hasOne(UserProfile, { foreignKey: 'userId' });
@@ -37,6 +38,9 @@ Folder.hasMany(Favorite, {
 });
 Favorite.belongsTo(Folder, { foreignKey: "targetId", constraints: false });
 
+File.hasMany(Share, { foreignKey: 'fileId' });
+Share.belongsTo(File, { foreignKey: 'fileId' });
+
 
 module.exports = {
   sequelize,
@@ -45,4 +49,5 @@ module.exports = {
   UserProfile,
   Folder,
   Favorite,
+  Share,
 };

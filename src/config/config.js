@@ -6,7 +6,7 @@ const fs = require("fs");
 // 프로젝트 루트의 .env 파일을 명시적으로 로드
 const dotenvPath = path.resolve(process.cwd(), ".env");
 if(fs.existsSync(dotenvPath)) {
-    require("dotenv").config({ path: dotenvPath });
+    require("dotenv").config({ path: dotenvPath, override: true });
 } else {
     console.warn(".env 파일을 찾지 못했습니다:", dotenvPath);
 }
