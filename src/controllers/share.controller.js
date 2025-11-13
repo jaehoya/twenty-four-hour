@@ -1,7 +1,12 @@
 const shareService = require("../services/share.service");
 const { response } = require("../utils/response");
 const path = require("path");
+const { AppError } = require("../utils/response"); 
 
+/**
+ * 공유 링크를 생성하는 컨트롤러 함수
+ * POST /api/shares
+ */
 const createShareLink = async (req, res, next) => {
   try {
     const { fileId } = req.body;
@@ -9,7 +14,7 @@ const createShareLink = async (req, res, next) => {
 
     const share = await shareService.createShare(fileId, userId);
     
-    // 클라이언트에게 전달할 전체 공유 링크 구성
+    // 생성된 공유 링크 URL
     const shareLink = `${req.protocol}://${req.get("host")}/api/shares/${share.token}`;
 
     response(res, 201, "공유 링크가 성공적으로 생성되었습니다.", { shareLink });
@@ -18,6 +23,10 @@ const createShareLink = async (req, res, next) => {
   }
 };
 
+/**
+ * 공유 링크를 통해 파일을 접근하고 다운로드하는 컨트롤러 함수
+ * GET /api/shares/:token
+ */
 const accessSharedFile = async (req, res, next) => {
   try {
     const { token } = req.params;

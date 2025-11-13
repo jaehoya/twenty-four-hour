@@ -38,6 +38,7 @@ Folder.hasMany(Favorite, {
 });
 Favorite.belongsTo(Folder, { foreignKey: "targetId", constraints: false });
 
+
 File.hasMany(Share, { foreignKey: 'fileId' });
 Share.belongsTo(File, { foreignKey: 'fileId' });
 
@@ -49,5 +50,5 @@ module.exports = {
   UserProfile,
   Folder,
   Favorite,
-  Share,
+  Share, 
 };
