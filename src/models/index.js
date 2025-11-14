@@ -15,6 +15,10 @@ UserProfile.belongsTo(File, { as: 'ProfileImage', foreignKey: 'profileImageId' }
 User.hasMany(Folder, { foreignKey: 'userId' });
 Folder.belongsTo(User, { foreignKey: 'userId' });
 
+// User와 File 모델 간의 1:N 관계 설정
+User.hasMany(File, { foreignKey: 'user_id' });
+File.belongsTo(User, { foreignKey: 'user_id' });
+
 Folder.hasMany(Folder, { as: 'children', foreignKey: 'parentId' });
 Folder.belongsTo(Folder, { as: 'parent', foreignKey: 'parentId' });
 
