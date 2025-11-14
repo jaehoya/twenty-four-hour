@@ -34,7 +34,7 @@
   * *가장 많이 활용하는 React.js와 빠른 페이지 구성을 위해서 tailwind CSS를 선택했습니다.*
 * **Backend:** Node.js (Express), MySQL
   * *Node.js(Express)를 통해 빠르고 확장 가능한 API 서버를 구축하며, 관계형 데이터베이스인 MySQL을 사용하여 파일 및 사용자 데이터를 안정적으로 관리합니다.*
-  * *JS를 알고 있어서 빠르게 배우고 제작할 수 있는 node.js와 SQL을 직접 다루기 어려워 ORN(sequlize)를 선택했습니다.* 
+  * *JS를 알고 있어서 빠르게 배우고 제작할 수 있는 node.js와 SQL을 직접 다루기 어려워 ORM(sequlize)를 선택했습니다.* 
 * **Design/UI:** Figma, Adobe
   * *Figma를 통한 실시간 협업 디자인 및 프로토타이핑, Adobe 툴을 이용한 그래픽 리소스 제작을 진행합니다.*
 
