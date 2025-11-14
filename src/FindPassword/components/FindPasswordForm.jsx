@@ -80,7 +80,6 @@ function FindPasswordForm() {
                     </p>
                 )}
                 
-                <div className="md:h-[40px]" />
             </div>
         </form>
     );
