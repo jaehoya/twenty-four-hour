@@ -30,7 +30,18 @@ const allowedMime = [
     "image/png",
     "application/pdf",
     "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/zip", // ZIP files
+    "video/mp4",       // MP4 files
+    "audio/mpeg",      // MP3 files
+    "application/vnd.ms-excel", // .xls
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+    "application/vnd.ms-powerpoint", // .ppt
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+    "text/plain",      // .txt
+    "text/csv",        // .csv
+    "application/x-hwp", // .hwp
+    "application/haansofthwp" // .hwp (alternative)
 ];
 
 // 파일 타입 필터
