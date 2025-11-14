@@ -3,7 +3,7 @@ import SignupPage from './signup/pages/SignupPage';
 import LoginPage from "./login/pages/LoginPage";
 import FindPasswordPage from "./FindPassword/pages/FindPasswordPage";
 import ResetPasswordPage from "./ResetPassword/pages/ResetPasswordPage";
-// import ChangePasswordPage from "./ChangePassword/pages/ChangePasswordPage";
+import ChangePasswordPage from "./ChangePassword/pages/ChangePasswordPage";
 import Upload from './upload/pages/Upload';
 import StoragePage from './upload/pages/StoragePage';
 import FavoritesPage from './upload/pages/FavoritesPage';
@@ -13,17 +13,17 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path='/signup' element={<SignupPage />} />
-        <Route path='/login' element={<LoginPage />} />
-        <Route path='/find-password' element={<FindPasswordPage />} />
-        <Route path='/reset-password' element={<ResetPasswordPage />} />
-        {/* <Route path='/change-password' element={<ChangePasswordPage />} /> */}
-        <Route path='/upload' element={<Upload />}>
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/find-password" element={<FindPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path='/change-password' element={<ChangePasswordPage />} />
+        <Route path="/upload" element={<Upload />}>
           <Route index element={<StoragePage />} />
-          <Route path='favorites' element={<FavoritesPage />} />
-          <Route path='trash' element={<TrashPage />} />
+          <Route path="favorites" element={<FavoritesPage />} />
+          <Route path="trash" element={<TrashPage />} />
         </Route>
-        <Route path='/' element={<Navigate to="/upload" replace />} />
+        <Route path="/" element={<Navigate to="/change-password" replace />} />
       </Routes>
     </Router>
   );
