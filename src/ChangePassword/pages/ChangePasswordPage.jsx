@@ -1,33 +1,33 @@
 /**
- * FindPasswordPage
- * 로그인과 연결되는 비밀번호를 잊으셨나요? 페이지로, 이메일을 입력하면 비밀번호 재설정 링크를 전송합니다.
+ * ChangePasswordPage
+ * 프로필과 연결되는 비밀번호 변경 페이지
  */
-import FindPasswordForm from "../components/FindPasswordForm";
+import ChangePasswordForm from "../components/ChangePasswordForm";
 import Bg from "../../assets/signup/background_gradient.svg";
 import LogoUrl from "../../assets/signup/24_logo.svg";
 import ScrollThumb from "../../assets/signup/scrollbar.svg";
 import { useNavigate } from "react-router-dom";
 
-function FindPasswordPage() {
+function ChangePasswordPage() {
     const navigate = useNavigate();
 
     return (
-    <main className="h-screen flex flex-col md:grid md:w-[60svw] max-w-[1158px] md:place-items-center mx-auto p-2 md:p-0">
-        <div className="flex flex-col md:flex-row md:shadow-[0_0_70px_0_rgba(73,91,134,0.2)] md:rounded-[25px] overflow-hidden w-full md:w-full h-full md:h-auto">
-            <div className="md:flex-[5.5_1_0%] h-[213px] w-full md:h-[60vh] md:w-auto flex items-center justify-center p-0 md:p-2">
+    <main className="md:h-screen md:grid md:w-[60svw] md:place-items-center mx-auto p-2 md:p-0">
+        <div className="w-full flex flex-col md:flex-row md:shadow-[0_0_70px_0_rgba(73,91,134,0.2)] md:rounded-[25px] overflow-hidden md:h-auto">
+            <div className="md:flex-[5.5_1_0%] h-[213px] md:h-[65vh] md:w-auto flex items-center justify-center p-0 md:p-2">
                 <div className="w-full h-full md:rounded-[20px] overflow-hidden hidden md:block">
                     <img src={Bg} className="w-full h-full object-cover md:rotate-0 rotate-180 rounded-[10px] md:rounded-[20px]" alt=""/>
                 </div>
             </div>
-            <section className="md:flex-[4_1_0%] min-w-0 flex flex-col md:grid md:grid-rows-[auto_minmax(0,1fr)_auto] md:h-[60vh] w-full bg-white flex-1">
+            <section className="md:flex-[4_1_0%] min-w-0 flex flex-col md:grid md:grid-rows-[auto_minmax(0,1fr)_auto] md:h-[65vh] w-full bg-white flex-1">
 
-                <div className="px-4 md:px-6 pt-6 md:pt-6 pb-6 flex justify-center mt-6">
+                <div className="px-4 md:px-6 pt-6 pb-6 flex justify-center mt-6">
                     <img src={LogoUrl} className="h-auto max-h-[50px] md:max-h-[65px]" alt="logo" />
                 </div>
 
                 <div className="flex-1 px-6 flex justify-center md:min-h-0 md:overflow-hidden">
                     <div className="w-full max-w-[363px] min-w-0 mt-8">
-                        <span className="font-regular text-[#3F414E] text-[0.9375rem] md:hidden">비밀번호 찾기</span>
+                        <span className="font-regular text-[#3F414E] text-[0.9375rem] md:hidden">비밀번호 변경</span>
                         <div
                             className={`
                                 w-full
@@ -49,7 +49,8 @@ function FindPasswordPage() {
                             `}
                             style={{ "--sb-thumb": `url(${ScrollThumb})` }}
                         >
-                            <FindPasswordForm />
+                            <ChangePasswordForm />
+                            <div className="h-8" />
                         </div>
                     </div>
                 </div>
@@ -58,17 +59,17 @@ function FindPasswordPage() {
                     <div className="w-full max-w-[363px] min-w-0">
                         <button
                             type="submit"
-                            form="findPasswordForm"
+                            form="changePasswordForm"
                             className="block w-full h-[55px] mx-auto rounded-[7px]
                                         text-white text-sm md:text-base font-semibold
                                         bg-gradient-to-r from-[#0D4CFF] to-[#33AAFF]
                                         shadow-lg"
-                        >재설정 링크 전송</button>
+                        >비밀번호 변경</button>
                         <button
-                            onClick={() => navigate("/login")}
+                            onClick={() => navigate("/upload")}
                             className="block w-full h-[55px] mx-auto
                                         text-[#222] text-sm md:text-base underline mt-2"
-                        >로그인으로 돌아가기</button>
+                        >돌아가기</button>
                     </div>
                 </div>
             </section>
@@ -77,5 +78,4 @@ function FindPasswordPage() {
     );
 }
 
-export default FindPasswordPage;
-
+export default ChangePasswordPage;
