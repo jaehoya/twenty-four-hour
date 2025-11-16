@@ -83,7 +83,7 @@ async function deleteFileById(userId, fileId) {
         throw error;
     }
 
-    // soft delete
+    // paranoid: true 옵션으로 인해 soft delete가 실행됨
     await file.destroy();
 }
 
@@ -107,8 +107,15 @@ async function renameFileById(userId, fileId, newName) {
 
     return {
         ...file.toJSON(),
-        previewUrl: `/api/files/${f.id}/preview`,
+        previewUrl: `/api/files/${file.id}/preview`,
     }
 }
 
-module.exports = { saveFileMetadata, getFilesByUserId, getFileById, deleteFileById, renameFileById };
+module.exports = { 
+    saveFileMetadata, 
+    getFilesByUserId, 
+    getFileById, 
+    deleteFileById, 
+    renameFileById
+};
+
