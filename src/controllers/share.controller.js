@@ -1,7 +1,14 @@
 const shareService = require("../services/share.service");
-const { response } = require("../utils/response");
 const path = require("path");
-const { AppError } = require("../utils/response"); 
+
+// AppError 클래스 정의 (response.js 파일이 비어있으므로)
+class AppError extends Error {
+  constructor(status, code, message) {
+    super(message);
+    this.status = status;
+    this.code = code;
+  }
+}
 
 /**
  * 공유 링크를 생성하는 컨트롤러 함수
@@ -14,10 +21,13 @@ const createShareLink = async (req, res, next) => {
 
     const share = await shareService.createShare(fileId, userId);
     
-    // 생성된 공유 링크 URL
+    // 클라이언트에게 전달할 전체 공유 링크 구성
     const shareLink = `${req.protocol}://${req.get("host")}/api/shares/${share.token}`;
 
-    response(res, 201, "공유 링크가 성공적으로 생성되었습니다.", { shareLink });
+    res.status(201).json({
+      message: "공유 링크가 성공적으로 생성되었습니다.",
+      data: { shareLink }
+    });
   } catch (err) {
     next(err);
   }

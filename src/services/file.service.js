@@ -70,7 +70,7 @@ async function getFileById(fileId) {
 }
 
 /**
- * 파일 ID와 사용자 ID로 파일 삭제
+ * 파일 ID와 사용자 ID로 파일 삭제 (소프트 삭제)
  * @param {number} userId - 사용자 ID
  * @param {number} fileId - 파일 ID
  */
@@ -83,14 +83,7 @@ async function deleteFileById(userId, fileId) {
         throw error;
     }
 
-    const filePath = path.join(__dirname, "../..", file.path);
-    fs.unlink(filePath, (err) => {
-        if (err) {
-            // 파일을 삭제하는 동안 오류가 발생해도 데이터베이스에서는 삭제를 시도
-            console.error(`파일 삭제 실패: ${filePath}`, err);
-        }
-    });
-
+    // paranoid: true 옵션으로 인해 soft delete가 실행됨
     await file.destroy();
 }
 
@@ -114,8 +107,15 @@ async function renameFileById(userId, fileId, newName) {
 
     return {
         ...file.toJSON(),
-        previewUrl: `/api/files/${f.id}/preview`,
+        previewUrl: `/api/files/${file.id}/preview`,
     }
 }
 
-module.exports = { saveFileMetadata, getFilesByUserId, getFileById, deleteFileById, renameFileById };
+module.exports = { 
+    saveFileMetadata, 
+    getFilesByUserId, 
+    getFileById, 
+    deleteFileById, 
+    renameFileById
+};
+

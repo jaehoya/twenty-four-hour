@@ -3,7 +3,9 @@ const router = express.Router();
 const { 
     createFolderController,
     getSubFoldersController,
-    getFilesInFolderController, 
+    getFilesInFolderController,
+    renameFolderController,
+    deleteFolderController
 } = require("../controllers/folder.controller");
 const authenticateToken = require("../middlewares/auth");
 
@@ -15,5 +17,13 @@ router.get("/:id/subfolders", authenticateToken, getSubFoldersController);
 
 // GET /api/folders/:id/files -> 파일 조회
 router.get("/:id/files", authenticateToken, getFilesInFolderController);
+
+
+// PUT /api/folders/:id/rename -> 폴더 이름 변경
+router.put("/:id/rename", authenticateToken, renameFolderController);
+
+
+// DELETE /api/folders/:id -> 폴더 삭제
+router.delete("/:id", authenticateToken, deleteFolderController);
 
 module.exports = router;

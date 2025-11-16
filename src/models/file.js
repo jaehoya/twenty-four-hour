@@ -16,7 +16,8 @@ const File = sequelize.define("File", {
   path: { type: DataTypes.STRING }
 }, {
   tableName: "files",
-  timestamps: true
+  timestamps: true,
+  paranoid: true, 
 });
 
 module.exports = File;

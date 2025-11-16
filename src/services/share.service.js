@@ -1,6 +1,14 @@
 const { File, Share, User } = require("../models");
 const crypto = require("crypto");
-const { AppError } = require("../utils/response");
+
+// AppError 클래스 정의 (response.js 파일이 비어있으므로)
+class AppError extends Error {
+  constructor(status, code, message) {
+    super(message);
+    this.status = status;
+    this.code = code;
+  }
+}
 
 /**
  * 파일 공유 링크를 생성하는 서비스 함수
@@ -23,7 +31,7 @@ const createShare = async (fileId, userId) => {
   const share = await Share.create({
     fileId,
     token,
-    expiresAt: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000) //1일 후 만료
+    // expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 예: 7일 후 만료
   });
 
   return share;
