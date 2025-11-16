@@ -107,8 +107,71 @@ async function getFilesInFolder(userId, folderId = null) {
   }));
 }
 
+
+
+// 폴더 이름 변경
+async function renameFolder(userId, folderId, newName) {
+    const folder = await Folder.findOne({ where: { id: folderId, userId } });
+
+    if (!folder) {
+        throw new Error("Folder not found or user not authorized");
+    }
+
+    const oldPath = await buildFolderPath(folder);
+    const originalName = folder.name;
+    folder.name = newName;
+    const newPath = await buildFolderPath(folder);
+
+    // 실제 디렉토리 이름 변경
+    try {
+        await fs.rename(oldPath, newPath);
+    } catch (err) {
+        // 이름 변경 실패 시 DB 롤백
+        folder.name = originalName;
+        await folder.save();
+        throw err;
+    }
+
+    await folder.save();
+    return folder;
+}
+
+
+// 폴더 및 하위 폴더/파일 삭제
+async function deleteFolder(userId, folderId) {
+    const folder = await Folder.findOne({ where: { id: folderId, userId } });
+
+    if (!folder) {
+        throw new Error("Folder not found or user not authorized");
+    }
+
+    const folderPath = await buildFolderPath(folder);
+
+    // DB에서 모든 하위 폴더 및 파일 삭제
+    await deleteSubFoldersAndFiles(userId, folderId);
+
+    // 실제 디렉토리 삭제
+    await fs.rm(folderPath, { recursive: true, force: true });
+
+    // 최상위 폴더 삭제
+    await folder.destroy();
+}
+
+// 재귀적으로 하위 폴더와 파일을 삭제하는 함수
+async function deleteSubFoldersAndFiles(userId, parentId) {
+    const subFolders = await Folder.findAll({ where: { userId, parentId } });
+    for (const subFolder of subFolders) {
+        await deleteSubFoldersAndFiles(userId, subFolder.id); // 재귀 호출
+        await subFolder.destroy();
+    }
+
+    await File.destroy({ where: { user_id: userId, folderId: parentId } });
+}
+
 module.exports = { 
     createFolder,
     getSubFolders,
-    getFilesInFolder
+    getFilesInFolder,
+    renameFolder,
+    deleteFolder
 };

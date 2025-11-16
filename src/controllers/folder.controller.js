@@ -1,7 +1,9 @@
 const { 
     createFolder,
     getSubFolders,
-    getFilesInFolder
+    getFilesInFolder,
+    renameFolder,
+    deleteFolder
 } = require("../services/folder.service");
 
 // 폴더 생성 컨트롤러
@@ -71,8 +73,58 @@ async function getFilesInFolderController(req, res, next) {
     }
 }
 
+
+// 폴더 이름 변경 컨트롤러
+async function renameFolderController(req, res, next) {
+    try {
+        const userId = req.user.id;
+        const folderId = parseInt(req.params.id, 10);
+        const { name: newName } = req.body;
+
+        if (!newName) {
+            return res.status(400).json({
+                state: 400,
+                code: "NO_NEW_FOLDER_NAME",
+                message: "새 폴더 이름은 필수입니다.",
+            });
+        }
+
+        const updatedFolder = await renameFolder(userId, folderId, newName);
+
+        return res.status(200).json({
+            state: 200,
+            code: "FOLDER_RENAMED",
+            message: "폴더 이름 변경 성공",
+            folder: updatedFolder,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+
+// 폴더 삭제 컨트롤러
+async function deleteFolderController(req, res, next) {
+    try {
+        const userId = req.user.id;
+        const folderId = parseInt(req.params.id, 10);
+
+        await deleteFolder(userId, folderId);
+
+        return res.status(200).json({
+            state: 200,
+            code: "FOLDER_DELETED",
+            message: "폴더 삭제 성공",
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = { 
     createFolderController,
     getSubFoldersController,
-    getFilesInFolderController 
+    getFilesInFolderController,
+    renameFolderController,
+    deleteFolderController
 };
