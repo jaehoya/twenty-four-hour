@@ -1,6 +1,4 @@
-const { File, Favorite } = require("../models");
-const fs = require("fs");
-const path = require("path");
+const { File, Favorite, FileTag } = require("../models");
 const { Op } = require("sequelize");
 
 /**
@@ -15,7 +13,7 @@ async function saveFileMetadata(userId, file) {
         stored_name: file.filename,
         mime_type: file.mimetype,
         size: file.size,
-        path: "src/uploads/" + file.filename,
+        path: file.path,
     });
 
     const previewUrl = `/api/files/${fileRecord.id}/preview`;
@@ -50,6 +48,12 @@ async function getFilesByUserId(userId, search, sortBy, sortOrder) {
                 where: { userId, targetType: "file" },
                 attributes: ["id"],
             },
+            {
+                model: FileTag,
+                as: "tags",
+                required: false,
+                attributes: ["tag"],
+            }
         ],
     });
 
@@ -60,6 +64,7 @@ async function getFilesByUserId(userId, search, sortBy, sortOrder) {
     mimeType: f.mime_type,
     createdAt: f.createdAt,
     isFavorite: f.Favorites.length > 0,
+    tags: f.tags.map(t => t.tag),
     previewUrl: `/api/files/${f.id}/preview`,
   }));
 }

@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const OpenAI = require("openai");
+const fs = require("fs");
 
 const {
     saveFileMetadata, 
@@ -9,7 +11,79 @@ const {
     renameFileById
 } = require("../services/file.service");
 
-// 파일 업로드 처리 컨트롤러
+require("dotenv").config();
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// 파일을 AI가 이해할 수 있는 텍스트로 변환
+async function extractText(filePath, mimeType) {
+    const buffer = fs.readFileSync(filePath);
+    const res = await client.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+            {
+                role: "user",
+                content: [
+                    {
+                        type: "input_text",
+                        input_text: {
+                            mime_type: mimeType,
+                            data: buffer,
+                        },
+                    },
+                ],
+            },
+        ],
+    });
+
+    return res.choices[0].message.content;
+}
+
+// AI에게 태그 및 폴더명 생성 요청
+async function generateFolderName(text, filename) {
+    const prompt = `
+다음 파일 내용을 분석하고 적절한 폴더명을 하나 추천하세요.
+응답은 { "folder": "폴더명" } 형태의 JSON으로 주세요.
+
+파일명: ${filename}
+내용:
+${text}
+`;
+
+    const res = await client.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+    });
+
+    return res.choices[0].message.parsed;
+}
+
+// uploads/ 폴더로 파일 이동
+function moveFile(tempPath, folderName, originalName) {
+    const BASE_DIR = "uploads";   
+
+    // 폴더 경로: uploads/{AI가 제안한 폴더명}
+    const targetDir = path.join(BASE_DIR, folderName);
+
+    // 폴더가 없으면 생성 (재귀 포함)
+    if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    const storedName = Date.now() + "_" + originalName;
+    const finalPath = path.join(targetDir, storedName);
+
+    // upload/xxxx → upload/{folderName}/{timestamp_originalName}
+    fs.renameSync(tempPath, finalPath);
+
+    return {
+        storedName,   // 파일명
+        finalPath,    // 전체 경로
+    };
+}
+
+
+// 파일 업로드 처리 컨트롤러 + AI 자동 분류
 async function uploadFile(req, res, next) {
     try {
         // 업로드 된 파일이 없는 경우
@@ -22,12 +96,27 @@ async function uploadFile(req, res, next) {
         }
 
         const userId = req.user.id;
-        const fileRecord = await saveFileMetadata(userId, req.file);
+        const tempPath = req.file.path;
+        const mimeType = req.file.mimetype;
+
+        const textContent = await extractText(tempPath, mimeType);
+        const aiFolder = await generateFolderName(textContent, req.file.originalname);
+        const moved = moveFile(tempPath, aiFolder.folder, req.file.originalname);
+
+        const fileRecord = await saveFileMetadata(userId, {
+            originalname: req.file.originalname,
+            filename: moved.storedName,
+            mimetype: mimeType,
+            size: req.file.size,
+            path: moved.finalPath,
+        });
 
         return res.status(201).json({
             state: 201,
             code: "UPLOAD_SUCCESS",
-            message: "파일 업로드 성공",
+            message: "파일 업로드 성공 + AI 자동 분류 성공",
+            tags: ai.tags,
+            folder: ai.folder,
             file: fileRecord,
         });
     } catch (err) {
