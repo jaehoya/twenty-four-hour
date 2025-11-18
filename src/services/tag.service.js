@@ -1,5 +1,4 @@
 const { FileTag, File } = require("../models/fileTag");
-const { Op } = require("sequelize");
 const fs = require("fs");
 const OpenAI = require("openai");
 
@@ -65,10 +64,10 @@ async function extractText(path, mimeType) {
             input_text: {
               mime_type: mimeType,
               data: buffer
-            }
-          }
-        ]
-      }
+            },
+          },
+        ],
+      },
     ],
   });
 
@@ -81,7 +80,7 @@ async function recommendTagsForFile(file) {
   const text = await extractText(file.path, file.mime_type);
 
   const prompt = `
-다음 파일의 내용을 분석하고 적절한 태그 5개를 추천하세요.
+다음 파일의 내용을 분석하고 적절한 태그 3개를 추천하세요.
 응답은 ["tag1", "tag2"] 형식의 JSON 배열로만 주세요.
 
 내용:
@@ -97,11 +96,42 @@ ${text}
   return res.choices[0].message.parsed;
 }
 
+// Worker가 호출하는 태그 저장 함수 
+async function saveRecommendedTagsToFile(fileId, tags) {
+  const results = [];
+
+  for (const tag of tags) {
+    
+    // 이미 존재하는 태그인지 확인
+    const exists = await FileTag.findOne({
+      where: { file_id: fileId, tag }
+    });
+
+    // 있으면 push하고 continue
+    if (exists) {
+      results.push(exists);
+      continue;
+    }
+
+    // 없으면 새로 추가
+    const newTag = await FileTag.create({
+      file_id: fileId,
+      tag,
+    });
+
+    results.push(newTag);
+  }
+
+  return results;
+}
+
+
 module.exports = {
   getTagsByFileId,
   addTagToFile,
   deleteTagById,
   replaceTags,
   searchFilesByTag,
-  recommendTagsForFile
+  recommendTagsForFile,
+  saveRecommendedTagsToFile, 
 };

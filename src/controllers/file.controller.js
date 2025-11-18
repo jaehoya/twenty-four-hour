@@ -8,7 +8,8 @@ const {
     getFilesByUserId, 
     deleteFileById,
     getFileById, 
-    renameFileById
+    renameFileById,
+    updateFilePath,
 } = require("../services/file.service");
 
 require("dotenv").config();
@@ -96,12 +97,8 @@ async function uploadFile(req, res, next) {
         }
 
         const userId = req.user.id;
-        const tempPath = req.file.path;
         const mimeType = req.file.mimetype;
-
-        const textContent = await extractText(tempPath, mimeType);
-        const aiFolder = await generateFolderName(textContent, req.file.originalname);
-        const moved = moveFile(tempPath, aiFolder.folder, req.file.originalname);
+        const moved = moveFile(tempPath, "temp", req.file.originalname);
 
         const fileRecord = await saveFileMetadata(userId, {
             originalname: req.file.originalname,
@@ -111,12 +108,13 @@ async function uploadFile(req, res, next) {
             path: moved.finalPath,
         });
 
+        // AI 태깅 작업을 큐에 넣기
+        await addAiTagJob(fileRecord.id);
+
         return res.status(201).json({
             state: 201,
             code: "UPLOAD_SUCCESS",
-            message: "파일 업로드 성공 + AI 자동 분류 성공",
-            tags: ai.tags,
-            folder: ai.folder,
+            message: "파일 업로드 성공. AI 태깅은 백그라운드에서 실행됩니다.",
             file: fileRecord,
         });
     } catch (err) {
@@ -125,7 +123,6 @@ async function uploadFile(req, res, next) {
         next(err);
     }
 }
-
 
 // 사용자 파일 목록 조회 컨트롤러
 async function getUserFiles(req, res, next) {

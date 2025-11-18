@@ -4,128 +4,164 @@ const {
   deleteTagById,
   replaceTags,
   searchFilesByTag,
-  recommendTagsForFile,
 } = require("../services/tag.service");
 
+const { addAiTagJob } = require("../queue/tag.queue");
 const File = require("../models/file");
 
-// 특정 파일의 태그 조회
-exports.getFileTags = async (req, res, next) => {
+
+// 특정 파일 태그 조회
+async function getFileTagsController(req, res, next) {
   try {
     const fileId = req.params.fileId;
     const tags = await getTagsByFileId(fileId);
 
-    return res.json({
+    return res.status(200).json({
       state: 200,
       code: "TAGS_FOUND",
+      message: "파일의 태그 조회 성공",
       tags,
     });
   } catch (err) {
     next(err);
   }
-};
+}
+
 
 // 태그 추가
-exports.addTag = async (req, res, next) => {
+async function addTagController(req, res, next) {
   try {
     const fileId = req.params.fileId;
     const { tag } = req.body;
 
     if (!tag) {
-      return res.status(400).json({ message: "태그를 입력해주세요." });
+      return res.status(400).json({
+        state: 400,
+        code: "NO_TAG_PROVIDED",
+        message: "추가할 태그를 입력해주세요.",
+      });
     }
 
     const newTag = await addTagToFile(fileId, tag);
 
-    return res.json({
+    return res.status(201).json({
       state: 201,
       code: "TAG_ADDED",
+      message: "태그 추가 성공",
       tag: newTag,
     });
   } catch (err) {
     next(err);
   }
-};
+}
+
 
 // 태그 삭제
-exports.deleteTag = async (req, res, next) => {
+async function deleteTagController(req, res, next) {
   try {
     const tagId = req.params.tagId;
     await deleteTagById(tagId);
 
-    return res.json({
+    return res.status(200).json({
       state: 200,
       code: "TAG_DELETED",
-      message: "태그가 삭제되었습니다.",
+      message: "태그 삭제 성공",
     });
   } catch (err) {
     next(err);
   }
-};
+}
 
-// 태그 전체 수정
-exports.updateAllTags = async (req, res, next) => {
+
+// 태그 전체 변경
+async function updateAllTagsController(req, res, next) {
   try {
     const fileId = req.params.fileId;
     const { tags } = req.body;
 
     if (!Array.isArray(tags)) {
-      return res.status(400).json({ message: "tags는 배열이어야 합니다." });
+      return res.status(400).json({
+        state: 400,
+        code: "INVALID_TAG_FORMAT",
+        message: "tags는 배열이어야 합니다.",
+      });
     }
 
-    const newTags = await replaceTags(fileId, tags);
+    const updatedTags = await replaceTags(fileId, tags);
 
-    return res.json({
+    return res.status(200).json({
       state: 200,
       code: "TAGS_UPDATED",
-      tags: newTags,
+      message: "태그 전체 수정 성공",
+      tags: updatedTags,
     });
   } catch (err) {
     next(err);
   }
-};
+}
 
-// 태그 검색 (tag=xxx)
-exports.searchFilesByTag = async (req, res, next) => {
+
+// 특정 태그로 파일 검색
+async function searchFilesByTagController(req, res, next) {
   try {
     const { tag } = req.query;
     const userId = req.user.id;
 
     if (!tag) {
-      return res.status(400).json({ message: "검색할 태그가 필요합니다." });
+      return res.status(400).json({
+        state: 400,
+        code: "NO_TAG_PROVIDED",
+        message: "검색할 태그를 입력해주세요.",
+      });
     }
 
     const files = await searchFilesByTag(userId, tag);
 
-    return res.json({
+    return res.status(200).json({
       state: 200,
       code: "FILES_FOUND_BY_TAG",
-      files
+      message: "태그로 파일 검색 성공",
+      files,
     });
   } catch (err) {
     next(err);
   }
-};
+}
 
-// AI 태그 추천
-exports.recommendTags = async (req, res, next) => {
+
+// AI 태그 추천 작업 요청 → Worker가 처리
+async function requestAiTagController(req, res, next) {
   try {
     const fileId = req.params.fileId;
     const file = await File.findByPk(fileId);
 
     if (!file) {
-      return res.status(404).json({ message: "파일을 찾을 수 없습니다." });
+      return res.status(404).json({
+        state: 404,
+        code: "FILE_NOT_FOUND",
+        message: "파일을 찾을 수 없습니다.",
+      });
     }
 
-    const recommended = await recommendTagsForFile(file);
+    // 🚀 Redis 큐에 Job 추가 
+    await addAiTagJob(fileId);
 
-    return res.json({
+    return res.status(200).json({
       state: 200,
-      code: "TAG_RECOMMENDATION",
-      recommended,
+      code: "AI_TAG_JOB_ADDED",
+      message: "AI 태그 추천 작업이 큐에 등록되었습니다.",
     });
 
   } catch (err) {
     next(err);
   }
+}
+
+module.exports = {
+  getFileTagsController,
+  addTagController,
+  deleteTagController,
+  updateAllTagsController,
+  searchFilesByTagController,
+  requestAiTagController,
 };

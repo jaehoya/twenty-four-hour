@@ -47,8 +47,7 @@ File.hasMany(Share, { foreignKey: 'fileId' });
 Share.belongsTo(File, { foreignKey: 'fileId' });
 
 File.hasMany(FileTag, { foreignKey: "file_id", as: "tags" });
-FileTag.belongsTo(File, { foreignKey: "file_id" });
-
+FileTag.belongsTo(File, { foreignKey: 'file_id' });
 
 module.exports = {
   sequelize,
@@ -58,4 +57,5 @@ module.exports = {
   Folder,
   Favorite,
   Share, 
+  FileTag,
 };

@@ -28,6 +28,7 @@ app.use("/api/disk", require("./routes/disk.routes"));
 app.use("/api/favorites", require("./routes/favorite.routes"));
 app.use("/api/shares", require("./routes/share.routes"));
 app.use("/api/trash", require("./routes/trash.routes")); // 휴지통 라우트 등록
+app.use("api/tags", require("./routes/tag.routes"));
 
 // 공통 에러 핸들러 (마지막에 두기)
 app.use((err, req, res, next) => {

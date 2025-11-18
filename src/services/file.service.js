@@ -116,11 +116,41 @@ async function renameFileById(userId, fileId, newName) {
     }
 }
 
+/**
+ * 파일 이동 후 DB에 새 path, stored_name 업데이트
+ * @param {number} fileId - 파일 ID
+ * @param {string} newPath - 이동된 실제 파일 경로
+ */
+async function updateFilePath(fileId, newPath) {
+    const file = await File.findByPk(fileId);
+
+    if (!file) {
+        const err = new Error("파일을 찾을 수 없습니다.");
+        err.status = 404;
+        throw err;
+    }
+
+    // 경로에서 파일명 추출
+    const newStoredName = newPath.split(/[/\\]/).pop();
+
+    file.path = newPath;
+    file.stored_name = newStoredName;
+
+    await file.save();
+
+    return {
+        ...file.toJSON(),
+        previewUrl: `/api/files/${file.id}/preview`,
+    };
+}
+
+
 module.exports = { 
     saveFileMetadata, 
     getFilesByUserId, 
     getFileById, 
     deleteFileById, 
-    renameFileById
+    renameFileById,
+    updateFilePath,
 };
 
