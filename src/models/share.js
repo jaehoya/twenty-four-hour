@@ -1,7 +1,6 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Share extends Model {
     /**
@@ -13,13 +12,31 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.File, { foreignKey: 'fileId' });
     }
   }
-  Share.init({
-    token: DataTypes.STRING,
-    fileId: DataTypes.INTEGER,
-    expiresAt: DataTypes.DATE
-  }, {
-    sequelize,
-    modelName: 'Share',
-  });
+  Share.init(
+    {
+      id: {
+        type: DataTypes.BIGINT.UNSIGNED,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      token: {
+        type: DataTypes.STRING,
+      },
+      fileId: {
+        type: DataTypes.BIGINT.UNSIGNED,
+        allowNull: false,
+      },
+      expiresAt: {
+        type: DataTypes.DATE,
+      },
+    },
+    {
+      sequelize,
+      modelName: "Share",
+      tableName: "shares", 
+      timestamps: true,
+    }
+  );
+
   return Share;
 };
