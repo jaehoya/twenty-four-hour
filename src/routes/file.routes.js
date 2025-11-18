@@ -27,4 +27,4 @@ router.delete("/:id", authenticateToken, deleteFile);
 // PATCH /api/files/:id/rename -> 파일 이름 변경
 router.patch("/:id/rename", authenticateToken, renameFile);
 
-module.exports = router;z
+module.exports = router;

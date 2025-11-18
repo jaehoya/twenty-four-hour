@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 const path = require("path");
-const OpenAI = require("openai");
 const fs = require("fs");
 
 const {
@@ -9,55 +8,8 @@ const {
     deleteFileById,
     getFileById, 
     renameFileById,
-    updateFilePath,
 } = require("../services/file.service");
-
-require("dotenv").config();
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-// 파일을 AI가 이해할 수 있는 텍스트로 변환
-async function extractText(filePath, mimeType) {
-    const buffer = fs.readFileSync(filePath);
-    const res = await client.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-            {
-                role: "user",
-                content: [
-                    {
-                        type: "input_text",
-                        input_text: {
-                            mime_type: mimeType,
-                            data: buffer,
-                        },
-                    },
-                ],
-            },
-        ],
-    });
-
-    return res.choices[0].message.content;
-}
-
-// AI에게 태그 및 폴더명 생성 요청
-async function generateFolderName(text, filename) {
-    const prompt = `
-다음 파일 내용을 분석하고 적절한 폴더명을 하나 추천하세요.
-응답은 { "folder": "폴더명" } 형태의 JSON으로 주세요.
-
-파일명: ${filename}
-내용:
-${text}
-`;
-
-    const res = await client.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" },
-    });
-
-    return res.choices[0].message.parsed;
-}
+const { addAiTagJob } = require("../queue/tag.queue");
 
 // uploads/ 폴더로 파일 이동
 function moveFile(tempPath, folderName, originalName) {
@@ -98,6 +50,7 @@ async function uploadFile(req, res, next) {
 
         const userId = req.user.id;
         const mimeType = req.file.mimetype;
+        const tempPath = req.file.path;
         const moved = moveFile(tempPath, "temp", req.file.originalname);
 
         const fileRecord = await saveFileMetadata(userId, {

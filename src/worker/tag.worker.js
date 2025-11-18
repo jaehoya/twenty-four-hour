@@ -3,6 +3,8 @@ const { connection } = require('../queue/tag.queue');
 const File = require('../models/file'); 
 const { recommendTagsForFile, saveRecommendedTagsToFile } = require('../services/tag.service'); 
 
+console.log("[TAG SERVICE LOADED]");
+
 // AI 태그 추천 워커 생성
 const tagWorker = new Worker('aiTagQueue', async (job) => {
     const { fileId } = job.data;
@@ -17,7 +19,6 @@ const tagWorker = new Worker('aiTagQueue', async (job) => {
 
     // 1. AI 분석 로직 실행 (tag.service에서 분리해온 함수)
     const recommendedTags = await recommendTagsForFile(file); 
-    
     // 2. 추천된 태그를 DB에 저장하고 파일과 연결
     await saveRecommendedTagsToFile(fileId, recommendedTags); 
 

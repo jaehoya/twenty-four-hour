@@ -1,0 +1,69 @@
+# 프로젝트 궁금증
+
+##findeOne과 findByPk 메서드의 차이
+- 둘 다 Sequelize에서 데이터베이스에서 한 행을 조회할 때 사용하는 메서드입니다.
+하지만 사용 방식과 목적이 다릅니다.
+
+-> PK(Primary Key, 기본키) 값으로 한 행을 조회
+인자로 기본키 값만 전달
+const user = await User.findByPk(1); // id가 1인 사용자 조회
+
+->조건(where)으로 한 행을 조회
+여러 조건을 객체로 전달 가능
+const user = await User.findOne({ where: { email: "test@test.com" } });
+
+- 상황별로 추천하는 Sequelize 조회 메서드
+1. 기본키로 한 명만 조회: findByPk
+2. 특정 조건(이메일, username 등) 으로 한 명만 조회: findOne
+3. 여러 조건(AND, OR 등) 으로 한 명만 조회: findOne
+
+- user.sercive.js에서 유저를 id로 찾을 때 어떤 메서드를 찾을 지 고민함 
+-> id는 PK이므로, findByPk가 더 직관적이고 빠름
+
+
+
+## user.dto.js 역할
+express-validator를 이용해서 요청 바디 데이터를 검증하는 파일
+1) 회원가입, 로그인, 비밀번호 변경, 비밀번호 재설정 바디 데이터를 검증하면서 겹치는 부분 발생
+2) 공통적으로 반환하는 부분을 함수로 만듦
+
+
+
+## 비밀번호 재설정 메일 보내기 
+1) SMTP 직접 사용: 초기 설정이 간단하며 무료 / 발송량이 제한적이며 스팸 위험이 높음
+2) 외부 서비스 이용: 초기 설정이 다소 복잡 (DNS 세팅 필요)하며 유료 / 무제한 수준으로 발송 가능하며 스팸위험 낮음
+
+-> 1번 선택해 구글이메일 2단계 인증 및 app password설정
+app name: MyApp SMTP
+app password: aqlr cybh seao sxiw
+
+
+## 컨트롤러 안에서 처리 vs. 미들웨어
+즐겨찾기를 구현하는 과정에서 targetType을 검증할 때 컨트롤러 안에서 함
+
+이유: "file" | "folder" 두 값만 허용하는 단순 체크에 불과
+미들웨어/별도 파일로 빼는 경우는? 
+- 검증 로직이 여러 컨트롤러에서 반복될 때, 재사용 위해
+- 입력값 검증이 복잡해지는 경우
+
+
+## API 명세서 정리
+1) 응답 패턴 종류 정리
+(1) 성공 응답
+- 컨트롤러에서 직접 res.json({...})
+(2) 실패 응답
+- validator 실패
+- auth 실패
+	- 토큰 없음: 401 NO_TOKEN
+	- 토큰 만료: 403 TOKEN_EXPIRED
+	- 토큰 잘못됨: 403 INVALID_TOKEN
+- 서비스 로직 실패 -> throw err -> 공통 에러 핸들러
+- 컨트롤러 자체에서 처리하는 실패 
+
+2) API 명세서 정리하면서...
+(1) 성공 응답은 모든 API마다 실제 Sequelize 응답 기준으로 정리
+(2) 실패 응답은 API 고유한 것만
+공통된 것들(VALIDATION_ERROR, NO_TOKEN, TOKEN_EXPIRED, INVALID_TOKEN)은 대표로만 보여주고 각 API별로 반복하지 않음
+-> 공통 실패 응답 모음집 만들기로 개선안 찾음
+(3) 유효성 검증 규칙이 중복 내용이 많음 
+-> 대표적인 JSON 예시만 쓰고 나머지는 유효성 검증 규칙 표 추가

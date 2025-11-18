@@ -11,6 +11,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "adm-zip": "^0.5.16",
     "bcrypt": "^6.0.0",
     "bullmq": "^5.63.2",
     "check-disk-space": "^3.4.0",
@@ -22,12 +23,17 @@
     "helmet": "^8.1.0",
     "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.11.0",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "mysql2": "^3.15.3",
+    "node-hwp": "^0.1.0-alpha",
     "nodemailer": "^7.0.6",
     "openai": "^6.9.1",
-    "sequelize": "^6.37.7"
+    "pdf-parse": "^2.4.5",
+    "sequelize": "^6.37.7",
+    "textract": "^2.5.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.10",
