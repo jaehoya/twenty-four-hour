@@ -8,18 +8,22 @@ const {
 
 const { addAiTagJob } = require("../queue/tag.queue");
 const File = require("../models/file");
+const FileTag = require("../models/fileTag");
 
 
 // 특정 파일 태그 조회
 async function getFileTagsController(req, res, next) {
   try {
     const fileId = req.params.fileId;
-    const tags = await getTagsByFileId(fileId);
+    const rows = await getTagsByFileId(fileId);
+
+    const tags = rows.map((t) => t.tag);
 
     return res.status(200).json({
       state: 200,
       code: "TAGS_FOUND",
       message: "파일의 태그 조회 성공",
+      tagCount: tags.length,
       tags,
     });
   } catch (err) {
@@ -143,7 +147,20 @@ async function requestAiTagController(req, res, next) {
       });
     }
 
-    // 🚀 Redis 큐에 Job 추가 
+    // 1️⃣ 이미 태그가 존재하는지 확인 (중복 요청 방지)
+    const existingTagCount = await FileTag.count({
+      where: { file_id: fileId }
+    });
+
+    if (existingTagCount > 0) {
+      return res.status(400).json({
+        state: 400,
+        code: "AI_TAG_ALREADY_EXISTS",
+        message: "이미 AI 태그가 생성된 파일입니다.",
+      });
+    }
+
+    // 2️⃣ Redis 큐에 Job 추가
     await addAiTagJob(fileId);
 
     return res.status(200).json({
@@ -156,6 +173,7 @@ async function requestAiTagController(req, res, next) {
     next(err);
   }
 }
+
 
 module.exports = {
   getFileTagsController,

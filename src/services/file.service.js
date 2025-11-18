@@ -88,8 +88,11 @@ async function deleteFileById(userId, fileId) {
         throw error;
     }
 
+    await FileTag.destroy({ where: { file_id: fileId } });
     // paranoid: true 옵션으로 인해 soft delete가 실행됨
     await file.destroy();
+
+    return true;
 }
 
 /**
