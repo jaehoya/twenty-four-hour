@@ -1,6 +1,8 @@
 const FileTag = require("../models/fileTag");
 const File = require("../models/file");
 const fs = require("fs");
+const os = require("os");
+const path = require("path");
 const OpenAI = require("openai");
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -10,7 +12,6 @@ const mammoth = require("mammoth");
 const textract = require("textract");
 const xlsx = require("xlsx");
 const AdmZip = require("adm-zip");
-// const hwp = require("node-hwp");
 
 // 특정 파일의 태그 조회
 async function getTagsByFileId(fileId) {
@@ -57,9 +58,36 @@ async function searchFilesByTag(userId, tag) {
   });
 }
 
+// 헬퍼 함수 - 확장자 판별 함수: extracText()의 zip에 사용
+function guessMimeType(fileName) {
+  const ext = path.extname(fileName).toLowerCase();
+  const map = {
+    '.jpeg': 'image/jpeg',
+    '.jpg':  'image/jpeg',
+    '.png':  'image/png',
+    '.txt':  'text/plain',
+    '.csv':  'text/csv',
+    '.pdf':  'application/pdf',
+    '.doc':  'application/msword',
+    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    '.xls':  'application/vnd.ms-excel',
+    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    '.ppt':  'application/vnd.ms-powerpoint',
+    '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    '.zip':  'application/zip',
+    '.mp4':  'video/mp4',
+    '.mp3':  'audio/mpeg',
+    '.hwp':  'application/haansofthwp' 
+  };
+
+  // 매핑되지 않는 파일은 null 또는 기본값 반환
+  return map[ext] || null; 
+}
+
+
 // 파일 텍스트 추출 (AI)
 async function extractText(filePath, mimeType) {
-  console.log(`[AI] extractText → path: ${filePath}, mime: ${mimeType}`);
+  console.log(`[AI] extractText → ${filePath.split("/").pop()} (${mimeType})`);
 
   try {
     // 1) TXT 파일
@@ -121,28 +149,55 @@ async function extractText(filePath, mimeType) {
       });
     }
 
-    // 8) 한글 HWP 파일
-    if (mimeType === "application/x-hwp" || mimeType === "application/haansofthwp") {
-      const hwpDoc = hwp.extract(filePath);
-      return hwpDoc;
-    }
-
-    // 9) ZIP 파일 → 내부 텍스트 파일만 읽기
+    // 8) ZIP 파일 → 내부 파일을 재귀적으로 텍스트 추출
     if (mimeType === "application/zip") {
       const zip = new AdmZip(filePath);
       const entries = zip.getEntries();
-      let text = "";
+      let allText = "";
+
+      console.log(`[AI] ZIP Processing: ${entries.length} files found.`);
 
       for (const entry of entries) {
-        if (
-          entry.entryName.endsWith(".txt") ||
-          entry.entryName.endsWith(".csv")
-        ) {
-          text += zip.readAsText(entry);
+        // 1. 디렉토리나 맥북 메타데이터(__MACOSX) 무시
+        if (entry.isDirectory || entry.entryName.startsWith("__MACOSX/")) continue;
+
+        const entryName = entry.entryName;
+        
+        // 2. 파일 타입 추론 (우리가 허용하는 allowedMime 리스트에 있는지만 확인)
+        const entryMime = guessMimeType(entryName);
+
+        // 허용되지 않은 확장자라면 건너뜀 (예: .exe, .dll 등)
+        if (!entryMime) {
+          // console.log(`[AI] Skip unsupported file in ZIP: ${entryName}`);
+          continue;
+        }
+
+        // 3. 임시 파일 생성 경로 (파일명 충돌 방지 + 경로 단순화)
+        const tempFileName = `temp_${Date.now()}_${path.basename(entryName)}`;
+        const tempPath = path.join(os.tmpdir(), tempFileName);
+        try {
+          // 4. 임시 파일 쓰기
+          fs.writeFileSync(tempPath, entry.getData());
+
+          // 5. 재귀 호출 (Recursive)
+          const innerText = await extractText(tempPath, entryMime);
+
+          // 결과가 있으면 구분선과 함께 추가
+          if (innerText && innerText.trim().length > 0) {
+            allText += `\n--- [Inner File: ${entryName}] ---\n${innerText}\n`;
+          }
+
+        } catch (innerErr) {
+          console.warn(`[AI WARNING] ZIP inner extract failed (${entryName}): ${innerErr.message}`);
+        } finally {
+          // 6. 임시 파일 삭제 
+          if (fs.existsSync(tempPath)) {
+            fs.unlinkSync(tempPath);
+          }
         }
       }
 
-      return text || "ZIP 파일 내부에 텍스트 파일이 없음";
+      return allText || "ZIP 파일 내부에 텍스트를 추출할 수 있는 파일이 없음";
     }
 
     // 10) 이미지 → GPT Vision으로 OCR 필요
@@ -169,10 +224,10 @@ async function recommendTagsForFile(file) {
   const prompt = `
 다음 내용을 보고 적절한 태그 3개를 추천하세요.
 
-❗❗중요:
+규칙:
 - JSON 배열만 출력
 - 설명 금지
-- 코드블록(\`\`\`) 절대 금지
+- 코드블록 사용 금지
 - 예: ["태그1", "태그2", "태그3"]
 
 내용:
