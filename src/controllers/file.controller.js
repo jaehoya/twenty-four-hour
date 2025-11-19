@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 const path = require("path");
-const fs = require("fs");
 
 const {
     saveFileMetadata, 
@@ -10,31 +9,6 @@ const {
     renameFileById,
 } = require("../services/file.service");
 const { addAiTagJob } = require("../queue/tag.queue");
-
-// uploads/ 폴더로 파일 이동
-function moveFile(tempPath, folderName, originalName) {
-    const BASE_DIR = "uploads";   
-
-    // 폴더 경로: uploads/{AI가 제안한 폴더명}
-    const targetDir = path.join(BASE_DIR, folderName);
-
-    // 폴더가 없으면 생성 (재귀 포함)
-    if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir, { recursive: true });
-    }
-
-    const storedName = Date.now() + "_" + originalName;
-    const finalPath = path.join(targetDir, storedName);
-
-    // upload/xxxx → upload/{folderName}/{timestamp_originalName}
-    fs.renameSync(tempPath, finalPath);
-
-    return {
-        storedName,   // 파일명
-        finalPath,    // 전체 경로
-    };
-}
-
 
 // 파일 업로드 처리 컨트롤러 + AI 자동 분류
 async function uploadFile(req, res, next) {
@@ -49,19 +23,9 @@ async function uploadFile(req, res, next) {
         }
 
         const userId = req.user.id;
-        const mimeType = req.file.mimetype;
-        const tempPath = req.file.path;
-        const moved = moveFile(tempPath, "temp", req.file.originalname);
+        const fileRecord = await saveFileMetadata(userId, req.file);
 
-        const fileRecord = await saveFileMetadata(userId, {
-            originalname: req.file.originalname,
-            filename: moved.storedName,
-            mimetype: mimeType,
-            size: req.file.size,
-            path: moved.finalPath,
-        });
-
-        // AI 태깅 작업을 큐에 넣기
+        // AI 태깅 작업을 큐에 추가 (백그라운드 처리)
         await addAiTagJob(fileRecord.id);
 
         return res.status(201).json({
