@@ -32,6 +32,8 @@
     "openai": "^6.9.1",
     "pdf-parse": "^2.4.5",
     "sequelize": "^6.37.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "textract": "^2.5.0",
     "xlsx": "^0.18.5"
   },

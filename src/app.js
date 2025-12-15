@@ -14,6 +14,11 @@ app.use(express.json()); // JSON 요청 파싱
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocs = require('./config/swagger');
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 // DB 연결 확인
 sequelize.authenticate()
   .then(() => console.log("DB 연결 성공"))
@@ -36,10 +41,11 @@ app.use((err, req, res, next) => {
   const code = err.code || "INTERNAL_SERVER_ERROR";
   const message = err.message || "서버 오류가 발생했습니다.";
 
-  res.status(status).json({ 
+  res.status(status).json({
     state: status,
     code,
-    message });
+    message
+  });
 });
 
 module.exports = app;
