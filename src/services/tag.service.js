@@ -63,25 +63,25 @@ function guessMimeType(fileName) {
   const ext = path.extname(fileName).toLowerCase();
   const map = {
     '.jpeg': 'image/jpeg',
-    '.jpg':  'image/jpeg',
-    '.png':  'image/png',
-    '.txt':  'text/plain',
-    '.csv':  'text/csv',
-    '.pdf':  'application/pdf',
-    '.doc':  'application/msword',
+    '.jpg': 'image/jpeg',
+    '.png': 'image/png',
+    '.txt': 'text/plain',
+    '.csv': 'text/csv',
+    '.pdf': 'application/pdf',
+    '.doc': 'application/msword',
     '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    '.xls':  'application/vnd.ms-excel',
+    '.xls': 'application/vnd.ms-excel',
     '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    '.ppt':  'application/vnd.ms-powerpoint',
+    '.ppt': 'application/vnd.ms-powerpoint',
     '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    '.zip':  'application/zip',
-    '.mp4':  'video/mp4',
-    '.mp3':  'audio/mpeg',
-    '.hwp':  'application/haansofthwp' 
+    '.zip': 'application/zip',
+    '.mp4': 'video/mp4',
+    '.mp3': 'audio/mpeg',
+    '.hwp': 'application/haansofthwp'
   };
 
   // 매핑되지 않는 파일은 null 또는 기본값 반환
-  return map[ext] || null; 
+  return map[ext] || null;
 }
 
 
@@ -162,7 +162,7 @@ async function extractText(filePath, mimeType) {
         if (entry.isDirectory || entry.entryName.startsWith("__MACOSX/")) continue;
 
         const entryName = entry.entryName;
-        
+
         // 2. 파일 타입 추론 (우리가 허용하는 allowedMime 리스트에 있는지만 확인)
         const entryMime = guessMimeType(entryName);
 
@@ -243,8 +243,8 @@ ${text}
 
   // 🔥 코드블록 제거
   raw = raw.replace(/```json/gi, "")
-           .replace(/```/g, "")
-           .trim();
+    .replace(/```/g, "")
+    .trim();
 
   let tags = [];
 
@@ -265,7 +265,7 @@ async function saveRecommendedTagsToFile(fileId, tags) {
   const results = [];
 
   for (const tag of tags) {
-    
+
     // 이미 존재하는 태그인지 확인
     const exists = await FileTag.findOne({
       where: { file_id: fileId, tag }
@@ -297,5 +297,48 @@ module.exports = {
   replaceTags,
   searchFilesByTag,
   recommendTagsForFile,
-  saveRecommendedTagsToFile, 
+  saveRecommendedTagsToFile,
+  recommendFolderForFile,
 };
+
+// AI에게 태그와 기존 폴더 목록을 주고 최적의 폴더를 추천받는 함수
+async function recommendFolderForFile(tags, existingFolders) {
+  if (!existingFolders || existingFolders.length === 0) return null;
+
+  const folderNames = existingFolders.map(f => f.name).join(", ");
+  const tagNames = tags.join(", ");
+
+  const prompt = `
+  다음 태그를 가진 파일을 어느 폴더에 넣는 것이 가장 적절할지 선택하세요.
+  
+  [파일 태그]
+  ${tagNames}
+  
+  [사용자의 현재 폴더 목록]
+  ${folderNames}
+  
+  규칙:
+  1. 가장 적절한 폴더 이름을 하나만 출력하세요.
+  2. 만약 적절한 폴더가 전혀 없다면 "NULL" 이라고만 출력하세요.
+  3. 설명이나 다른 텍스트는 절대 포함하지 마세요.
+  `;
+
+  try {
+    const res = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const recommendedName = res.choices[0].message.content.trim();
+
+    if (recommendedName === "NULL") return null;
+
+    // 추천된 이름과 일치하는 폴더 객체 반환
+    const folder = existingFolders.find(f => f.name === recommendedName);
+    return folder || null;
+
+  } catch (err) {
+    console.error("[AI Tag] Folder recommendation failed:", err);
+    return null;
+  }
+}
