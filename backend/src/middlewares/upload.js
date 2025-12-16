@@ -10,17 +10,28 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// Ensure uploads directory exists
-const uploadDir = "src/uploads/";
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
 // 저장소 설정 (디스크에 저장)
 const storage = multer.diskStorage({
     // 업로드 폴더 지정
     destination: (req, file, cb) => {
-        cb(null, uploadDir);
+        if (!req.user || !req.user.id) {
+            return cb(new Error("인증 정보가 없습니다."), null);
+        }
+
+        const userId = req.user.id;
+
+        const userUploadDir = path.join(
+            process.cwd(),
+            "src/uploads",
+            `user_${userId}`,
+            "active"
+        )
+
+        if (!fs.existsSync(userUploadDir)) {
+            fs.mkdirSync(userUploadDir, { recursive: true });
+        }
+
+        cb(null, userUploadDir)
     },
 
     // 저장 파일명 지정 
