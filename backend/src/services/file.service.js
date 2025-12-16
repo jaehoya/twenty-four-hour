@@ -1,6 +1,6 @@
 const { File, Favorite, FileTag, Folder } = require("../models");
 const { Op } = require("sequelize");
-const fs = require("fs").promises;
+const fs = require("fs")
 const path = require("path");
 const { buildFolderPath } = require("./folder.service");
 
@@ -90,6 +90,25 @@ async function deleteFileById(userId, fileId) {
         const error = new Error("파일을 찾을 수 없거나 삭제할 권한이 없습니다.");
         error.status = 404;
         throw error;
+    }
+
+    const baseDir = path.join(
+        process.cwd(),
+        "src/uploads",
+        `user_${userId}`
+    );
+
+    const filename = path.basename(file.path);
+    const fromPath = path.join(baseDir, "active", filename);
+    const toPath = path.join(baseDir, "trash", filename);
+
+    if (!fs.existsSync(path.dirname(toPath))) {
+        fs.mkdirSync(path.dirname(toPath), { recursive: true });
+    }
+
+    // 파일 이동
+    if (fs.existsSync(fromPath)) {
+        fs.renameSync(fromPath, toPath);
     }
 
     await FileTag.destroy({ where: { file_id: fileId } });
