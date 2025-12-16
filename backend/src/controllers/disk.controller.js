@@ -4,7 +4,7 @@ const diskService = require('../services/disk.service');
 class DiskController {
   async getDiskUsage(req, res) {
     try {
-      const usage = await diskService.getDiskUsage();
+      const usage = await diskService.getDiskUsage(req.user.id);
       const total = usage.total;
       const used = usage.used;
       const free = total - used;
