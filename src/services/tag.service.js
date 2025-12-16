@@ -3,9 +3,11 @@ const File = require("../models/file");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const OpenAI = require("openai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Gemini 클라이언트 설정 (gemini-1.5-flash 모델 사용)
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const mammoth = require("mammoth");
 const textract = require("textract");
@@ -217,46 +219,55 @@ async function extractText(filePath, mimeType) {
   }
 }
 
-// AI 태그 추천
+// AI 태그 추천 (Gemini)
 async function recommendTagsForFile(file) {
   const text = await extractText(file.path, file.mime_type);
 
+  // 텍스트 길이 제한 (Gemini 속도 최적화 및 오류 방지)
+  const truncatedText = text ? text.substring(0, 5000) : "";
+
   const prompt = `
-다음 내용을 보고 적절한 태그 3개를 추천하세요.
+다음 내용을 보고 내용과 가장 연관성 높은 태그 3개를 추천하세요.
 
 규칙:
-- JSON 배열만 출력
-- 설명 금지
-- 코드블록 사용 금지
-- 예: ["태그1", "태그2", "태그3"]
+- JSON 배열 포맷으로만 출력하세요.
+- 설명이나 기타 텍스트는 절대 포함하지 마세요.
+- 코드블록(\`\`\`json) 없이 순수 배열만 출력하세요.
+- 예시: ["계약서", "부동산", "2024년"]
 
 내용:
-${text}
+${truncatedText}
 `;
 
-  const res = await client.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{ role: "user", content: prompt }],
-  });
-
-  let raw = res.choices[0].message.content.trim();
-
-  // 🔥 코드블록 제거
-  raw = raw.replace(/```json/gi, "")
-    .replace(/```/g, "")
-    .trim();
-
-  let tags = [];
-
   try {
-    tags = JSON.parse(raw);
-  } catch (err) {
-    console.error("JSON parse error:", raw);
-    return []; // Worker에 undefined 전달 방지
-  }
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let raw = response.text();
 
-  return tags;
+    console.log("[Gemini Raw Tag Output]", raw);
+
+    // 🔥 코드블록 및 불필요한 공백/텍스트 제거 정제
+    raw = raw.replace(/```json/gi, "")
+      .replace(/```/g, "")
+      .trim();
+
+    // JSON 부분만 추출 (혹시 앞뒤에 말이 붙을 경우 대비)
+    const firstBracket = raw.indexOf('[');
+    const lastBracket = raw.lastIndexOf(']');
+    if (firstBracket !== -1 && lastBracket !== -1) {
+      raw = raw.substring(firstBracket, lastBracket + 1);
+    }
+
+    let tags = [];
+    tags = JSON.parse(raw);
+    return tags;
+
+  } catch (err) {
+    console.error("Gemini Tag/Parse Error:", err);
+    return [];
+  }
 }
+
 
 
 
@@ -301,7 +312,7 @@ module.exports = {
   recommendFolderForFile,
 };
 
-// AI에게 태그와 기존 폴더 목록을 주고 최적의 폴더를 추천받는 함수
+// AI에게 태그와 기존 폴더 목록을 주고 최적의 폴더를 추천받는 함수 (Gemini)
 async function recommendFolderForFile(tags, existingFolders) {
   if (!existingFolders || existingFolders.length === 0) return null;
 
@@ -324,21 +335,20 @@ async function recommendFolderForFile(tags, existingFolders) {
   `;
 
   try {
-    const res = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-    });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const recommendedName = response.text().trim();
 
-    const recommendedName = res.choices[0].message.content.trim();
+    console.log(`[Gemini Folder] Recommended: ${recommendedName}`);
 
-    if (recommendedName === "NULL") return null;
+    if (recommendedName.includes("NULL")) return null;
 
-    // 추천된 이름과 일치하는 폴더 객체 반환
-    const folder = existingFolders.find(f => f.name === recommendedName);
+    // 추천된 이름이 포함된 폴더 찾기
+    const folder = existingFolders.find(f => recommendedName.includes(f.name));
     return folder || null;
 
   } catch (err) {
-    console.error("[AI Tag] Folder recommendation failed:", err);
+    console.error("[Gemini Folder] Recommendation failed:", err);
     return null;
   }
 }

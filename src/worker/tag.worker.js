@@ -46,10 +46,10 @@ const tagWorker = new Worker('aiTagQueue', async (job) => {
   connection,
   // 워커가 한번에 처리할 수 있는 최대 작업 수 (동시성 설정 - OpenAI Free Tier 고려하여 1로 제한)
   concurrency: 1,
-  // 속도 제한: 20초에 1개 처리 (분당 3회 제한 준수)
+  // 속도 제한: 10초에 1개 처리
   limiter: {
     max: 1,
-    duration: 20000
+    duration: 10000
   }
 });
 

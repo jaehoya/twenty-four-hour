@@ -1,13 +1,13 @@
 const { Queue } = require('bullmq');
 const Redis = require('ioredis');
-require("dotenv").config(); 
+require("dotenv").config();
 
 // Redis 연결 설정 
 const connection = new Redis({
-  // 예를 들어, Docker나 로컬 Redis를 사용할 경우
-  host: process.env.REDIS_HOST || 'localhost', 
-  port: process.env.REDIS_PORT || 6379,
-  maxRetriesPerRequest: null,
+    // 예를 들어, Docker나 로컬 Redis를 사용할 경우
+    host: process.env.REDIS_HOST || 'localhost',
+    port: process.env.REDIS_PORT || 6379,
+    maxRetriesPerRequest: null,
 });
 
 // AI 태그 추천 작업을 위한 큐 이름
@@ -24,16 +24,16 @@ async function addAiTagJob(fileId) {
     if (!fileId) {
         throw new Error("File ID is required to add an AI Tag job.");
     }
-    
+
     // 작업 데이터와 옵션 정의
     const job = await aiTagQueue.add(
         'recommendTags', // Job 이름
         { fileId }, // Job 데이터 (워커로 전달됨)
-        { 
-            attempts: 3, // 실패 시 최대 3번 재시도
-            backoff: { type: 'exponential', delay: 1000 }, // 재시도 간격: 1초, 2초, 4초
+        {
+            attempts: 5, // 실패 시 최대 5번 재시도
+            backoff: { type: 'fixed', delay: 12000 }, // 실패 후 12초 대기 후 재시도
             removeOnComplete: true, // 작업 완료 시 큐에서 제거
-            removeOnFail: false // 실패 시는 제거하지 않고 큐에 남겨 재시도 가능하도록 함
+            removeOnFail: false
         }
     );
     console.log(`[Queue] Job added (ID: ${job.id}) for fileId: ${fileId}`);
