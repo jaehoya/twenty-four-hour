@@ -25,6 +25,7 @@ Folder.belongsTo(Folder, { as: 'parent', foreignKey: 'parentId' });
 
 Folder.hasMany(File, { foreignKey: 'folderId' });
 File.belongsTo(Folder, { foreignKey: 'folderId' });
+File.belongsTo(Folder, { as: 'SuggestedFolder', foreignKey: 'suggestedFolderId' });
 
 User.hasMany(Favorite, { foreignKey: 'userId' });
 Favorite.belongsTo(User, { foreignKey: 'userId' });
@@ -56,6 +57,6 @@ module.exports = {
   UserProfile,
   Folder,
   Favorite,
-  Share, 
+  Share,
   FileTag,
 };

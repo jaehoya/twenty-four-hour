@@ -2,11 +2,13 @@ const jwt = require("jsonwebtoken");
 const path = require("path");
 
 const {
-    saveFileMetadata, 
-    getFilesByUserId, 
+    saveFileMetadata,
+    getFilesByUserId,
     deleteFileById,
-    getFileById, 
+    getFileById,
     renameFileById,
+    getSuggestedFiles,
+    confirmFolderMove
 } = require("../services/file.service");
 const { addAiTagJob } = require("../queue/tag.queue");
 
@@ -14,19 +16,26 @@ const { addAiTagJob } = require("../queue/tag.queue");
 async function uploadFile(req, res, next) {
     try {
         // 업로드 된 파일이 없는 경우
-        if(!req.file){
+        if (!req.file) {
             return res.status(400).json({
-                state: 400, 
+                state: 400,
                 code: "NO_FILE",
                 message: "업로드할 파일을 선택해주세요.",
             });
         }
 
         const userId = req.user.id;
-        const fileRecord = await saveFileMetadata(userId, req.file);
+        // folderId can be passed in body
+        const folderId = req.body.folderId ? parseInt(req.body.folderId, 10) : null;
+        const fileRecord = await saveFileMetadata(userId, req.file, folderId);
 
         // AI 태깅 작업을 큐에 추가 (백그라운드 처리)
-        await addAiTagJob(fileRecord.id);
+        // Redis 연결 실패 등으로 큐 작업이 실패해도 파일 업로드 자체는 성공으로 처리
+        try {
+            await addAiTagJob(fileRecord.id);
+        } catch (queueError) {
+            console.error("AI 태깅 작업 추가 실패 (Redis 연결 확인 필요):", queueError.message);
+        }
 
         return res.status(201).json({
             state: 201,
@@ -83,7 +92,7 @@ async function downloadFile(req, res, next) {
         const fileId = req.params.id;
         const file = await getFileById(fileId);
 
-        if(!file) {
+        if (!file) {
             return res.status(404).json({
                 state: 404,
                 code: "FILE_NOT_FOUND",
@@ -93,7 +102,7 @@ async function downloadFile(req, res, next) {
 
         // 파일 경로에서 실제 파일을 찾아서 원래 파일명으로 다운로드
         return res.download(file.path, file.original_name);
-    } catch(err) {
+    } catch (err) {
         next(err);
     }
 }
@@ -133,7 +142,7 @@ async function previewFile(req, res, next) {
 
         if (!token) {
             return res.status(401).json({
-                state: 401, 
+                state: 401,
                 code: "NO_TOKEN",
                 message: "토큰이 필요합니다."
             })
@@ -158,7 +167,7 @@ async function previewFile(req, res, next) {
 
         if (!file) {
             return res.status(404).json({
-                state: 404, 
+                state: 404,
                 code: "FILE_NOT_FOUND",
                 message: "파일을 찾을 수 없습니다.",
             });
@@ -177,7 +186,7 @@ async function previewFile(req, res, next) {
         }
 
         // 파일 스트림 전송
-        const absolutePath = path.resolve(file.path); 
+        const absolutePath = path.resolve(file.path);
         res.setHeader("Content-Type", file.mime_type);
         return res.sendFile(absolutePath);
     } catch (err) {
@@ -185,4 +194,49 @@ async function previewFile(req, res, next) {
     }
 }
 
-module.exports = { uploadFile, getUserFiles, deleteFile, downloadFile, renameFile, previewFile };
+// AI가 추천한 폴더 이동 대기 목록 조회
+async function getSuggestedFilesController(req, res, next) {
+    try {
+        const userId = req.user.id;
+        const files = await getSuggestedFiles(userId);
+
+        return res.status(200).json({
+            state: 200,
+            code: "SUGGESTED_FILES_FOUND",
+            message: "폴더 정리 추천 목록 조회 성공",
+            files
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+// 폴더 이동 승인
+async function confirmFolderMoveController(req, res, next) {
+    try {
+        const userId = req.user.id;
+        const fileId = req.params.id;
+
+        const result = await confirmFolderMove(userId, fileId);
+
+        return res.status(200).json({
+            state: 200,
+            code: "FOLDER_MOVE_CONFIRMED",
+            message: "파일 이동이 완료되었습니다.",
+            file: result
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+module.exports = {
+    uploadFile,
+    getUserFiles,
+    deleteFile,
+    downloadFile,
+    renameFile,
+    previewFile,
+    getSuggestedFilesController,
+    confirmFolderMoveController
+};

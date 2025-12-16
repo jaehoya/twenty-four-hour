@@ -9,9 +9,10 @@ const { buildFolderPath } = require("./folder.service");
  * -userId: 업로드한 사용자 ID (req.user.id에서 주입됨)
  * -file: multer가 제공하는 파일 객체
  */
-async function saveFileMetadata(userId, file) {
+async function saveFileMetadata(userId, file, folderId = null) {
     const fileRecord = await File.create({
         user_id: userId,
+        folderId: folderId, // Save folderId
         original_name: file.originalname,
         stored_name: file.filename,
         mime_type: file.mimetype,

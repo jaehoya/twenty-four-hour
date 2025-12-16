@@ -1,4 +1,4 @@
-const { Folder, File, Favorite } = require("../models");
+const { Folder, File, Favorite, FileTag } = require("../models");
 const fs = require("fs").promises;
 const path = require("path");
 
@@ -86,7 +86,7 @@ async function getSubFolders(userId, parentId = null) {
 async function getFilesInFolder(userId, folderId = null) {
     const files = await File.findAll({
         where: { user_id: userId, folderId },
-        order: [["createdAt", "ASC"]],
+        order: [["createdAt", "DESC"]],
         include: [
             {
                 model: Favorite,
@@ -94,6 +94,12 @@ async function getFilesInFolder(userId, folderId = null) {
                 where: { userId, targetType: "file" },
                 attributes: ["id"],
             },
+            {
+                model: FileTag,
+                as: "tags",
+                required: false,
+                attributes: ["tag"],
+            }
         ],
     });
 
@@ -104,6 +110,7 @@ async function getFilesInFolder(userId, folderId = null) {
         mimeType: f.mime_type,
         createdAt: f.createdAt,
         isFavorite: f.Favorites.length > 0,
+        tags: f.tags ? f.tags.map(t => t.tag) : []
     }));
 }
 

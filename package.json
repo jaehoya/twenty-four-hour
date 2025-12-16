@@ -30,7 +30,7 @@
     "node-hwp": "^0.1.0-alpha",
     "nodemailer": "^7.0.6",
     "openai": "^6.9.1",
-    "pdf-parse": "^2.4.5",
+    "pdf-parse": "^1.1.1",
     "sequelize": "^6.37.7",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",

@@ -7,7 +7,6 @@ const OpenAI = require("openai");
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const pdfParse = require("pdf-parse");
 const mammoth = require("mammoth");
 const textract = require("textract");
 const xlsx = require("xlsx");
@@ -103,6 +102,7 @@ async function extractText(filePath, mimeType) {
     // 3) PDF
     if (mimeType === "application/pdf") {
       const buffer = fs.readFileSync(filePath);
+      const pdfParse = require("pdf-parse");
       const data = await pdfParse(buffer);
       return data.text;
     }

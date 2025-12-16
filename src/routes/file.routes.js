@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../middlewares/upload");
-const { uploadFile, getUserFiles, deleteFile, downloadFile, renameFile, previewFile } = require("../controllers/file.controller");
+const { uploadFile, getUserFiles, deleteFile, downloadFile, renameFile, previewFile, getSuggestedFilesController, confirmFolderMoveController } = require("../controllers/file.controller");
 const authenticateToken = require("../middlewares/auth");
 
 /**
@@ -149,5 +149,39 @@ router.delete("/:id", authenticateToken, deleteFile);
  *         description: 파일 이름 변경 성공
  */
 router.patch("/:id/rename", authenticateToken, renameFile);
+
+/**
+ * @swagger
+ * /api/files/suggested:
+ *   get:
+ *     summary: AI가 추천한 폴더 이동 대기 목록 조회
+ *     tags: [Files]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 추천 목록 조회 성공
+ */
+router.get("/suggested", authenticateToken, getSuggestedFilesController);
+
+/**
+ * @swagger
+ * /api/files/{id}/confirm-move:
+ *   post:
+ *     summary: AI가 추천한 폴더로 이동 승인
+ *     tags: [Files]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: 폴더 이동 완료
+ */
+router.post("/:id/confirm-move", authenticateToken, confirmFolderMoveController);
 
 module.exports = router;
