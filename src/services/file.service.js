@@ -124,9 +124,8 @@ async function renameFileById(userId, fileId, newName) {
 }
 
 /**
- * 파일 이동 후 DB에 새 path, stored_name 업데이트
- * @param {number} fileId - 파일 ID
- * @param {string} newPath - 이동된 실제 파일 경로
+ * AI 추천 폴더가 있는 파일 목록 조회
+ * @param {number} userId - 사용자 ID
  */
 async function updateFilePath(fileId, newPath) {
     const file = await File.findByPk(fileId);
@@ -150,6 +149,7 @@ async function updateFilePath(fileId, newPath) {
         previewUrl: `/api/files/${file.id}/preview`,
     };
 }
+
 
 
 
@@ -217,6 +217,53 @@ async function confirmFolderMove(userId, fileId) {
     return file;
 }
 
+/**
+ * 일반 파일 이동 (드래그 앤 드롭 등)
+ */
+async function moveFile(userId, fileId, targetFolderId) {
+    const file = await File.findOne({
+        where: { id: fileId, user_id: userId }
+    });
+
+    if (!file) {
+        throw new Error("파일을 찾을 수 없습니다.");
+    }
+
+    let targetDir;
+    let newFolderId = null;
+
+    if (targetFolderId === 'root' || targetFolderId === null) {
+        // 루트로 이동
+        targetDir = path.resolve(__dirname, "../uploads");
+        newFolderId = null;
+    } else {
+        // 특정 폴더로 이동
+        const folder = await Folder.findOne({ where: { id: targetFolderId, userId } });
+        if (!folder) throw new Error("대상 폴더를 찾을 수 없습니다.");
+        targetDir = await buildFolderPath(folder);
+        newFolderId = folder.id;
+    }
+
+    // 파일 이동 처리
+    const oldPath = file.path;
+    const fileName = path.basename(oldPath);
+    const newPath = path.join(targetDir, fileName);
+
+    // 실제 파일 이동
+    try {
+        await fs.rename(oldPath, newPath);
+    } catch (err) {
+        throw new Error(`파일 이동 실패: ${err.message}`);
+    }
+
+    // DB 업데이트
+    file.folderId = newFolderId;
+    file.path = newPath;
+    await file.save();
+
+    return file;
+}
+
 
 module.exports = {
     saveFileMetadata,
@@ -226,6 +273,7 @@ module.exports = {
     renameFileById,
     updateFilePath,
     getSuggestedFiles,
-    confirmFolderMove
+    confirmFolderMove,
+    moveFile
 };
 

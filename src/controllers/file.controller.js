@@ -230,6 +230,26 @@ async function confirmFolderMoveController(req, res, next) {
     }
 }
 
+// 파일 이동 (드래그 앤 드롭)
+async function moveFileController(req, res, next) {
+    try {
+        const userId = req.user.id;
+        const fileId = req.params.id;
+        const { targetFolderId } = req.body; // null이면 루트, 아니면 폴더 ID
+
+        const result = await require("../services/file.service").moveFile(userId, fileId, targetFolderId);
+
+        return res.status(200).json({
+            state: 200,
+            code: "FILE_MOVED",
+            message: "파일이 이동되었습니다.",
+            file: result
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     uploadFile,
     getUserFiles,
@@ -238,5 +258,6 @@ module.exports = {
     renameFile,
     previewFile,
     getSuggestedFilesController,
-    confirmFolderMoveController
+    confirmFolderMoveController,
+    moveFileController
 };

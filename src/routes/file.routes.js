@@ -184,4 +184,34 @@ router.get("/suggested", authenticateToken, getSuggestedFilesController);
  */
 router.post("/:id/confirm-move", authenticateToken, confirmFolderMoveController);
 
+/**
+ * @swagger
+ * /api/files/{id}/move:
+ *   post:
+ *     summary: 파일 이동 (드래그 앤 드롭)
+ *     tags: [Files]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               targetFolderId:
+ *                 type: integer
+ *                 description: 이동할 폴더 ID (null이면 루트)
+ *     responses:
+ *       200:
+ *         description: 파일 이동 성공
+ */
+router.post("/:id/move", authenticateToken, require("../controllers/file.controller").moveFileController);
+
 module.exports = router;
