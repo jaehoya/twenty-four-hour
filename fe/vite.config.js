@@ -14,7 +14,7 @@ export default defineConfig({
     ],
     server: {
         '/api': {
-            target: 'http://tfh.kro.kr',
+            target: 'http://localhost:4000',
             changeOrigin: true,
         },
     },
