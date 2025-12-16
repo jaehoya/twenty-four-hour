@@ -45,9 +45,32 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                     const sortedFavs = sortItems(favoriteFiles, sortOption);
                     setFiles(sortedFavs);
                 } else if (currentTab === 'trash') {
-                    // 휴지통은 아직 API가 없으므로 빈 배열
-                    // TODO: 휴지통 API 구현 후 추가
-                    setFiles([]);
+                    // 휴지통 목록 조회
+                    response = await api.get('/trash', { 
+                        headers: { Authorization: `Bearer ${token}` } 
+                    });
+
+                    const trashList = response.data?.trash 
+                        || response.data?.files 
+                        || response.data?.items 
+                        || response.data 
+                        || [];
+
+                    const normalizedTrash = (Array.isArray(trashList) ? trashList : []).map(file => ({
+                        id: file.id,
+                        name: file.name || file.original_name,
+                        original_name: file.original_name || file.name,
+                        size: file.size,
+                        mime_type: file.mimeType || file.mime_type || 'file',
+                        mimeType: file.mimeType || file.mime_type || 'file',
+                        createdAt: file.createdAt || file.deletedAt,
+                        deletedAt: file.deletedAt,
+                        isFavorite: file.isFavorite || false,
+                        isDeleted: true,
+                    }));
+
+                    const sortedTrash = sortItems(normalizedTrash, sortOption);
+                    setFiles(sortedTrash);
                 } else {
                     // 하위 폴더 조회 (현재 경로)
                     let folders = [];
@@ -94,7 +117,12 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                     // 정렬: 폴더와 파일은 각각 정렬하고 폴더를 먼저 표시
                     const sortedFolders = sortItems(folders, sortOption);
                     const sortedFiles = sortItems(files, sortOption);
-                    setFiles([...sortedFolders, ...sortedFiles]);
+                    const normalizedFiles = sortedFiles.map(item => ({
+                        ...item,
+                        mimeType: item.mimeType || item.mime_type || 'file',
+                    }));
+
+                    setFiles([...sortedFolders, ...normalizedFiles]);
                 }
         } catch (err) {
             setFiles([]); // 에러 시 빈 배열로 설정
@@ -309,6 +337,7 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                             isSelected={selectedItem?.id === file.id && selectedItem?.mimeType !== 'folder'}
                             onClick={() => onItemSelect(file)}
                             onFileDeleted={fetchFiles}
+                            activeTab={activeTab}
                         />
                     ))
                 }

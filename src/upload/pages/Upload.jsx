@@ -258,8 +258,8 @@ function Upload() {
                     </div>
                 </div>
                 
-                {/* 데스크톱 상세 정보 */}
-                <Detail selectedItem={selectedItem} />
+                {/* 상세 정보 (데스크톱 + 모바일 모달) */}
+                <Detail selectedItem={selectedItem} onClose={() => setSelectedItem(null)} />
                 
                 
             </div>

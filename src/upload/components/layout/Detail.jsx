@@ -1,14 +1,44 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FolderIcon from "../../../assets/upload/folder_icon.svg";
 import EmptyFolderIcon from "../../../assets/upload/empty_folder_icon.svg";
 import FileIcon from "../../../assets/upload/file_icon.svg";
 import { usePathStore } from "../../../store/store";
 
-function Detail({ selectedItem = null }) {
-    const { pathNameHistory, currentPath } = usePathStore();
+function Detail({ selectedItem = null, onClose = () => {} }) {
+    const { pathNameHistory } = usePathStore();
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const updateIsMobile = () => {
+            if (typeof window === "undefined") return;
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        updateIsMobile();
+        window.addEventListener("resize", updateIsMobile);
+
+        return () => {
+            window.removeEventListener("resize", updateIsMobile);
+        };
+    }, []);
+
+    const formatDateTime = (value) => {
+        if (!value) return "-";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "-";
+        return date.toLocaleString("ko-KR", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+        });
+    };
 
     // 선택된 아이템이 없으면 빈 상태 표시
     if (!selectedItem) {
+        if (isMobile) return null;
         return (
             <div className="hidden md:block md:w-[20.93svw] md:h-auto md:m-3 rounded-[10px] border-[1px] border-[#DAE0E9] bg-white p-6 flex items-center justify-center">
             </div>
@@ -40,9 +70,76 @@ function Detail({ selectedItem = null }) {
         }
     };
 
+    const infoBlock = (
+        <div className="space-y-6">
+            <div className="flex flex-col">
+                <span className="text-[9pt] font-semibold text-[#34475C]">유형</span>
+                <span className="text-[9pt] font-normal text-[#667687]">
+                    {selectedItem.mime_type === "folder" ? "폴더" : "파일"}
+                </span>
+            </div>
+
+            {selectedItem.mime_type === "folder" && (
+                <div className="flex flex-col">
+                    <span className="text-[9pt] font-semibold text-[#34475C]">항목 수</span>
+                    <span className="text-[9pt] font-normal text-[#667687]">{itemCount}</span>
+                </div>
+            )}
+
+            <div className="flex flex-col">
+                <span className="text-[9pt] font-semibold text-[#34475C]">위치</span>
+                <span className="text-[9pt] font-normal text-[#667687] break-all">{getFullPath()}</span>
+            </div>
+
+            <div className="flex flex-col">
+                <span className="text-[9pt] font-semibold text-[#34475C]">생성 날짜</span>
+                <span className="text-[9pt] font-normal text-[#667687]">
+                    {formatDateTime(selectedItem.createdAt)}
+                </span>
+            </div>
+
+            <div className="flex flex-col">
+                <span className="text-[9pt] font-semibold text-[#34475C]">수정 날짜</span>
+                <span className="text-[9pt] font-normal text-[#667687]">
+                    {formatDateTime(selectedItem.updatedAt)}
+                </span>
+            </div>
+        </div>
+    );
+
+    if (isMobile) {
+        return (
+            <div className="md:hidden fixed inset-0 z-40 flex items-end justify-center">
+                <div 
+                    className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" 
+                    onClick={onClose}
+                />
+                <div className="relative w-full bg-white rounded-t-[28px] px-6 pt-4 pb-10 max-h-[88vh] overflow-y-auto">
+                    <div className="mx-auto mb-4 h-1 w-16 bg-[#D4DAE5] rounded-full" />
+                    <div className="flex justify-center mb-6">
+                        {selectedItem.mime_type === "folder" ? (
+                            <img 
+                                src={isEmpty ? EmptyFolderIcon : FolderIcon} 
+                                alt={selectedItem.mime_type} 
+                                className="w-[120px] h-[90px]"
+                            />
+                        ) : (
+                            <div className="rounded-lg flex items-center justify-center">
+                                <img src={FileIcon} alt="file" className="w-[90px] h-[110px]" />
+                            </div>
+                        )}
+                    </div>
+                    <h2 className="text-center text-[1.0625rem] font-semibold text-[#34475C] mb-6">
+                        {selectedItem.name}
+                    </h2>
+                    {infoBlock}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="hidden md:block md:w-[20.93svw] scrollbar-hide md:h-auto md:m-3 md:px-[2.65svw] md:pt-28 rounded-[15px] border-[1px] overflow-auto border-[#DAE0E9] bg-white p-6">
-            {/* 아이콘 */}
             <div className="flex justify-center mb-6">
                 {selectedItem.mime_type === "folder" ? (
                     <img 
@@ -57,42 +154,13 @@ function Detail({ selectedItem = null }) {
                 )}
             </div>
             
-            {/* 이름 */}
-            <div className="text-center mb-28">
+            <div className="text-center mb-10">
                 <h2 className="text-[11pt] font-semibold text-[#34475C]">{selectedItem.name}</h2>
             </div>
             
-            {/* 상세 정보 */}
-            <div className="space-y-10">
-                <div className="flex flex-col justify-left">
-                    <span className="text-[9pt] font-semibold text-[#34475C]">유형</span>
-                    <span className="text-[9pt] font-normal text-[#667687]">{selectedItem.mime_type === "folder" ? "폴더" : "파일"}</span>
-                </div>
-                
-                {selectedItem.mime_type === "folder" && (
-                    <div className="flex flex-col justify-left">
-                        <span className="text-[9pt] font-semibold text-[#34475C]">항목 수</span>
-                        <span className="text-[9pt] font-normal text-[#667687]">{itemCount}</span>
-                    </div>
-                )}
-                
-                <div className="flex flex-col justify-left">
-                    <span className="text-[9pt] font-semibold text-[#34475C]">위치</span>
-                    <span className="text-[9pt] font-normal text-[#667687] break-all">{getFullPath()}</span>
-                </div>
-                
-                <div className="flex flex-col justify-left">
-                    <span className="text-[9pt] font-semibold text-[#34475C]">생성 날짜</span>
-                    <span className="text-[9pt] font-normal text-[#667687]">{new Date(selectedItem.createdAt).toLocaleDateString()} 오전 11:02</span>
-                </div>
-                
-                {/* <div className="flex flex-col justify-left">
-                    <span className="text-[9pt] font-semibold text-[#34475C]">수정 날짜</span>
-                    <span className="text-[9pt] font-normal text-[#667687]">{new Date(selectedItem.updatedAt).toLocaleDateString()} 오후 09:15</span>
-                </div> */}
-            </div>
+            {infoBlock}
         </div>
-    )
+    );
 }
 
 export default Detail;

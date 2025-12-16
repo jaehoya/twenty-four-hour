@@ -23,7 +23,7 @@ function App() {
           <Route path="favorites" element={<FavoritesPage />} />
           <Route path="trash" element={<TrashPage />} />
         </Route>
-        <Route path="/" element={<Navigate to="/change-password" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );

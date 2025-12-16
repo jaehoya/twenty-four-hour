@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import FolderIcon from "../../../assets/upload/folder_icon.svg";
 import EmptyFolderIcon from "../../../assets/upload/empty_folder_icon.svg";
 import FileIcon from "../../../assets/upload/file_icon.svg";
@@ -7,8 +8,9 @@ import FileMenu from "./FileMenu";
 import { useModalStore } from '../../../store/store';
 import api from "../../../utils/api";
 
-function FileItem({ item, isSelected = false, onClick, onFileDeleted }) {
+function FileItem({ item, isSelected = false, onClick, onFileDeleted, activeTab = 'storage' }) {
     const { setIsOpenRenameModal, setRenameItem } = useModalStore();
+    const navigate = useNavigate();
 
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
@@ -21,6 +23,7 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted }) {
 
     const itemCount = (item.count) ? getItemCount(item.id) : 0;
     const isEmpty = item.mime_type === "folder" && itemCount === 0;
+    const isTrashTab = activeTab === 'trash';
 
     // 길게 클릭 이벤트 핸들러
     const handleMouseDown = (e) => {
@@ -166,12 +169,20 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted }) {
     };
 
     const handleRename = () => {
+        if (isTrashTab) {
+            closeContextMenu();
+            return;
+        }
         closeContextMenu();
         setRenameItem(item);
         setIsOpenRenameModal(true);
     };
 
     const handleDelete = async () => {
+        if (isTrashTab) {
+            closeContextMenu();
+            return;
+        }
         try {
             const token = localStorage.getItem('accessToken');
             if (!token) {
@@ -206,6 +217,121 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted }) {
                 alert(`파일 삭제 실패: ${error.response.data.message}`);
             } else {
                 alert('파일 삭제에 실패했습니다.');
+            }
+        }
+        closeContextMenu();
+    };
+
+    const handleAddFavorite = async () => {
+        if (isTrashTab) {
+            closeContextMenu();
+            return;
+        }
+        try {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                closeContextMenu();
+                return;
+            }
+
+            // 즐겨찾기 추가 API 호출
+            const response = await api.post('/favorites', {
+                targetType: 'file',
+                targetId: item.id
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            if (response.status === 201 || response.status === 200) {
+                alert('즐겨찾기에 추가되었습니다.');
+                closeContextMenu();
+                // 즐겨찾기 탭으로 이동
+                navigate('/upload/favorites');
+            } else {
+                throw new Error('즐겨찾기 추가 실패');
+            }
+        } catch (error) {
+            if (error.response?.data?.message) {
+                alert(`즐겨찾기 추가 실패: ${error.response.data.message}`);
+            } else if (error.response?.status === 409) {
+                alert('이미 즐겨찾기에 추가된 파일입니다.');
+            } else {
+                alert('즐겨찾기 추가에 실패했습니다.');
+            }
+        }
+        closeContextMenu();
+    };
+
+    const handleRestore = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                closeContextMenu();
+                return;
+            }
+
+            const response = await api.post(`/trash/${item.id}/restore`, {}, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (response.status === 200 || response.status === 201) {
+                alert('파일이 복원되었습니다.');
+                if (onFileDeleted) {
+                    onFileDeleted();
+                }
+            } else {
+                throw new Error('파일 복원 실패');
+            }
+        } catch (error) {
+            if (error.response?.data?.message) {
+                alert(`파일 복원 실패: ${error.response.data.message}`);
+            } else {
+                alert('파일 복원에 실패했습니다.');
+            }
+        }
+        closeContextMenu();
+    };
+
+    const handlePermanentDelete = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                closeContextMenu();
+                return;
+            }
+
+            if (!confirm(`${item.original_name || item.name} 파일을 영구 삭제하시겠습니까?\n삭제 후에는 복원할 수 없습니다.`)) {
+                closeContextMenu();
+                return;
+            }
+
+            const response = await api.delete(`/trash/${item.id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (response.status === 200 || response.status === 204) {
+                alert('파일이 영구 삭제되었습니다.');
+                if (onFileDeleted) {
+                    onFileDeleted();
+                }
+            } else {
+                throw new Error('파일 영구 삭제 실패');
+            }
+        } catch (error) {
+            if (error.response?.data?.message) {
+                alert(`파일 영구 삭제 실패: ${error.response.data.message}`);
+            } else {
+                alert('파일 영구 삭제에 실패했습니다.');
             }
         }
         closeContextMenu();
@@ -269,6 +395,10 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted }) {
                 onViewInfo={handleViewInfo}
                 onRename={handleRename}
                 onDelete={handleDelete}
+                onAddFavorite={handleAddFavorite}
+                onRestore={isTrashTab ? handleRestore : undefined}
+                onPermanentDelete={isTrashTab ? handlePermanentDelete : undefined}
+                mode={activeTab}
                 fileName={item.name}
             />
         </>
