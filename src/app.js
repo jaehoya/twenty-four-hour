@@ -14,6 +14,11 @@ app.use(express.json()); // JSON 요청 파싱
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocs = require('./config/swagger');
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 // DB 연결 확인
 sequelize.authenticate()
   .then(() => console.log("DB 연결 성공"))
@@ -28,6 +33,7 @@ app.use("/api/disk", require("./routes/disk.routes"));
 app.use("/api/favorites", require("./routes/favorite.routes"));
 app.use("/api/shares", require("./routes/share.routes"));
 app.use("/api/trash", require("./routes/trash.routes")); // 휴지통 라우트 등록
+app.use("/api/tags", require("./routes/tag.routes"));
 
 // 공통 에러 핸들러 (마지막에 두기)
 app.use((err, req, res, next) => {
@@ -35,10 +41,11 @@ app.use((err, req, res, next) => {
   const code = err.code || "INTERNAL_SERVER_ERROR";
   const message = err.message || "서버 오류가 발생했습니다.";
 
-  res.status(status).json({ 
+  res.status(status).json({
     state: status,
     code,
-    message });
+    message
+  });
 });
 
 module.exports = app;

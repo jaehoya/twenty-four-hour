@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 
 const File = sequelize.define("File", {
-  id: { 
+  id: {
     type: DataTypes.BIGINT.UNSIGNED,
     autoIncrement: true,
     primaryKey: true,
@@ -13,11 +13,12 @@ const File = sequelize.define("File", {
   stored_name: { type: DataTypes.STRING },
   mime_type: { type: DataTypes.STRING },
   size: { type: DataTypes.BIGINT },
-  path: { type: DataTypes.STRING }
+  path: { type: DataTypes.STRING },
+  suggestedFolderId: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true }
 }, {
   tableName: "files",
   timestamps: true,
-  paranoid: true, 
+  paranoid: true,
 });
 
 module.exports = File;

@@ -1,4 +1,4 @@
-const { Folder, File, Favorite } = require("../models");
+const { Folder, File, Favorite, FileTag } = require("../models");
 const fs = require("fs").promises;
 const path = require("path");
 
@@ -25,7 +25,7 @@ async function buildFolderPath(folder) {
     let currentParentId = folder.parentId;
 
     // 최상위까지 올라감
-    while(currentParentId) {
+    while (currentParentId) {
         const parent = await Folder.findByPk(currentParentId);
         if (!parent) break;
         segments.unshift(parent.name);  // 부모 이름을 앞쪽에 추가
@@ -53,7 +53,7 @@ async function createFolder(userId, name, parentId = null) {
     try {
         await fs.mkdir(absolutePath, { recursive: true });
     } catch (err) {
-        if (err.code !== "EEXIST")  throw err;
+        if (err.code !== "EEXIST") throw err;
     }
 
     return folder;
@@ -62,49 +62,56 @@ async function createFolder(userId, name, parentId = null) {
 // 하위 폴더 조회
 async function getSubFolders(userId, parentId = null) {
     const folders = await Folder.findAll({
-    where: { userId, parentId },
-    order: [["createdAt", "ASC"]],
-    include: [
-      {
-        model: Favorite,
-        required: false,
-        where: { userId, targetType: "folder" },
-        attributes: ["id"],
-      },
-    ],
-  });
+        where: { userId, parentId },
+        order: [["createdAt", "ASC"]],
+        include: [
+            {
+                model: Favorite,
+                required: false,
+                where: { userId, targetType: "folder" },
+                attributes: ["id"],
+            },
+        ],
+    });
 
-  return folders.map(f => ({
-    id: f.id,
-    name: f.name,
-    createdAt: f.createdAt,
-    isFavorite: f.Favorites.length > 0,
-  }));
+    return folders.map(f => ({
+        id: f.id,
+        name: f.name,
+        createdAt: f.createdAt,
+        isFavorite: f.Favorites.length > 0,
+    }));
 }
 
 // 특정 폴더 안 파일 조회
 async function getFilesInFolder(userId, folderId = null) {
     const files = await File.findAll({
-    where: { user_id: userId, folderId },
-    order: [["createdAt", "ASC"]],
-    include: [
-      {
-        model: Favorite,
-        required: false,
-        where: { userId, targetType: "file" },
-        attributes: ["id"],
-      },
-    ],
-  });
+        where: { user_id: userId, folderId },
+        order: [["createdAt", "DESC"]],
+        include: [
+            {
+                model: Favorite,
+                required: false,
+                where: { userId, targetType: "file" },
+                attributes: ["id"],
+            },
+            {
+                model: FileTag,
+                as: "tags",
+                required: false,
+                attributes: ["tag"],
+            }
+        ],
+    });
 
-  return files.map(f => ({
-    id: f.id,
-    name: f.original_name,
-    size: f.size,
-    mimeType: f.mime_type,
-    createdAt: f.createdAt,
-    isFavorite: f.Favorites.length > 0,
-  }));
+    return files.map(f => ({
+        id: f.id,
+        name: f.original_name,
+        size: f.size,
+        mimeType: f.mime_type,
+        createdAt: f.createdAt,
+        isFavorite: f.Favorites.length > 0,
+        tags: f.tags ? f.tags.map(t => t.tag) : []
+    }));
 }
 
 
@@ -168,10 +175,20 @@ async function deleteSubFoldersAndFiles(userId, parentId) {
     await File.destroy({ where: { user_id: userId, folderId: parentId } });
 }
 
-module.exports = { 
+// AI 분석용으로 모든 폴더를 플랫하게 조회 (이름, ID만)
+async function getAllFoldersFlat(userId) {
+    return Folder.findAll({
+        where: { userId },
+        attributes: ['id', 'name']
+    });
+}
+
+module.exports = {
     createFolder,
     getSubFolders,
     getFilesInFolder,
     renameFolder,
-    deleteFolder
+    deleteFolder,
+    buildFolderPath,
+    getAllFoldersFlat
 };

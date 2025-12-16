@@ -6,13 +6,58 @@ const auth = require("../middlewares/auth");
 // 모든 라우트에 인증 미들웨어 적용
 router.use(auth);
 
-// GET /api/trash - 휴지통 파일 목록 조회
+/**
+ * @swagger
+ * /api/trash:
+ *   get:
+ *     summary: 휴지통 파일 목록 조회
+ *     tags: [Trash]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 목록 조회 성공
+ */
 router.get("/", trashController.listTrashedFiles);
 
-// POST /api/trash/:id/restore - 휴지통에서 파일 복원
+/**
+ * @swagger
+ * /api/trash/{id}/restore:
+ *   post:
+ *     summary: 휴지통 파일 복원
+ *     tags: [Trash]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: 파일 복원 성공
+ */
 router.post("/:id/restore", trashController.restoreTrashedFile);
 
-// DELETE /api/trash/:id - 파일 영구 삭제
+/**
+ * @swagger
+ * /api/trash/{id}:
+ *   delete:
+ *     summary: 파일 영구 삭제
+ *     tags: [Trash]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: 파일 삭제 성공
+ */
 router.delete("/:id", trashController.deletePermanently);
 
 module.exports = router;

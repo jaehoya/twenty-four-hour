@@ -1,21 +1,23 @@
-const { File, Favorite } = require("../models");
-const fs = require("fs");
-const path = require("path");
+const { File, Favorite, FileTag, Folder } = require("../models");
 const { Op } = require("sequelize");
+const fs = require("fs").promises;
+const path = require("path");
+const { buildFolderPath } = require("./folder.service");
 
 /**
  * 파일 메타데이터 저장
  * -userId: 업로드한 사용자 ID (req.user.id에서 주입됨)
  * -file: multer가 제공하는 파일 객체
  */
-async function saveFileMetadata(userId, file) {
+async function saveFileMetadata(userId, file, folderId = null) {
     const fileRecord = await File.create({
         user_id: userId,
+        folderId: folderId, // Save folderId
         original_name: file.originalname,
         stored_name: file.filename,
         mime_type: file.mimetype,
         size: file.size,
-        path: "src/uploads/" + file.filename,
+        path: file.path,
     });
 
     const previewUrl = `/api/files/${fileRecord.id}/preview`;
@@ -50,18 +52,25 @@ async function getFilesByUserId(userId, search, sortBy, sortOrder) {
                 where: { userId, targetType: "file" },
                 attributes: ["id"],
             },
+            {
+                model: FileTag,
+                as: "tags",
+                required: false,
+                attributes: ["tag"],
+            }
         ],
     });
 
     return files.map(f => ({
-    id: f.id,
-    name: f.original_name,
-    size: f.size,
-    mimeType: f.mime_type,
-    createdAt: f.createdAt,
-    isFavorite: f.Favorites.length > 0,
-    previewUrl: `/api/files/${f.id}/preview`,
-  }));
+        id: f.id,
+        name: f.original_name,
+        size: f.size,
+        mimeType: f.mime_type,
+        createdAt: f.createdAt,
+        isFavorite: f.Favorites.length > 0,
+        tags: f.tags.map(t => t.tag),
+        previewUrl: `/api/files/${f.id}/preview`,
+    }));
 }
 
 // 파일 ID로 파일 조회 (다운로드용)
@@ -83,8 +92,11 @@ async function deleteFileById(userId, fileId) {
         throw error;
     }
 
+    await FileTag.destroy({ where: { file_id: fileId } });
     // paranoid: true 옵션으로 인해 soft delete가 실행됨
     await file.destroy();
+
+    return true;
 }
 
 /**
@@ -111,11 +123,157 @@ async function renameFileById(userId, fileId, newName) {
     }
 }
 
-module.exports = { 
-    saveFileMetadata, 
-    getFilesByUserId, 
-    getFileById, 
-    deleteFileById, 
-    renameFileById
+/**
+ * AI 추천 폴더가 있는 파일 목록 조회
+ * @param {number} userId - 사용자 ID
+ */
+async function updateFilePath(fileId, newPath) {
+    const file = await File.findByPk(fileId);
+
+    if (!file) {
+        const err = new Error("파일을 찾을 수 없습니다.");
+        err.status = 404;
+        throw err;
+    }
+
+    // 경로에서 파일명 추출
+    const newStoredName = newPath.split(/[/\\]/).pop();
+
+    file.path = newPath;
+    file.stored_name = newStoredName;
+
+    await file.save();
+
+    return {
+        ...file.toJSON(),
+        previewUrl: `/api/files/${file.id}/preview`,
+    };
+}
+
+
+
+
+// AI 추천 폴더가 있는 파일 목록 조회
+async function getSuggestedFiles(userId) {
+    const files = await File.findAll({
+        where: {
+            user_id: userId,
+            suggestedFolderId: { [Op.ne]: null } // suggestedFolderId가 있는 파일만
+        },
+        include: [
+            {
+                model: Folder,
+                as: 'SuggestedFolder', // 관계 명칭이 모델 정의와 맞아야 함 (지금은 임시)
+                foreignKey: 'suggestedFolderId',
+                required: false,
+                attributes: ['id', 'name']
+            }
+        ]
+    });
+
+    return files.map(f => ({
+        id: f.id,
+        name: f.original_name,
+        suggestedFolder: f.SuggestedFolder ? { id: f.SuggestedFolder.id, name: f.SuggestedFolder.name } : null
+    }));
+}
+
+// 파일 이동 승인 처리
+async function confirmFolderMove(userId, fileId) {
+    const file = await File.findOne({
+        where: { id: fileId, user_id: userId }
+    });
+
+    if (!file || !file.suggestedFolderId) {
+        throw new Error("이동할 파일이 없거나 추천된 폴더가 없습니다.");
+    }
+
+    const folder = await Folder.findByPk(file.suggestedFolderId);
+    if (!folder) {
+        throw new Error("추천된 폴더가 더 이상 존재하지 않습니다.");
+    }
+
+    // 폴더의 물리적 경로 가져오기
+    const targetDir = await buildFolderPath(folder);
+
+    // 파일 이동 처리
+    const oldPath = file.path;
+    const fileName = path.basename(oldPath);
+    const newPath = path.join(targetDir, fileName);
+
+    // 실제 파일 이동
+    try {
+        await fs.rename(oldPath, newPath);
+    } catch (err) {
+        throw new Error(`파일 이동 실패: ${err.message}`);
+    }
+
+    // DB 업데이트
+    file.folderId = folder.id;
+    file.path = newPath;
+    file.suggestedFolderId = null; // 제안 승인 완료 처리
+    await file.save();
+
+    return file;
+}
+
+/**
+ * 일반 파일 이동 (드래그 앤 드롭 등)
+ */
+async function moveFile(userId, fileId, targetFolderId) {
+    const file = await File.findOne({
+        where: { id: fileId, user_id: userId }
+    });
+
+    if (!file) {
+        throw new Error("파일을 찾을 수 없습니다.");
+    }
+
+    let targetDir;
+    let newFolderId = null;
+
+    if (targetFolderId === 'root' || targetFolderId === null) {
+        // 루트로 이동
+        targetDir = path.resolve(__dirname, "../uploads");
+        newFolderId = null;
+    } else {
+        // 특정 폴더로 이동
+        const folder = await Folder.findOne({ where: { id: targetFolderId, userId } });
+        if (!folder) throw new Error("대상 폴더를 찾을 수 없습니다.");
+        targetDir = await buildFolderPath(folder);
+        newFolderId = folder.id;
+    }
+
+    // 파일 이동 처리
+    const oldPath = file.path;
+    const fileName = path.basename(oldPath);
+    const newPath = path.join(targetDir, fileName);
+
+    // 실제 파일 이동
+    try {
+        await fs.rename(oldPath, newPath);
+    } catch (err) {
+        throw new Error(`파일 이동 실패: ${err.message}`);
+    }
+
+    // DB 업데이트
+    file.folderId = newFolderId;
+    file.path = newPath;
+    await file.save();
+
+    return file;
+}
+
+
+module.exports = {
+    saveFileMetadata,
+    getFilesByUserId,
+    getFileById,
+    deleteFileById,
+    renameFileById,
+    updateFilePath,
+    getSuggestedFiles,
+    confirmFolderMove,
+    moveFile
 };
 

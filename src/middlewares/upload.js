@@ -8,16 +8,26 @@
 
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+
+// Ensure uploads directory exists
+const uploadDir = "src/uploads/";
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // 저장소 설정 (디스크에 저장)
 const storage = multer.diskStorage({
     // 업로드 폴더 지정
     destination: (req, file, cb) => {
-        cb(null, "src/uploads/");
+        cb(null, uploadDir);
     },
 
     // 저장 파일명 지정 
     filename: (req, file, cb) => {
+        // Fix for Korean characters (latin1 -> utf8)
+        file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+
         const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
         const ext = path.extname(file.originalname).toLowerCase();  // 확장자 추출
         cb(null, uniqueSuffix + ext);
@@ -46,7 +56,7 @@ const allowedMime = [
 
 // 파일 타입 필터
 const fileFilter = (req, file, cb) => {
-    if(allowedMime.includes(file.mimetype)) {
+    if (allowedMime.includes(file.mimetype)) {
         cb(null, true);  // 허용된 확장자면 통과
     }
     else {

@@ -41,9 +41,14 @@ class UserProfileService {
     }
 
     if (profileImageFile) {
-      const savedFile = await fileService.saveFileMetadata(userId, profileImageFile);
-      userProfile.profileImageId = savedFile.id;
-      await userProfile.save();
+      try {
+        const savedFile = await fileService.saveFileMetadata(userId, profileImageFile);
+        userProfile.profileImageId = savedFile.id;
+        await userProfile.save();
+      } catch (error) {
+        console.error("Profile Image Save Error:", error);
+        throw new Error(`프로필 이미지 저장 실패: ${error.message}`);
+      }
     }
 
     return this.getProfile(userId);
