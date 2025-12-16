@@ -8,10 +8,15 @@ function FileMenu({
     onViewInfo, 
     onRename, 
     onDelete,
+    onAddFavorite,
+    onRestore,
+    onPermanentDelete,
+    mode = 'storage',
     fileName 
 }) {
     const contextMenuRef = useRef(null);
     const [isMobile, setIsMobile] = useState(false);
+    const isTrashMode = mode === 'trash';
 
     // 모바일 여부 확인
     useEffect(() => {
@@ -71,15 +76,17 @@ function FileMenu({
                 transform: 'translate(-50%, -10px)'
             }}
         >
-            <button 
-                onClick={onDownload}
-                className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
-            >
-                다운로드
-            </button>
+            {onDownload && (
+                <button 
+                    onClick={onDownload}
+                    className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
+                >
+                    다운로드
+                </button>
+            )}
             
             {/* 모바일에서만 정보 보기 메뉴 표시 */}
-            {isMobile && (
+            {isMobile && onViewInfo && (
                 <button 
                     onClick={onViewInfo}
                     className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
@@ -87,20 +94,64 @@ function FileMenu({
                     정보 보기
                 </button>
             )}
-            
-            <button 
-                onClick={onRename}
-                className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
-            >
-                이름 바꾸기
-            </button>
-            <div className="border-t border-gray-100 my-1"></div>
-            <button 
-                onClick={onDelete}
-                className="w-full px-3 py-2 text-left text-[12px] text-[#FF4757] hover:bg-[#FFF5F5] transition-colors"
-            >
-                휴지통으로 이동
-            </button>
+
+            {!isTrashMode && onRename && (
+                <button 
+                    onClick={onRename}
+                    className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
+                >
+                    이름 바꾸기
+                </button>
+            )}
+            {!isTrashMode && onAddFavorite && (
+                <>
+                    <div className="border-t border-gray-100 my-1"></div>
+                    <button 
+                        onClick={onAddFavorite}
+                        className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
+                    >
+                        즐겨찾기 추가
+                    </button>
+                </>
+            )}
+            {!isTrashMode && onDelete && (
+                <>
+                    <div className="border-t border-gray-100 my-1"></div>
+                    <button 
+                        onClick={onDelete}
+                        className="w-full px-3 py-2 text-left text-[12px] text-[#FF4757] hover:bg-[#FFF5F5] transition-colors"
+                    >
+                        휴지통으로 이동
+                    </button>
+                </>
+            )}
+
+            {isTrashMode && (
+                <>
+                    {onRestore && (
+                        <>
+                            <div className="border-t border-gray-100 my-1"></div>
+                            <button 
+                                onClick={onRestore}
+                                className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
+                            >
+                                복원하기
+                            </button>
+                        </>
+                    )}
+                    {onPermanentDelete && (
+                        <>
+                            <div className="border-t border-gray-100 my-1"></div>
+                            <button 
+                                onClick={onPermanentDelete}
+                                className="w-full px-3 py-2 text-left text-[12px] text-[#FF4757] hover:bg-[#FFF5F5] transition-colors"
+                            >
+                                영구 삭제
+                            </button>
+                        </>
+                    )}
+                </>
+            )}
         </div>
     );
 }

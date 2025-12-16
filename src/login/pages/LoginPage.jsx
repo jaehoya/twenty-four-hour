@@ -51,7 +51,7 @@ function LoginPage() {
                     </div>
                 </div>
 
-                <div className="bg-white flex flex-col items-center px-6 py-2 mb-[20vh] md:mb-0 md:pb-10 relative z-10 -mt-4 md:-mt-12">
+                <div className="bg-white flex flex-col items-center p-6 mb-[20vh] md:mb-0 md:pb-10 relative z-10 -mt-4 md:-mt-12">
                     <div className="w-full max-w-[363px] min-w-0">
                         <button
                             type="submit"
@@ -59,12 +59,12 @@ function LoginPage() {
                             className="block w-full h-[55px] mx-auto rounded-[7px]
                                         text-white text-sm md:text-base font-semibold
                                         bg-gradient-to-r from-[#0D4CFF] to-[#33AAFF]
-                                        shadow-lg"
+                                        shadow-lg cursor-pointer"
                         >로그인</button>
                         <button
                             onClick={() => navigate("/signup")}
                             className="block w-full h-[55px] mx-auto
-                                        text-[#222] text-sm md:text-base underline mt-2"
+                                        text-[#222] text-sm md:text-base underline cursor-pointer"
                         >회원가입</button>
                     </div>
                 </div>
