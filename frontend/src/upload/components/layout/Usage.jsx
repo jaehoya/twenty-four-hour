@@ -14,12 +14,15 @@ function Usage() {
             try {
                 const response = await api.get('/disk/usage');
                 const { used, total } = response.data.data;
+                
+                const MAX_TOTAL = 2 * 1024 * 1024 * 1024; 
+                const limitedTotal = Math.min(total, MAX_TOTAL);
     
-                const rawPercentage = (used / total) * 100;
+                const rawPercentage = (used / limitedTotal) * 100;
     
                 setUsageData({
                     used,
-                    total,
+                    total: limitedTotal,
                     percentage: Math.min(Math.max(rawPercentage, 0.5), 100),
                 });
             } catch (error) {
