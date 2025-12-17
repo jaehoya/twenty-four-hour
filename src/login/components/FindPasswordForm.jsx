@@ -4,7 +4,7 @@
  */
 import { useState } from "react";
 import EmailIcon from "../../assets/signup/email_icon.svg";
-import InputField from "../../login/components/InputField";
+import InputField from "./InputField";
 import api from "../../utils/api";
 
 function FindPasswordForm() {
