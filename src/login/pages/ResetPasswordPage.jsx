@@ -66,10 +66,10 @@ function ResetPasswordPage() {
                                         shadow-lg cursor-pointer"
                         >비밀번호 재설정</button>
                         <button
-                            onClick={() => navigate("/login")}
+                            onClick={() => navigate("/upload")}
                             className="block w-full h-[55px] mx-auto
                                         text-[#222] text-sm md:text-base underline cursor-pointer"
-                        >로그인으로 돌아가기</button>
+                        >돌아가기</button>
                     </div>
                 </div>
             </section>
