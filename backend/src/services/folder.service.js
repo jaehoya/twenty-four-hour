@@ -1,10 +1,39 @@
 const { Folder, File, Favorite, FileTag } = require("../models");
-const {
-    getFolderPhysicalPath,
-    ensureDir
-} = require("../utils/uploadPath");
+const fs = require("fs").promises;
 const path = require("path");
-const fs = require("fs");
+
+// src/uploads 기준 경로 고정
+const UPLOADS_BASE = path.resolve(__dirname, "../uploads");
+
+/**
+ * 경로 탈출 방지용 안전한 경로 생성
+ */
+function safeResolve(...segments) {
+    const targetPath = path.resolve(UPLOADS_BASE, ...segments);
+    if (!targetPath.startsWith(UPLOADS_BASE)) {
+        throw new Error("Invalid folder path");
+    }
+    return targetPath;
+}
+
+
+/**
+ * parentId를 따라 최상위까지 올라가며 경로를 생성
+ */
+async function buildFolderPath(folder) {
+    let segments = [folder.name];  // 현재 폴더 이름을 경로 배열에 추가
+    let currentParentId = folder.parentId;
+
+    // 최상위까지 올라감
+    while (currentParentId) {
+        const parent = await Folder.findByPk(currentParentId);
+        if (!parent) break;
+        segments.unshift(parent.name);  // 부모 이름을 앞쪽에 추가
+        currentParentId = parent.parentId;  // 상위 부모로 이동
+    }
+
+    return safeResolve(...segments);  // 항상 src/uploads 밑으로 제한
+}
 
 /**
  * 폴더 생성
@@ -17,11 +46,12 @@ async function createFolder(userId, name, parentId = null) {
         name,
     });
 
-    const folderPath = getFolderPhysicalPath(userId, folder.id);
+    // 안전한 절대 경로 계산
+    const absolutePath = await buildFolderPath(folder);
 
     // 실제 디렉토리 생성 (있으면 패스)
     try {
-        await ensureDir(folderPath);
+        await fs.mkdir(absolutePath, { recursive: true });
     } catch (err) {
         if (err.code !== "EEXIST") throw err;
     }
@@ -94,9 +124,22 @@ async function renameFolder(userId, folderId, newName) {
         throw new Error("Folder not found or user not authorized");
     }
 
+    const oldPath = await buildFolderPath(folder);
+    const originalName = folder.name;
     folder.name = newName;
-    await folder.save();
+    const newPath = await buildFolderPath(folder);
 
+    // 실제 디렉토리 이름 변경
+    try {
+        await fs.rename(oldPath, newPath);
+    } catch (err) {
+        // 이름 변경 실패 시 DB 롤백
+        folder.name = originalName;
+        await folder.save();
+        throw err;
+    }
+
+    await folder.save();
     return folder;
 }
 
@@ -109,16 +152,12 @@ async function deleteFolder(userId, folderId) {
         throw new Error("Folder not found or user not authorized");
     }
 
-    // 1. 물리 폴더 이동 (active → trash)
-    const from = getFolderPhysicalPath(userId, folderId, "active");
-    const to = getFolderPhysicalPath(userId, folderId, "trash");
-
-    await ensureDir(path.dirname(to));
-    await fs.renameSync(from, to);
-
-    // 2. DB soft delete (폴더 + 하위)
+    // DB에서 모든 하위 폴더 및 파일 soft delete
     await deleteSubFoldersAndFiles(userId, folderId);
-    await folder.destroy(); // deletedAt 세팅
+
+    // 최상위 폴더 soft delete
+    // paranoid: true 설정되어 있으므로 destroy 호출 시 deletedAt이 업데이트됨
+    await folder.destroy();
 }
 
 // 재귀적으로 하위 폴더와 파일을 soft delete 하는 함수
@@ -147,5 +186,6 @@ module.exports = {
     getFilesInFolder,
     renameFolder,
     deleteFolder,
+    buildFolderPath,
     getAllFoldersFlat
 };

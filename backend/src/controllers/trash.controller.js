@@ -15,26 +15,6 @@ async function listTrashedFiles(req, res, next) {
     }
 }
 
-// 휴지통에서 특정 삭제된 폴더 내부 조회
-async function listTrashedFolderContents(req, res, next) {
-    try {
-        const userId = req.user.id;
-        const folderId = req.params.folderId;
-
-        const { folders, files } =
-            await trashService.getTrashedFolderContents(userId, folderId);
-
-        res.status(200).json({
-            message: "휴지통 폴더 내부 조회 성공",
-            folders,
-            files,
-        });
-    } catch (err) {
-        next(err);
-    }
-}
-
-
 // 휴지통에서 파일/폴더 복원
 async function restoreTrashedFile(req, res, next) {
     try {
@@ -75,7 +55,6 @@ async function deletePermanently(req, res, next) {
 
 module.exports = {
     listTrashedFiles,
-    listTrashedFolderContents,
     restoreTrashedFile,
     deletePermanently,
 };
