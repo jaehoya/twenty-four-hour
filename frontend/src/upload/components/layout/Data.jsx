@@ -51,13 +51,12 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                         headers: { Authorization: `Bearer ${token}` } 
                     });
 
-                    const trashList = response.data?.trash 
-                        || response.data?.files 
-                        || response.data?.items 
-                        || response.data 
-                        || [];
+                    const trashData = response.data || {};
+                    const trashFiles = trashData.files || [];
+                    const trashFolders = trashData.folders || [];
 
-                    const normalizedTrash = (Array.isArray(trashList) ? trashList : []).map(file => ({
+                    // 파일 정규화
+                    const normalizedFiles = trashFiles.map(file => ({
                         id: file.id,
                         name: file.name || file.original_name,
                         original_name: file.original_name || file.name,
@@ -70,7 +69,25 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                         isDeleted: true,
                     }));
 
-                    const sortedTrash = sortItems(normalizedTrash, sortOption);
+                    // 폴더 정규화
+                    const normalizedFolders = trashFolders.map(folder => ({
+                        id: folder.id,
+                        name: folder.name,
+                        original_name: folder.name,
+                        mime_type: 'folder',
+                        mimeType: 'folder',
+                        createdAt: folder.createdAt || folder.deletedAt,
+                        updatedAt: folder.updatedAt,
+                        deletedAt: folder.deletedAt,
+                        isFavorite: folder.isFavorite || false,
+                        parentId: folder.parentId,
+                        userId: folder.userId,
+                        isDeleted: true,
+                    }));
+
+                    // 폴더와 파일 합치기
+                    const allTrashItems = [...normalizedFolders, ...normalizedFiles];
+                    const sortedTrash = sortItems(allTrashItems, sortOption);
                     setFiles(sortedTrash);
                 } else {
                     // 하위 폴더 조회 (현재 경로)
@@ -324,6 +341,7 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                             isSelected={selectedItem?.id === folder.id && selectedItem?.mimeType === 'folder'}
                             onClick={() => onItemSelect(folder)}
                             onFolderDeleted={fetchFiles}
+                            activeTab={activeTab}
                         />
                     ))
                 }

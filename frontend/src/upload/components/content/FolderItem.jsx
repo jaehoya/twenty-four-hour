@@ -5,7 +5,7 @@ import FileMenu from "./FileMenu";
 import { useModalStore, usePathStore } from '../../../store/store';
 import api from "../../../utils/api";
 
-function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
+function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, activeTab = 'storage' }) {
     const { setIsOpenRenameModal, setRenameItem } = useModalStore();
     const { currentPath, setCurrentPath, addToHistory, currentPathName, addToPathNameHistory, setCurrentPathName } = usePathStore();
     const [showContextMenu, setShowContextMenu] = useState(false);
@@ -104,6 +104,12 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
 
     // 싱글클릭 핸들러
     const handleClick = (e) => {
+        // 휴지통 탭에서는 폴더 진입 불가
+        if (isTrashTab) {
+            if (onClick) onClick();
+            return;
+        }
+        
         if (isMobile) {
             // 모바일: 싱글 클릭으로 폴더 진입
             enterFolder();
@@ -115,6 +121,11 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
 
     // 더블클릭 핸들러 (데스크톱 전용)
     const handleDoubleClick = () => {
+        // 휴지통 탭에서는 폴더 진입 불가
+        if (isTrashTab) {
+            return;
+        }
+        
         if (!isMobile) {
             enterFolder();
         }
@@ -148,7 +159,7 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
             }
 
             // 삭제 확인
-            if (!confirm(`${item.name} 폴더를 삭제하시겠습니까?`)) {
+            if (!confirm(`${item.name} 폴더를 휴지통으로 이동하시겠습니까?`)) {
                 closeContextMenu();
                 return;
             }
@@ -160,7 +171,7 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
             });
 
             if (response.status === 200) {
-                alert('폴더가 삭제되었습니다.');
+                alert('폴더가 휴지통으로 이동되었습니다.');
                 // 폴더 목록 새로고침
                 if (onFolderDeleted) {
                     onFolderDeleted();
@@ -173,6 +184,78 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
                 alert(`폴더 삭제 실패: ${error.response.data.message}`);
             } else {
                 alert('폴더 삭제에 실패했습니다.');
+            }
+        }
+        closeContextMenu();
+    };
+
+    const handleRestore = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                closeContextMenu();
+                return;
+            }
+
+            const response = await api.post(`/trash/${item.id}/restore?type=folder`, null, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (response.status === 200) {
+                alert('폴더가 복원되었습니다.');
+                if (onFolderDeleted) {
+                    onFolderDeleted();
+                }
+            } else {
+                throw new Error('폴더 복원 실패');
+            }
+        } catch (error) {
+            if (error.response?.data?.message) {
+                alert(`폴더 복원 실패: ${error.response.data.message}`);
+            } else {
+                alert('폴더 복원에 실패했습니다.');
+            }
+        }
+        closeContextMenu();
+    };
+
+    const handlePermanentDelete = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                closeContextMenu();
+                return;
+            }
+
+            // 영구 삭제 확인
+            if (!confirm(`${item.name} 폴더를 영구적으로 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
+                closeContextMenu();
+                return;
+            }
+
+            const response = await api.delete(`/trash/${item.id}?type=folder`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (response.status === 200) {
+                alert('폴더가 영구적으로 삭제되었습니다.');
+                if (onFolderDeleted) {
+                    onFolderDeleted();
+                }
+            } else {
+                throw new Error('폴더 영구 삭제 실패');
+            }
+        } catch (error) {
+            if (error.response?.data?.message) {
+                alert(`폴더 영구 삭제 실패: ${error.response.data.message}`);
+            } else {
+                alert('폴더 영구 삭제에 실패했습니다.');
             }
         }
         closeContextMenu();
@@ -226,7 +309,10 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
                 onDownload={handleDownload}
                 onViewInfo={handleViewInfo}
                 onRename={handleRename}
-                onDelete={handleDelete}
+                onDelete={isTrashTab ? null : handleDelete}
+                onRestore={isTrashTab ? handleRestore : null}
+                onPermanentDelete={isTrashTab ? handlePermanentDelete : null}
+                mode={activeTab}
                 fileName={item.name}
             />
         </>
