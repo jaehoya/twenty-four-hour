@@ -25,6 +25,7 @@ const Folder = sequelize.define(
   {
     tableName: "folders",
     timestamps: true,
+    paranoid: true,
   }
 );
 

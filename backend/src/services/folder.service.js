@@ -144,7 +144,7 @@ async function renameFolder(userId, folderId, newName) {
 }
 
 
-// 폴더 및 하위 폴더/파일 삭제
+// 폴더 및 하위 폴더/파일 삭제 (Soft Delete)
 async function deleteFolder(userId, folderId) {
     const folder = await Folder.findOne({ where: { id: folderId, userId } });
 
@@ -152,19 +152,15 @@ async function deleteFolder(userId, folderId) {
         throw new Error("Folder not found or user not authorized");
     }
 
-    const folderPath = await buildFolderPath(folder);
-
-    // DB에서 모든 하위 폴더 및 파일 삭제
+    // DB에서 모든 하위 폴더 및 파일 soft delete
     await deleteSubFoldersAndFiles(userId, folderId);
 
-    // 실제 디렉토리 삭제
-    await fs.rm(folderPath, { recursive: true, force: true });
-
-    // 최상위 폴더 삭제
+    // 최상위 폴더 soft delete
+    // paranoid: true 설정되어 있으므로 destroy 호출 시 deletedAt이 업데이트됨
     await folder.destroy();
 }
 
-// 재귀적으로 하위 폴더와 파일을 삭제하는 함수
+// 재귀적으로 하위 폴더와 파일을 soft delete 하는 함수
 async function deleteSubFoldersAndFiles(userId, parentId) {
     const subFolders = await Folder.findAll({ where: { userId, parentId } });
     for (const subFolder of subFolders) {
@@ -172,6 +168,7 @@ async function deleteSubFoldersAndFiles(userId, parentId) {
         await subFolder.destroy();
     }
 
+    // 해당 폴더의 파일들 soft delete
     await File.destroy({ where: { user_id: userId, folderId: parentId } });
 }
 
