@@ -1,7 +1,3 @@
-/**
- * FindPasswordForm 컴포넌트
- * 비밀번호 찾기 폼
- */
 import { useState } from "react";
 import EmailIcon from "../../assets/signup/email_icon.svg";
 import InputField from "./InputField";
@@ -28,7 +24,7 @@ function FindPasswordForm() {
 
         try {
             // 비밀번호 재설정 요청 API 호출 (이메일만 전송)
-            const res = await api.post('/users/reset-password', { email });
+            const res = await api.post('/users/forgot-password', { email: email.trim() });
             console.log(res.data);
             setSuccess(true);
             alert("비밀번호 재설정 링크가 이메일로 전송되었습니다.");
