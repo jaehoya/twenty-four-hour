@@ -52,7 +52,7 @@ function LoginPage() {
                 </div>
 
                 <div className="bg-white flex flex-col items-center p-6 mb-[20vh] md:mb-0 md:pb-10 relative z-10 -mt-4 md:-mt-12">
-                    <div className="w-full max-w-[363px] min-w-0">
+                    <div className="w-full max-w-[363px] min-w-0 md:pr-3">
                         <button
                             type="submit"
                             form="loginForm"

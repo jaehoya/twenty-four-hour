@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import KeyIcon from "../../assets/signup/key_icon.svg";
-import InputField from "../../login/components/InputField";
+import InputField from "./InputField";
 import api from "../../utils/api";
 
 function ResetPasswordForm() {
