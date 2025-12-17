@@ -7,6 +7,7 @@ const connection = new Redis({
     // 예를 들어, Docker나 로컬 Redis를 사용할 경우
     host: process.env.REDIS_HOST || 'localhost',
     port: process.env.REDIS_PORT || 6379,
+    password: process.env.REDIS_PASSWORD || null,
     maxRetriesPerRequest: null,
 });
 

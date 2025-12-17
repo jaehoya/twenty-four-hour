@@ -7,7 +7,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // Gemini 클라이언트 설정 (gemini-1.5-flash 모델 사용)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
 const mammoth = require("mammoth");
 const textract = require("textract");
