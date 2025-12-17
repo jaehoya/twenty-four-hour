@@ -9,6 +9,7 @@ function FileMenu({
     onRename, 
     onDelete,
     onAddFavorite,
+    onRemoveFavorite,
     onRestore,
     onPermanentDelete,
     mode = 'storage',
@@ -114,12 +115,23 @@ function FileMenu({
                     </button>
                 </>
             )}
+            {!isTrashMode && onRemoveFavorite && (
+                <>
+                    <div className="border-t border-gray-100 my-1"></div>
+                    <button 
+                        onClick={onRemoveFavorite}
+                        className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
+                    >
+                        즐겨찾기 해제
+                    </button>
+                </>
+            )}
             {!isTrashMode && onDelete && (
                 <>
                     <div className="border-t border-gray-100 my-1"></div>
                     <button 
                         onClick={onDelete}
-                        className="w-full px-3 py-2 text-left text-[12px] text-[#FF4757] hover:bg-[#FFF5F5] transition-colors"
+                        className="w-full px-3 py-2 text-left text-[12px] text-[#34475C] hover:bg-[#F5F7FA] transition-colors"
                     >
                         휴지통으로 이동
                     </button>

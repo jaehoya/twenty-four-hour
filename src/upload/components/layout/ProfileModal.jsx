@@ -86,6 +86,45 @@ export default function ProfileModal() {
         navigate('/reset-password');
     }
 
+    function handleWithdraw() {
+        // 확인 알림창
+        if (!confirm('정말 회원탈퇴를 하시겠습니까?\n탈퇴 후에는 복원할 수 없습니다.')) {
+            return;
+        }
+
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            alert('로그인이 필요합니다.');
+            return;
+        }
+
+        api.delete('/users/delete', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+            .then(() => {
+                alert('회원탈퇴가 완료되었습니다.');
+                localStorage.removeItem('accessToken');
+                window.location.href = '/login';
+            })
+            .catch((err) => {
+                if (err.response) {
+                    if (err.response.status === 401) {
+                        alert('인증이 만료되었습니다. 다시 로그인해주세요.');
+                        localStorage.removeItem('accessToken');
+                        window.location.href = '/login';
+                    } else {
+                        const msg = err.response.data?.message || '회원탈퇴에 실패했습니다.';
+                        alert(msg);
+                    }
+                } else {
+                    alert('회원탈퇴에 실패했습니다.');
+                }
+                console.error('Withdraw error:', err);
+            });
+    }
+
     const handleImageUpdate = (newImageUrl) => {
         setProfileImageUrl(newImageUrl);
         // 사용자 데이터도 새로고침
@@ -155,7 +194,7 @@ export default function ProfileModal() {
                 <div className='px-0 py-1 md:px-3 flex flex-col gap-1 md:gap-2'>
                     <MyButton value='로그아웃' type='gradient' onClick={() => handleLogout()} />
                     <MyButton value='비밀번호 재설정' type='flat' onClick={() => ResetPassword()} />
-                    <MyButton value='회원탈퇴' type='flat' />
+                    <MyButton value='회원탈퇴' type='flat' onClick={() => handleWithdraw()} />
                     <MyButton value='닫기' type='text' onClick={() => setIsOpenProfileModal(false)} />
                 </div>
             </div>

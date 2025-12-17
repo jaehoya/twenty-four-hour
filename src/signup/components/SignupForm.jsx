@@ -41,7 +41,7 @@ function SignupForm() {
                 .catch((err) => {
                     if (err.response) {
                         if (err.response.status === 409) {
-                            setFormError("이미 사용 중인 아이디입니다.");
+                            setFormError("이미 사용 중인 이메일입니다.");
                         } else if (err.response.status === 400 || err.response.status === 422) {
                             const msg = err.response.data.message || "입력값을 확인해주세요.";
                             setFormError(msg);
