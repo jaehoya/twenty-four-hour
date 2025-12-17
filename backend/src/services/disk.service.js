@@ -20,9 +20,13 @@ class DiskService {
     return totalSize;
   }
 
-  async getDiskUsage() {
+  async getDiskUsage(userId) {
     try {
-      const uploadsPath = path.join(__dirname, '../uploads');
+      const uploadsPath = path.join(
+        process.cwd(),
+        'src/uploads',
+        `user_${userId}`
+      );
       
       // uploads 폴더가 없으면 생성
       if (!fs.existsSync(uploadsPath)) {

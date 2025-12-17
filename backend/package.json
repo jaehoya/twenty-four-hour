@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/server.js",
+    "dev:worker": "nodemon src/worker/tag.worker.js",
     "start": "node src/server.js"
   },
   "keywords": [],

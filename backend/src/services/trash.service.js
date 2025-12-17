@@ -35,6 +35,20 @@ async function restoreFile(userId, fileId) {
         throw error;
     }
 
+    const baseDir = path.join(
+        process.cwd(),
+        "src/uploads",
+        `user_${userId}`
+    );
+
+    const filename = path.basename(file.path);
+    const fromPath = path.join(baseDir, "trash", filename);
+    const toPath = path.join(baseDir, "active", filename);
+
+    if(fs.existsSync(fromPath)) {
+        fs.renameSync(fromPath, toPath);
+    }
+
     await file.restore();
 }
 
@@ -55,13 +69,18 @@ async function permanentlyDeleteFile(userId, fileId) {
         throw error;
     }
 
-    // 실제 파일 삭제
-    const filePath = path.join(__dirname, "../..", file.path);
-    fs.unlink(filePath, (err) => {
-        if (err) {
-            console.error(`파일 시스템에서 파일 삭제 실패: ${filePath}`, err);
-        }
-    });
+    const baseDir = path.join(
+        process.cwd(),
+        "src/uploads",
+        `user_${userId}`
+    );
+
+    const filename = path.basename(file.path);
+    const filePath = path.join(baseDir, "trash", filename);
+
+    if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+    }
 
     // 데이터베이스에서 영구 삭제
     await file.destroy({ force: true });
