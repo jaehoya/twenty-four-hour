@@ -74,7 +74,7 @@ export default function RenameModal() {
             if (isFolder) {
                 // 폴더 이름 변경
                 response = await api.put(`/folders/${renameItem.id}/rename`, {
-                    newName: fullNewName
+                    name: fullNewName
                 }, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
