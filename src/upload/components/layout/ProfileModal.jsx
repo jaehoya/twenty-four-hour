@@ -1,5 +1,6 @@
 // React
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Store
 import { useModalStore } from '../../../store/store';
@@ -78,6 +79,13 @@ export default function ProfileModal() {
             });
     }
 
+    // Navigate
+    const navigate = useNavigate();
+    function ResetPassword() {
+        setIsOpenProfileModal(false);
+        navigate('/reset-password');
+    }
+
     const handleImageUpdate = (newImageUrl) => {
         setProfileImageUrl(newImageUrl);
         // 사용자 데이터도 새로고침
@@ -146,6 +154,7 @@ export default function ProfileModal() {
                 {/* Buttons */}
                 <div className='px-0 py-1 md:px-3 flex flex-col gap-1 md:gap-2'>
                     <MyButton value='로그아웃' type='gradient' onClick={() => handleLogout()} />
+                    <MyButton value='비밀번호 재설정' type='flat' onClick={() => ResetPassword()} />
                     <MyButton value='회원탈퇴' type='flat' />
                     <MyButton value='닫기' type='text' onClick={() => setIsOpenProfileModal(false)} />
                 </div>
