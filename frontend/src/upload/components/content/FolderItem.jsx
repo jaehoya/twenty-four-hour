@@ -5,15 +5,13 @@ import FileMenu from "./FileMenu";
 import { useModalStore, usePathStore } from '../../../store/store';
 import api from "../../../utils/api";
 
-function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, activeTab = 'storage', onEnterTrashFolder }) {
+function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, activeTab = 'storage' }) {
     const { setIsOpenRenameModal, setRenameItem } = useModalStore();
     const { currentPath, setCurrentPath, addToHistory, currentPathName, addToPathNameHistory, setCurrentPathName } = usePathStore();
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
     const [isMobile, setIsMobile] = useState(false);
     const longPressTimer = useRef(null);
-    const isTrashTab = activeTab === 'trash';
-
 
     // 모바일 체크
     React.useEffect(() => {
@@ -108,9 +106,7 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, active
     const handleClick = (e) => {
         // 휴지통 탭에서는 폴더 진입 불가
         if (isTrashTab) {
-            if (onEnterTrashFolder) {
-                onEnterTrashFolder(item.id, item.name);
-            }
+            if (onClick) onClick();
             return;
         }
         
@@ -125,13 +121,10 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, active
 
     // 더블클릭 핸들러 (데스크톱 전용)
     const handleDoubleClick = () => {
-        // 휴지통 탭에서는 폴더 진입 가능하게
+        // 휴지통 탭에서는 폴더 진입 불가
         if (isTrashTab) {
-            if (onEnterTrashFolder) {
-                onEnterTrashFolder(item.id, item.name);
+            return;
         }
-        return;
-    }
         
         if (!isMobile) {
             enterFolder();
