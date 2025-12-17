@@ -20,7 +20,17 @@ class UserProfileService {
       throw new Error("User not found");
     }
 
-    return user;
+    const userData = user.toJSON();
+
+    if (userData.UserProfile?.ProfileImage?.path) {
+      const fullPath = userData.UserProfile.ProfileImage.path;
+      const index = fullPath.lastIndexOf('uploads');
+      if (index !== -1) {
+        userData.UserProfile.ProfileImage.path = fullPath.substring(index).replace(/\\/g, '/');
+      }
+    }
+
+    return userData;
   }
 
   async updateProfile(userId, username, profileImageFile) {
