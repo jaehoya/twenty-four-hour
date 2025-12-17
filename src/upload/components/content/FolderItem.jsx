@@ -6,7 +6,7 @@ import { useModalStore, usePathStore } from '../../../store/store';
 import api from "../../../utils/api";
 
 function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
-    const { setIsOpenRenameModal } = useModalStore();
+    const { setIsOpenRenameModal, setRenameItem } = useModalStore();
     const { currentPath, setCurrentPath, addToHistory, currentPathName, addToPathNameHistory, setCurrentPathName } = usePathStore();
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
@@ -134,6 +134,7 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted }) {
 
     const handleRename = () => {
         closeContextMenu();
+        setRenameItem(item);
         setIsOpenRenameModal(true);
     };
 
