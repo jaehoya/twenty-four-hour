@@ -20,6 +20,10 @@ router.use(auth);
  */
 router.get("/", trashController.listTrashedFiles);
 
+router.get("/folders/:folderId",
+    trashController.listTrashedFolderContents
+);
+
 /**
  * @swagger
  * /api/trash/{id}/restore:

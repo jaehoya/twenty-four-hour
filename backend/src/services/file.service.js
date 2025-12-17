@@ -2,7 +2,7 @@ const { File, Favorite, FileTag, Folder } = require("../models");
 const { Op } = require("sequelize");
 const fs = require("fs")
 const path = require("path");
-const { buildFolderPath } = require("./folder.service");
+const { getUserActiveDir, getUserTrashDir, ensureDir } = require("../utils/uploadPath");
 
 /**
  * 파일 메타데이터 저장
@@ -92,22 +92,13 @@ async function deleteFileById(userId, fileId) {
         throw error;
     }
 
-    const baseDir = path.join(
-        process.cwd(),
-        "src/uploads",
-        `user_${userId}`
-    );
+    const fromPath = file.path;
+    const fileName = path.basename(fromPath);
+    const toPath = path.join(getUserTrashDir(userId), fileName);
 
-    const filename = path.basename(file.path);
-    const fromPath = path.join(baseDir, "active", filename);
-    const toPath = path.join(baseDir, "trash", filename);
+    await ensureDir(path.dirname(toPath));
 
-    if (!fs.existsSync(path.dirname(toPath))) {
-        fs.mkdirSync(path.dirname(toPath), { recursive: true });
-    }
-
-    // 파일 이동
-    if (fs.existsSync(fromPath)) {
+    if (fs.existsSync(fromPath)) {  
         fs.renameSync(fromPath, toPath);
     }
 
@@ -170,8 +161,6 @@ async function updateFilePath(fileId, newPath) {
 }
 
 
-
-
 // AI 추천 폴더가 있는 파일 목록 조회
 async function getSuggestedFiles(userId) {
     const files = await File.findAll({
@@ -213,7 +202,7 @@ async function confirmFolderMove(userId, fileId) {
     }
 
     // 폴더의 물리적 경로 가져오기
-    const targetDir = await buildFolderPath(folder);
+    const targetDir = getUserActiveDir(userId);
 
     // 파일 이동 처리
     const oldPath = file.path;
@@ -253,15 +242,18 @@ async function moveFile(userId, fileId, targetFolderId) {
 
     if (targetFolderId === 'root' || targetFolderId === null) {
         // 루트로 이동
-        targetDir = path.resolve(__dirname, "../uploads");
+        targetDir = getUserActiveDir(userId);
         newFolderId = null;
     } else {
         // 특정 폴더로 이동
         const folder = await Folder.findOne({ where: { id: targetFolderId, userId } });
         if (!folder) throw new Error("대상 폴더를 찾을 수 없습니다.");
-        targetDir = await buildFolderPath(folder);
+        targetDir = getFolderPhysicalPath(userId, folder.id, "active");
         newFolderId = folder.id;
     }
+
+    // 대상 디렉토리 보장
+    await ensureDir(targetDir);
 
     // 파일 이동 처리
     const oldPath = file.path;
