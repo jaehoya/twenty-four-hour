@@ -10,6 +10,7 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
     const [ files, setFiles ] = useState([]);
     const [ isDragOver, setIsDragOver ] = useState(false);
     const { currentPath, goBack, resetPath } = usePathStore();
+    const [currentTrashFolderId, setCurrentTrashFolderId] = useState(null);
 
     // Fetch Files from API
     const fetchFiles = React.useCallback(async () => {
@@ -47,9 +48,17 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                     setFiles(sortedFavs);
                 } else if (currentTab === 'trash') {
                     // 휴지통 목록 조회
-                    response = await api.get('/trash', { 
-                        headers: { Authorization: `Bearer ${token}` } 
-                    });
+                    if (currentTrashFolderId === null) {
+                    // 휴지통 루트
+                        response = await api.get('/trash', {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                    } else {
+                    // 휴지통 폴더 내부
+                        response = await api.get(`/trash/folders/${currentTrashFolderId}`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                    }
 
                     const trashData = response.data || {};
                     const trashFiles = trashData.files || [];
@@ -145,7 +154,7 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
         } catch (err) {
             setFiles([]); // 에러 시 빈 배열로 설정
         }
-    }, [activeTab, currentPath]);
+    }, [activeTab, currentPath, currentTrashFolderId ]);
 
     // 정렬 유틸리티: 이름(오름차순), 생성한 날짜(최신순)
     function sortItems(list, option) {
@@ -296,8 +305,9 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
             }}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-        >
+            onDrop={handleDrop}  
+        >    
+        
             {/* 반응형 그리드 - 모바일: 3개, 데스크톱: 5개 */}
             <div className="grid grid-cols-3 md:grid-cols-5 gap-x-2 md:gap-x-3 gap-y-1 md:gap-y-3 auto-rows-max">
                 {/* 검색 결과가 없을 때 */}
@@ -342,6 +352,9 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                             onClick={() => onItemSelect(folder)}
                             onFolderDeleted={fetchFiles}
                             activeTab={activeTab}
+                            onEnterTrashFolder={(folderId) => {
+                                setCurrentTrashFolderId(folderId);
+                            }}
                         />
                     ))
                 }
