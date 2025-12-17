@@ -14,9 +14,10 @@ export default function RenameModal() {
         if (isOpenRenameModal && renameItem) {
             // 확장자를 제외한 파일 이름만 추출
             const fileName = renameItem.original_name || renameItem.name;
+            const isFolder = renameItem.mimeType === 'folder' || renameItem.mime_type === 'folder';
             const lastDotIndex = fileName.lastIndexOf('.');
             
-            if (renameItem.mimeType === 'file' && lastDotIndex > 0) {
+            if (!isFolder && lastDotIndex > 0) {
                 // 파일인 경우 확장자 제외
                 setNewName(fileName.substring(0, lastDotIndex));
             } else {
