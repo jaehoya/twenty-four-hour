@@ -36,7 +36,7 @@ export default function RenameModal() {
         if (!renameItem) return;
         
         // 파일만 처리 (폴더는 나중에)
-        if (renameItem.mimeType !== 'file') {
+        if (!renameItem.mimeType) {
             alert('현재는 파일 이름만 변경할 수 있습니다.');
             return;
         }

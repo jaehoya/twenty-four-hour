@@ -12,7 +12,7 @@ require("./worker/tag.worker");
   try {
     // 개발 단계에서는 DB 스키마 자동 동기화
     // alter: true -> 모델과 DB 테이블 간의 차이(새 컬럼 등)를 자동으로 반영
-    await db.sequelize.sync({ alter: true });
+    //await db.sequelize.sync({ alter: true });
 
     // 서버 실행
     app.listen(PORT, "0.0.0.0", () =>
