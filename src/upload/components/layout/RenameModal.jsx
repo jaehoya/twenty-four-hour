@@ -34,26 +34,28 @@ export default function RenameModal() {
 
     const handleRename = async () => {
         if (!renameItem) return;
-        
-        // 파일만 처리 (폴더는 나중에)
-        if (renameItem.mimeType) {
-            alert('현재는 파일 이름만 변경할 수 있습니다.');
-            return;
-        }
 
         if (!newName || newName.trim() === '') {
             alert('새로운 이름을 입력해주세요.');
             return;
         }
 
-        // 확장자 추가
-        const originalFileName = renameItem.original_name || renameItem.name;
-        const lastDotIndex = originalFileName.lastIndexOf('.');
-        const extension = lastDotIndex > 0 ? originalFileName.substring(lastDotIndex) : '';
-        const fullNewName = newName.trim() + extension;
+        const originalName = renameItem.original_name || renameItem.name;
+        const isFolder = renameItem.mimeType === 'folder' || renameItem.mime_type === 'folder';
+        
+        let fullNewName;
+        if (isFolder) {
+            // 폴더인 경우 확장자 없이 그대로 사용
+            fullNewName = newName.trim();
+        } else {
+            // 파일인 경우 확장자 추가
+            const lastDotIndex = originalName.lastIndexOf('.');
+            const extension = lastDotIndex > 0 ? originalName.substring(lastDotIndex) : '';
+            fullNewName = newName.trim() + extension;
+        }
 
         // 이름이 변경되지 않았으면 그냥 닫기
-        if (fullNewName === originalFileName) {
+        if (fullNewName === originalName) {
             handleClose();
             return;
         }
@@ -68,28 +70,42 @@ export default function RenameModal() {
                 return;
             }
 
-            const response = await api.patch(`/files/${renameItem.id}/rename`, {
-                newName: fullNewName
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
+            let response;
+            if (isFolder) {
+                // 폴더 이름 변경
+                response = await api.put(`/folders/${renameItem.id}/rename`, {
+                    newName: fullNewName
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+            } else {
+                // 파일 이름 변경
+                response = await api.patch(`/files/${renameItem.id}/rename`, {
+                    newName: fullNewName
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+            }
 
             if (response.status === 200) {
-                alert('파일 이름이 변경되었습니다.');
+                alert(`${isFolder ? '폴더' : '파일'} 이름이 변경되었습니다.`);
                 
-                // 파일 목록 새로고침 이벤트 발생
+                // 파일/폴더 목록 새로고침 이벤트 발생
                 window.dispatchEvent(new CustomEvent('filesUpdated'));
+                window.dispatchEvent(new CustomEvent('foldersUpdated'));
                 
                 handleClose();
             }
         } catch (error) {
-            console.error('파일 이름 변경 실패:', error);
+            console.error(`${isFolder ? '폴더' : '파일'} 이름 변경 실패:`, error);
             if (error.response?.data?.message) {
                 alert(`이름 변경 실패: ${error.response.data.message}`);
             } else {
-                alert('파일 이름 변경에 실패했습니다.');
+                alert(`${isFolder ? '폴더' : '파일'} 이름 변경에 실패했습니다.`);
             }
         } finally {
             setIsLoading(false);
@@ -104,10 +120,12 @@ export default function RenameModal() {
 
     if (!renameItem) return null;
 
+    const isFolder = renameItem.mimeType === 'folder' || renameItem.mime_type === 'folder';
+
     return (
         <div className={`fixed w-full h-full top-0 left-0 bg-[#00000077] flex justify-center items-center z-100 ${isOpenRenameModal ? '' : 'hidden'}`}>
             <div className="bg-white md:w-[500px] w-[90%] p-6 rounded-[10px] shadow-md">
-                <div className="text-[13pt] mb-2">파일 이름 변경</div>
+                <div className="text-[13pt] mb-2">{isFolder ? '폴더' : '파일'} 이름 변경</div>
                 <div className="text-[9pt] text-gray-500 mb-4">
                     {renameItem.original_name || renameItem.name}
                 </div>

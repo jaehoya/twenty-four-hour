@@ -266,6 +266,51 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted, activeTab 
         closeContextMenu();
     };
 
+    const handleRemoveFavorite = async () => {
+        const isFavoriteTab = activeTab === 'favorite';
+        if (!isFavoriteTab) {
+            closeContextMenu();
+            return;
+        }
+        try {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                closeContextMenu();
+                return;
+            }
+
+            // 즐겨찾기 해제 API 호출
+            const response = await api.delete('/favorites', {
+                params: {
+                    targetType: 'file',
+                    targetId: item.id
+                },
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (response.status === 200 || response.status === 204) {
+                alert('즐겨찾기에서 해제되었습니다.');
+                closeContextMenu();
+                // 파일 목록 새로고침
+                if (onFileDeleted) {
+                    onFileDeleted();
+                }
+            } else {
+                throw new Error('즐겨찾기 해제 실패');
+            }
+        } catch (error) {
+            if (error.response?.data?.message) {
+                alert(`즐겨찾기 해제 실패: ${error.response.data.message}`);
+            } else {
+                alert('즐겨찾기 해제에 실패했습니다.');
+            }
+        }
+        closeContextMenu();
+    };
+
     const handleRestore = async () => {
         try {
             const token = localStorage.getItem('accessToken');
@@ -395,7 +440,8 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted, activeTab 
                 onViewInfo={handleViewInfo}
                 onRename={handleRename}
                 onDelete={handleDelete}
-                onAddFavorite={handleAddFavorite}
+                onAddFavorite={activeTab === 'favorite' ? undefined : handleAddFavorite}
+                onRemoveFavorite={activeTab === 'favorite' ? handleRemoveFavorite : undefined}
                 onRestore={isTrashTab ? handleRestore : undefined}
                 onPermanentDelete={isTrashTab ? handlePermanentDelete : undefined}
                 mode={activeTab}

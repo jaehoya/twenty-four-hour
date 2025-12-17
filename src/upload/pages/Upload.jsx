@@ -266,7 +266,9 @@ function Upload() {
             
             {/* 모바일 플로팅 액션 버튼 */}
             {isMobile && (
-                <div className="fixed bottom-28 right-6 z-50">
+                <div className={`fixed bottom-28 right-6 z-50 transition-opacity duration-200 ${
+                    selectedItem ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                }`}>
                     <UpdateBtn onFileSelect={handleMobileFileSelect} />
                 </div>
             )}

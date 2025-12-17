@@ -40,6 +40,7 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                             mimeType: 'file',
                             createdAt: fav.createdAt,
                             isFavorite: true,
+                            favoriteId: fav.id, // 즐겨찾기 ID 추가
                         }));
                     // 정렬 적용
                     const sortedFavs = sortItems(favoriteFiles, sortOption);
