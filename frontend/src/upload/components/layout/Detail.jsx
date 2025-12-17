@@ -3,10 +3,39 @@ import FolderIcon from "../../../assets/upload/folder_icon.svg";
 import EmptyFolderIcon from "../../../assets/upload/empty_folder_icon.svg";
 import FileIcon from "../../../assets/upload/file_icon.svg";
 import { usePathStore } from "../../../store/store";
+import Tags from "../content/tags.jsx";
+import AddTagsModal from "./AddTagsModal";
+import api from "../../../utils/api";
 
 function Detail({ selectedItem = null, onClose = () => {} }) {
     const { pathNameHistory } = usePathStore();
     const [isMobile, setIsMobile] = useState(false);
+    const [tagKey, setTagKey] = useState(0); // 태그 목록 갱신용
+    const [isAddTagModalOpen, setIsAddTagModalOpen] = useState(false);
+
+    // 태그 삭제 핸들러
+    const handleDeleteTag = async (tagId, fileId) => {
+        if (!tagId || !fileId) return;
+        try {
+            await api.delete(`/tags/${fileId}/${tagId}`);
+            // 태그 목록 갱신
+            setTagKey((prev) => prev + 1);
+        } catch (err) {
+            console.error("태그 삭제 실패:", err);
+            alert("태그 삭제에 실패했습니다.");
+            throw err; // Tags 컴포넌트에서 로컬 상태 갱신 막기 위해
+        }
+    };
+
+    // 태그 추가 모달 열기
+    const handleAddTag = () => {
+        setIsAddTagModalOpen(true);
+    };
+
+    // 태그 추가 성공 시 목록 갱신
+    const handleTagAdded = () => {
+        setTagKey((prev) => prev + 1);
+    };
 
     useEffect(() => {
         const updateIsMobile = () => {
@@ -104,62 +133,97 @@ function Detail({ selectedItem = null, onClose = () => {} }) {
                     {formatDateTime(selectedItem.updatedAt)}
                 </span>
             </div>
+
+            {/* 파일일 때만 태그 섹션 표시 */}
+            {selectedItem?.mime_type !== "folder" && (
+                <div>
+                    <span className="text-[9pt] font-semibold text-[#34475C]">태그</span>
+                    <div className="mt-2">
+                        <Tags
+                            key={tagKey}
+                            fileId={selectedItem?.id}
+                            onDelete={handleDeleteTag}
+                            onAdd={handleAddTag}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 
     if (isMobile) {
         return (
-            <div className="md:hidden fixed inset-0 z-40 flex items-end justify-center">
-                <div 
-                    className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" 
-                    onClick={onClose}
-                />
-                <div className="relative w-full bg-white rounded-t-[28px] px-6 pt-4 pb-10 max-h-[88vh] overflow-y-auto">
-                    <div className="mx-auto mb-4 h-1 w-16 bg-[#D4DAE5] rounded-full" />
-                    <div className="flex justify-center mb-6">
-                        {selectedItem.mime_type === "folder" ? (
-                            <img 
-                                src={isEmpty ? EmptyFolderIcon : FolderIcon} 
-                                alt={selectedItem.mime_type} 
-                                className="w-[120px] h-[90px]"
-                            />
-                        ) : (
-                            <div className="rounded-lg flex items-center justify-center">
-                                <img src={FileIcon} alt="file" className="w-[90px] h-[110px]" />
-                            </div>
-                        )}
+            <>
+                <div className="md:hidden fixed inset-0 z-40 flex items-end justify-center">
+                    <div 
+                        className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" 
+                        onClick={onClose}
+                    />
+                    <div className="relative w-full bg-white rounded-t-[28px] px-6 pt-4 pb-10 max-h-[88vh] overflow-y-auto">
+                        <div className="mx-auto mb-4 h-1 w-16 bg-[#D4DAE5] rounded-full" />
+                        <div className="flex justify-center mb-6">
+                            {selectedItem.mime_type === "folder" ? (
+                                <img 
+                                    src={isEmpty ? EmptyFolderIcon : FolderIcon} 
+                                    alt={selectedItem.mime_type} 
+                                    className="w-[120px] h-[90px]"
+                                />
+                            ) : (
+                                <div className="rounded-lg flex items-center justify-center">
+                                    <img src={FileIcon} alt="file" className="w-[90px] h-[110px]" />
+                                </div>
+                            )}
+                        </div>
+                        <h2 className="text-center text-[1.0625rem] font-semibold text-[#34475C] mb-6">
+                            {selectedItem.name}
+                        </h2>
+                        {infoBlock}
                     </div>
-                    <h2 className="text-center text-[1.0625rem] font-semibold text-[#34475C] mb-6">
-                        {selectedItem.name}
-                    </h2>
-                    {infoBlock}
                 </div>
-            </div>
+
+                {/* 태그 추가 모달 */}
+                <AddTagsModal
+                    isOpen={isAddTagModalOpen}
+                    onClose={() => setIsAddTagModalOpen(false)}
+                    fileId={selectedItem?.id}
+                    onTagAdded={handleTagAdded}
+                />
+            </>
         );
     }
 
     return (
-        <div className="hidden md:block md:w-[20.93svw] scrollbar-hide md:h-auto md:m-3 md:px-[2.65svw] md:pt-28 rounded-[15px] border-[1px] overflow-auto border-[#DAE0E9] bg-white p-6">
-            <div className="flex justify-center mb-6">
-                {selectedItem.mime_type === "folder" ? (
-                    <img 
-                        src={isEmpty ? EmptyFolderIcon : FolderIcon} 
-                        alt={selectedItem.mime_type} 
-                        className="md:w-[135px] md:h-[101px]"
-                    />
-                ) : (
-                    <div className="rounded-lg flex items-center justify-center">
-                        <img src={FileIcon} alt="file" className="md:w-[100px] md:h-[125px]" />
-                    </div>
-                )}
+        <>
+            <div className="hidden md:block md:w-[20.93svw] scrollbar-hide md:h-auto md:m-3 md:px-[2.65svw] md:pt-28 rounded-[15px] border-[1px] overflow-auto border-[#DAE0E9] bg-white p-6">
+                <div className="flex justify-center mb-6">
+                    {selectedItem.mime_type === "folder" ? (
+                        <img 
+                            src={isEmpty ? EmptyFolderIcon : FolderIcon} 
+                            alt={selectedItem.mime_type} 
+                            className="md:w-[135px] md:h-[101px]"
+                        />
+                    ) : (
+                        <div className="rounded-lg flex items-center justify-center">
+                            <img src={FileIcon} alt="file" className="md:w-[100px] md:h-[125px]" />
+                        </div>
+                    )}
+                </div>
+                
+                <div className="text-center mb-10">
+                    <h2 className="text-[11pt] font-semibold text-[#34475C]">{selectedItem.name}</h2>
+                </div>
+                
+                {infoBlock}
             </div>
-            
-            <div className="text-center mb-10">
-                <h2 className="text-[11pt] font-semibold text-[#34475C]">{selectedItem.name}</h2>
-            </div>
-            
-            {infoBlock}
-        </div>
+
+            {/* 태그 추가 모달 */}
+            <AddTagsModal
+                isOpen={isAddTagModalOpen}
+                onClose={() => setIsAddTagModalOpen(false)}
+                fileId={selectedItem?.id}
+                onTagAdded={handleTagAdded}
+            />
+        </>
     );
 }
 
