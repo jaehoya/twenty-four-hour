@@ -49,19 +49,19 @@ function SignupPage() {
                 </div>
 
                 <div className="bg-white flex flex-col items-center p-6 md:pb-20 relative z-10 -mt-4 md:-mt-12">
-                    <div className="w-full max-w-[363px] min-w-0">
+                    <div className="w-full max-w-[363px] min-w-0 md:pr-3">
                         <button
                             type="submit"
                             form="signupForm"
                             className="block w-full h-[55px] mx-auto rounded-[7px]
                                         text-white text-sm md:text-base font-semibold
                                         bg-gradient-to-r from-[#0D4CFF] to-[#33AAFF]
-                                        shadow-lg"
+                                        shadow-lg cursor-pointer"
                         >
                         가입하기
                         </button>
                     </div>
-                    <div className="w-full max-w-[363px] min-w-0">
+                    <div className="w-full max-w-[363px] min-w-0 md:pr-3">
                         <a href="#" className="md:hidden text-[#368DFF] text-[0.75rem] font-normal mt-2 block text-left">
                             로그인으로 돌아가기
                         </a>

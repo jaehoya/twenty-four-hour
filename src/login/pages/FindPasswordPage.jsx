@@ -21,12 +21,12 @@ function FindPasswordPage() {
             </div>
             <section className="md:flex-[4_1_0%] min-w-0 flex flex-col md:grid md:grid-rows-[auto_minmax(0,1fr)_auto] md:h-[60vh] w-full bg-white flex-1">
 
-                <div className="px-4 md:px-6 pt-6 md:pt-6 pb-6 flex justify-center mt-6">
+                <div className="px-4 md:px-6 pt-6 md:pt-[4vw] pb-6 flex justify-center mt-6">
                     <img src={LogoUrl} className="h-auto max-h-[50px] md:max-h-[65px]" alt="logo" />
                 </div>
 
                 <div className="flex-1 px-6 flex justify-center md:min-h-0 md:overflow-hidden">
-                    <div className="w-full max-w-[363px] min-w-0 mt-8">
+                    <div className="w-full max-w-[363px] min-w-0 mt-5">
                         <span className="font-regular text-[#3F414E] text-[0.9375rem] md:hidden">비밀번호 찾기</span>
                         <div
                             className={`
@@ -54,20 +54,20 @@ function FindPasswordPage() {
                     </div>
                 </div>
 
-                <div className="bg-white flex flex-col items-center px-6 py-2 mb-[20vh] md:mb-0 md:pb-10 relative z-10 -mt-4 md:-mt-12">
-                    <div className="w-full max-w-[363px] min-w-0">
+                <div className="bg-white flex flex-col items-center p-6 mb-[20vh] md:mb-0 md:pb-10 relative z-10 -mt-4 md:-mt-12">
+                    <div className="w-full max-w-[363px] min-w-0 md:pr-3">
                         <button
                             type="submit"
                             form="findPasswordForm"
                             className="block w-full h-[55px] mx-auto rounded-[7px]
                                         text-white text-sm md:text-base font-semibold
                                         bg-gradient-to-r from-[#0D4CFF] to-[#33AAFF]
-                                        shadow-lg"
+                                        shadow-lg cursor-pointer"
                         >재설정 링크 전송</button>
                         <button
                             onClick={() => navigate("/login")}
                             className="block w-full h-[55px] mx-auto
-                                        text-[#222] text-sm md:text-base underline mt-2"
+                                        text-[#222] text-sm md:text-base underline cursor-pointer"
                         >로그인으로 돌아가기</button>
                     </div>
                 </div>

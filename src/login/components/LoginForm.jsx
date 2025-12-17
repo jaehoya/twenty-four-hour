@@ -67,11 +67,12 @@ function LoginForm() {
                     icon={EmailIcon}
                     inputProps={{ autoComplete: "email" }}
                 />
-
-                <span onClick={() => navigate("/find-password")} className="hidden md:block cursor-pointer absolute right-0 text-[9pt] text-[#33AAFF]">
-                    비밀번호를 잊으셨나요?
-                </span>
-                <label htmlFor="password" className="hidden md:block text-[0.9375rem] font-medium text-[#2A2D41]">비밀번호</label>
+                <div className="hidden md:flex md:justify-between md:items-center md:mb-1">
+                    <label htmlFor="password" className="text-[0.9375rem] font-medium text-[#2A2D41]">비밀번호</label>
+                    <span onClick={() => navigate("/find-password")} className="cursor-pointer text-[9pt] text-[#33AAFF]">
+                        비밀번호를 잊으셨나요?
+                    </span>
+                </div>
                 <InputField
                     id="password"
                     type="password"
