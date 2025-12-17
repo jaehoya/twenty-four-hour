@@ -13,6 +13,10 @@ export const useModalStore = create((set) => ({
 
     isOpenCreateItemModal: false,
     setIsOpenCreateItemModal: (isOpen) => set({ isOpenCreateItemModal: isOpen }),
+    
+    // Withdraw Modal states
+    isOpenWithdrawModal: false,
+    setIsOpenWithdrawModal: (isOpen) => set({ isOpenWithdrawModal: isOpen }),
 }));
 
 export const usePathStore = create((set) => ({

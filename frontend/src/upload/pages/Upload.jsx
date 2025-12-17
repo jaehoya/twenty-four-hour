@@ -11,6 +11,7 @@ import UpdateBtn from "../components/content/UpdateBtn";
 import api from "../../utils/api";
 import ProfileModal from "../components/layout/ProfileModal";
 import RenameModal from "../components/layout/RenameModal";
+import WithdrawModal from "../components/layout/WithdrawModal";
 
 function Upload() {
     const [isMobile, setIsMobile] = useState(false);
@@ -196,6 +197,7 @@ function Upload() {
         >
             <ProfileModal />
             <RenameModal />
+            <WithdrawModal />
 
             <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
             <div className="flex flex-col md:flex-row flex-1 relative z-10 overflow-hidden">
