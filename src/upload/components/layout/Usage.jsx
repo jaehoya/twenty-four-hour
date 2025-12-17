@@ -12,11 +12,11 @@ function Usage() {
     useEffect(() => {
         const fetchUsageData = async () => {
             try {
-                if (isFirst) setLoading(true);
-
                 const response = await api.get('/disk/usage');
                 const { used, total } = response.data.data;
-                let rawPercentage = (used / total) * 100;
+    
+                const rawPercentage = (used / total) * 100;
+    
                 setUsageData({
                     used,
                     total,
@@ -25,17 +25,15 @@ function Usage() {
             } catch (error) {
                 console.error(error);
             } finally {
-                if (isFirst) {
-                    setLoading(false);
-                    isFirst = false;
-                }
+                setLoading(false); // ✅ 최초에도, 이후에도 문제 없음
             }
         };
+    
         fetchUsageData();
-        const interval = setInterval(fetchUsageData, 5000); // silent polling
-
+        const interval = setInterval(fetchUsageData, 5000);
+    
         return () => clearInterval(interval);
-    }, []);
+    }, []);    
 
     const formatBytes = (bytes) => {
         if (bytes === 0) return '0 KB';

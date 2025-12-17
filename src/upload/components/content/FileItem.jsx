@@ -282,7 +282,7 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted, activeTab 
 
             // 즐겨찾기 해제 API 호출
             const response = await api.delete('/favorites', {
-                params: {
+                data: {
                     targetType: 'file',
                     targetId: item.id
                 },
