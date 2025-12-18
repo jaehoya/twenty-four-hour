@@ -5,8 +5,7 @@ const db = require("./models");
 
 const PORT = process.env.PORT || 4000;
 
-// Start AI Worker
-require("./worker/tag.worker");
+
 
 (async () => {
   try {
@@ -15,9 +14,17 @@ require("./worker/tag.worker");
     //await db.sequelize.sync({ alter: true });
 
     // 서버 실행
-    app.listen(PORT, "0.0.0.0", () =>
+    const server = app.listen(PORT, "0.0.0.0", () =>
       console.log(`🚀 Server running on http://localhost:${PORT}`)
     );
+
+    // Socket.IO 초기화
+    const { init } = require("./socket");
+    init(server);
+
+    // Start AI Worker (Socket 초기화 후 실행 권장)
+    require("./worker/tag.worker");
+
   } catch (e) {
     console.error("Server boot failed:", e);
     process.exit(1); // 치명적 오류 시 종료

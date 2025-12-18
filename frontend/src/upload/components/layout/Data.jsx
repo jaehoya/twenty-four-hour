@@ -5,6 +5,7 @@ import AddNewItem from "../content/AddNewItem";
 import UploadedFiles from "../content/UploadedFiles";
 import api from "../../../utils/api";
 import { usePathStore } from "../../../store/store";
+import io from 'socket.io-client';
 
 function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, activeTab, sortOption = '이름', searchQuery = '' }) {
     const [files, setFiles] = useState([]);
@@ -307,14 +308,32 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
     // 휴지통 폴더 경로를 전역으로 전달하기 위한 이벤트
     useEffect(() => {
         if (activeTab === 'trash') {
-            window.dispatchEvent(new CustomEvent('trashFolderPathUpdated', { 
-                detail: { 
+            window.dispatchEvent(new CustomEvent('trashFolderPathUpdated', {
+                detail: {
                     currentTrashFolderId,
-                    trashFolderNameHistory 
-                }    
+                    trashFolderNameHistory
+                }
             }));
         }
     }, [activeTab, currentTrashFolderId, trashFolderNameHistory]);
+
+    // Socket.io 실시간 알림 수신
+    useEffect(() => {
+        const apiUrl = import.meta.env.VITE_API_ENDPOINT || 'http://localhost:4000/api';
+        const socketUrl = apiUrl.replace('/api', '');
+
+        const socket = io(socketUrl);
+
+        socket.on('folderSuggestion', (data) => {
+            console.log('Real-time suggestion:', data);
+            // 기존의 filesUpdated 이벤트 트리거 (목록 새로고침)
+            window.dispatchEvent(new CustomEvent('filesUpdated'));
+        });
+
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
 
     // 드래그앤드롭 핸들러 (전체 저장소에서만 작동)
     const handleDragOver = (e) => {

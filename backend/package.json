@@ -34,6 +34,7 @@
     "openai": "^6.9.1",
     "pdf-parse": "^1.1.1",
     "sequelize": "^6.37.7",
+    "socket.io": "^4.8.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "textract": "^2.5.0",
@@ -44,6 +45,8 @@
     "sequelize-cli": "^6.6.3"
   },
   "nodemonConfig": {
-    "ignore": ["src/uploads/**"]
+    "ignore": [
+      "src/uploads/**"
+    ]
   }
 }

@@ -3,6 +3,7 @@ const { connection } = require('../queue/tag.queue');
 const File = require('../models/file');
 const { recommendTagsForFile, saveRecommendedTagsToFile, recommendFolderForFile } = require('../services/tag.service');
 const { getAllFoldersFlat } = require('../services/folder.service');
+const { getIO } = require('../socket'); // socket import
 
 console.log("[TAG SERVICE LOADED]");
 
@@ -32,6 +33,18 @@ const tagWorker = new Worker('aiTagQueue', async (job) => {
       file.suggestedFolderId = suggestedFolder.id;
       await file.save();
       console.log(`[WORKER] Suggested folder for file ${fileId}: ${suggestedFolder.name}`);
+
+      // 실시간 알림 전송
+      try {
+        const io = getIO();
+        io.emit('folderSuggestion', {
+          fileId: file.id,
+          suggestedFolderId: suggestedFolder.id,
+          userId: file.user_id
+        });
+      } catch (err) {
+        console.warn("[WORKER] Socket emit failed (Socket not init?):", err.message);
+      }
     } else {
       console.log(`[WORKER] No suitable folder found for file ${fileId}`);
     }
