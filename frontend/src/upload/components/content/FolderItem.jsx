@@ -14,6 +14,7 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, active
     const longPressTimer = useRef(null);
     const isTrashTab = activeTab === 'trash';
     const isVirtual = item.isVirtual === true;
+    const isDeletedFolder = item.isDeletedFolder === true;
 
 
     // 모바일 체크
@@ -107,7 +108,13 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, active
 
     // 싱글클릭 핸들러
     const handleClick = (e) => {
-        // 휴지통 탭에서는 폴더 진입 
+        // 실제 삭제된 폴더는 내부 진입 불가 (복원 버튼만 표시)
+        if (isDeletedFolder) {
+            if (onClick) onClick();
+            return;
+        }
+        
+        // 가상 폴더는 내부 진입 가능 (삭제된 파일만 있는 가상 폴더)
         if (isTrashTab || isVirtual) {
             if (onEnterTrashFolder) {
                 onEnterTrashFolder(item.id, item.name);
@@ -132,7 +139,13 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, active
             return;
         }
 
-        // 휴지통 탭에서는 폴더 진입 
+        // 실제 삭제된 폴더는 내부 진입 불가 (복원 버튼만 표시)
+        if (isDeletedFolder) {
+            if (onClick) onClick();
+            return;
+        }
+
+        // 가상 폴더는 내부 진입 가능 (삭제된 파일만 있는 가상 폴더)
         if (isTrashTab || isVirtual) {
             if (onEnterTrashFolder) {
                 onEnterTrashFolder(item.id, item.name);

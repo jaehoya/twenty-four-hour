@@ -95,6 +95,8 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                     parentId: folder.parentId,
                     userId: folder.userId,
                     isDeleted: true,
+                    isVirtual: folder.isVirtual || false,
+                    isDeletedFolder: folder.isDeletedFolder || false,
                 }));
 
                 // 폴더와 파일 합치기
