@@ -24,7 +24,7 @@ async function createUser({ email, username, password }) {
 
   // username 중복 체크
   if (await User.findOne({ where: { username } })) {
-    const err = new Error("이미 사용 중인 username입니다.");
+    const err = new Error("이미 사용 중인 닉네임입니다.");
     err.status = 409; err.code = "USERNAME_TAKEN";
     throw err;
   }
@@ -54,7 +54,7 @@ async function createUser({ email, username, password }) {
       const err = new Error(
         field === "email"
           ? "이미 사용 중인 이메일입니다."
-          : "이미 사용 중인 username입니다."
+          : "이미 사용 중인 닉네임입니다."
       );
       err.status = 409;
       err.code = field === "email" ? "EMAIL_TAKEN" : "USERNAME_TAKEN";
@@ -73,8 +73,8 @@ async function createUser({ email, username, password }) {
  */
 async function loginUser({ email, password }) {
   // 이메일로 유저 조회
-  const user = await User.findOne({ where: { email }});
-  if(!user) {
+  const user = await User.findOne({ where: { email } });
+  if (!user) {
     const err = new Error("잘못된 이메일 또는 비밀번호입니다.");
     err.status = 401;
     err.code = "INVALID_CREDENTIALS";
@@ -83,7 +83,7 @@ async function loginUser({ email, password }) {
 
   // 비밀번호 비교
   const isMatch = await bcrypt.compare(password, user.password);
-  if(!isMatch) {
+  if (!isMatch) {
     const err = new Error("잘못된 이메일 또는 비밀번호입니다.");
     err.status = 401;
     err.code = "INVALID_CREDENTIALS";
@@ -94,7 +94,7 @@ async function loginUser({ email, password }) {
   const accessToken = jwt.sign(
     { id: user.id, email: user.email },  // payload
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || "1h"}
+    { expiresIn: process.env.JWT_EXPIRES_IN || "1h" }
   );
 
   // JWT RefreshToken 발급 (7일 유효)
@@ -103,7 +103,7 @@ async function loginUser({ email, password }) {
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || "14d" }
   );
-      // RefreshToken을 DB에 저장
+  // RefreshToken을 DB에 저장
   user.refreshToken = refreshToken;
   await user.save();
 
@@ -135,7 +135,7 @@ async function logoutUser(id) {
     // DB에서 리프레시 토큰 삭제 (무효화)
     user.refreshToken = null;
     await user.save();
-  } 
+  }
 }
 
 /**
@@ -205,7 +205,7 @@ async function changeUserPassword(id, currentPassword, newPassword) {
   user.password = hashedNewPassword;
   await user.save();
 
-  return true; 
+  return true;
 }
 
 /**
@@ -216,7 +216,7 @@ async function changeUserPassword(id, currentPassword, newPassword) {
  */
 async function requestPasswordReset(email) {
   // 이메일로 사용자 조회
-  const user = await User.findOne({ where: { email} });
+  const user = await User.findOne({ where: { email } });
   if (!user) {
     const err = new Error("해당 이메일의 사용자를 찾을 수 없습니다.");
     err.status = 404;
@@ -236,13 +236,13 @@ async function requestPasswordReset(email) {
   // 비밀번호 재설정 링크를 이메일로 발송
   const resetLink = `http://localhost:5173/reset-password?token=${token}&email=${email}`;
   await sendMail(
-  user.email,
-  "비밀번호 재설정 안내",
-  `아래 링크를 눌러 비밀번호를 재설정 하세요: ${resetLink}`, 
-  `<p>아래 링크를 눌러 비밀번호를 재설정 하세요:</p>
+    user.email,
+    "비밀번호 재설정 안내",
+    `아래 링크를 눌러 비밀번호를 재설정 하세요: ${resetLink}`,
+    `<p>아래 링크를 눌러 비밀번호를 재설정 하세요:</p>
    <a href="${resetLink}">${resetLink}</a>
-   <p>이 링크는 1시간 동안만 유효합니다.</p>` 
-);
+   <p>이 링크는 1시간 동안만 유효합니다.</p>`
+  );
 
   return true;
 }
@@ -287,10 +287,10 @@ async function resetUserPassword(email, token, newPassword) {
   return true;
 }
 
-module.exports = { 
-  createUser, 
-  loginUser, 
-  logoutUser, 
+module.exports = {
+  createUser,
+  loginUser,
+  logoutUser,
   deleteUser,
   changeUserPassword,
   requestPasswordReset,

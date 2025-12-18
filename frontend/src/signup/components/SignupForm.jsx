@@ -41,7 +41,7 @@ function SignupForm() {
                 .catch((err) => {
                     if (err.response) {
                         if (err.response.status === 409) {
-                            setFormError("이미 사용 중인 이메일입니다.");
+                            setFormError(err.response.data.message);
                         } else if (err.response.status === 400 || err.response.status === 422) {
                             const msg = err.response.data.message || "입력값을 확인해주세요.";
                             setFormError(msg);
@@ -79,7 +79,7 @@ function SignupForm() {
                     icon={EmailIcon}
                     inputProps={{ autoComplete: "email" }}
                 />
-                
+
                 <label htmlFor="username" className="hidden md:block text-[0.9375rem] font-medium text-[#2A2D41] mt-2 md:mt-[2%]">닉네임</label>
                 <InputField
                     id="username"
@@ -90,9 +90,9 @@ function SignupForm() {
                     icon={NameIcon}
                     inputProps={{ autoComplete: "username" }}
                 />
-                
+
                 <div className="h-px w-full max-w-[363px] bg-[#DDE4EE] my-8 md:my-3 md:my-5" />
-                
+
                 <label htmlFor="password" className="hidden md:block text-[0.9375rem] font-medium text-[#2A2D41]">비밀번호</label>
                 <InputField
                     id="password"
@@ -103,7 +103,7 @@ function SignupForm() {
                     icon={KeyIcon}
                     inputProps={{ autoComplete: "new-password" }}
                 />
-                
+
                 <InputField
                     id="passwordCheck"
                     type="password"

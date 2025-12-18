@@ -107,8 +107,21 @@ async function restoreFile(userId, fileId) {
         }
     }
 
-    // 파일 시스템 이동 로직 제거 (Soft Delete이므로 DB 상태만 변경)
+    // 물리적 파일 복원 (Trash -> Active)
+    const { getUserTrashDir, getUserActiveDir } = require("../utils/uploadPath");
+
+    const trashPath = path.join(getUserTrashDir(userId), path.basename(file.path));
+    const activeDir = getUserActiveDir(userId);
+    const restorePath = path.join(activeDir, path.basename(file.path));
+
+    if (fs.existsSync(trashPath)) {
+        await ensureDir(activeDir);
+        fs.renameSync(trashPath, restorePath);
+        file.path = restorePath;
+    }
+
     await file.restore();
+    await file.save();
 }
 
 /**

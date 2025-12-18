@@ -98,8 +98,13 @@ async function deleteFileById(userId, fileId) {
 
     await ensureDir(path.dirname(toPath));
 
-    if (fs.existsSync(fromPath)) {
-        fs.renameSync(fromPath, toPath);
+    try {
+        await fs.rename(fromPath, toPath);
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            console.error("파일 이동 실패:", error);
+            // 파일이 없더라도 DB 삭제는 진행
+        }
     }
 
     await FileTag.destroy({ where: { file_id: fileId } });
