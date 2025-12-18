@@ -185,11 +185,19 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
     // 검색 필터링 함수
     const filterBySearch = (items, query) => {
         if (!query || query.trim() === '') return items;
-
+    
         const lowerQuery = query.toLowerCase().trim();
         return items.filter(item => {
+            // 파일명 검색
             const name = (item.name || item.original_name || '').toLowerCase();
-            return name.includes(lowerQuery);
+            if (name.includes(lowerQuery)) return true;
+            
+            // 태그 검색
+            const tags = item.tags || [];
+            return tags.some(t => {
+                const tagName = (typeof t === 'string' ? t : t.tag || '').toLowerCase();
+                return tagName.includes(lowerQuery);
+            });
         });
     };
 

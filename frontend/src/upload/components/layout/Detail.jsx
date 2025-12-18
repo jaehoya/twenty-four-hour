@@ -26,6 +26,8 @@ function Detail({ selectedItem = null, onClose = () => { } }) {
             await api.delete(`/tags/${fileId}/${tagId}`);
             // 태그 목록 갱신
             setTagKey((prev) => prev + 1);
+            // 파일 목록 갱신
+            window.dispatchEvent(new CustomEvent('filesUpdated'));
         } catch (err) {
             console.error("태그 삭제 실패:", err);
             alert("태그 삭제에 실패했습니다.");
@@ -41,6 +43,7 @@ function Detail({ selectedItem = null, onClose = () => { } }) {
     // 태그 추가 성공 시 목록 갱신
     const handleTagAdded = () => {
         setTagKey((prev) => prev + 1);
+        window.dispatchEvent(new CustomEvent('filesUpdated'));
     };
 
     useEffect(() => {
