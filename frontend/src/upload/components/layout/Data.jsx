@@ -13,6 +13,7 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
     const parentId = pathHistory.length > 1 ? pathHistory[pathHistory.length - 2] : 'root';
     const isRoot = currentPath === 'root';
     const [currentTrashFolderId, setCurrentTrashFolderId] = useState(null);
+    const [trashFolderNameHistory, setTrashFolderNameHistory] = useState(['휴지통']);
 
     // Fetch Files from API
     const fetchFiles = React.useCallback(async () => {
@@ -273,16 +274,33 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
             }, 100);
         };
 
+        // 휴지통 폴더 뒤로가기 이벤트 수신
+        const handleTrashFolderGoBack = () => {
+            if (!isMounted) return;
+            if (activeTab === 'trash') {
+                setCurrentTrashFolderId(null);
+                setTrashFolderNameHistory(['휴지통']);
+                // 목록 갱신
+                setTimeout(() => {
+                    if (isMounted) {
+                        fetchFiles();
+                    }
+                }, 100);
+            }
+        };
+
         window.addEventListener('filesUpdated', handleFilesUpdate);
         window.addEventListener('foldersUpdated', handleFoldersUpdate);
+        window.addEventListener('trashFolderGoBack', handleTrashFolderGoBack);
 
         return () => {
             isMounted = false;
             isFetching = false;
             window.removeEventListener('filesUpdated', handleFilesUpdate);
             window.removeEventListener('foldersUpdated', handleFoldersUpdate);
+            window.removeEventListener('trashFolderGoBack', handleTrashFolderGoBack);
         };
-    }, [fetchFiles]);
+    }, [fetchFiles, activeTab]);
 
     // 드래그앤드롭 핸들러 (전체 저장소에서만 작동)
     const handleDragOver = (e) => {
@@ -359,6 +377,26 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                         isParentFolder={true} // 상위 폴더임을 명시
                     />
                 )}
+                {/* 휴지통 상위 폴더로 이동 (휴지통 폴더 내부일 때만 표시) */}
+                {currentTrashFolderId !== null && !searchQuery && activeTab === 'trash' && (
+                    <FolderItem
+                        key="trash-parent-folder-item"
+                        item={{
+                            id: null,
+                            name: "../", // 상위 폴더
+                            updatedAt: new Date(),
+                            createdAt: new Date()
+                        }}
+                        onClick={() => {
+                            setCurrentTrashFolderId(null);
+                            setTrashFolderNameHistory(['휴지통']);
+                            window.dispatchEvent(new CustomEvent('trashFolderGoBack'));
+                        }}
+                        activeTab={activeTab}
+                        onFolderDeleted={fetchFiles}
+                        isParentFolder={true}
+                    />
+                )}
                 {/* 파일/폴더가 없을 때 (검색 중이 아닐 때) - 모바일에서만 표시 */}
                 {!searchQuery && filteredFiles.length === 0 && (
                     <div className="md:hidden col-span-3 flex flex-col items-center justify-center py-16 text-gray-400">
@@ -393,8 +431,9 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                             onClick={() => onItemSelect(folder)}
                             onFolderDeleted={fetchFiles}
                             activeTab={activeTab}
-                            onEnterTrashFolder={(folderId) => {
+                            onEnterTrashFolder={(folderId, folderName) => {
                                 setCurrentTrashFolderId(folderId);
+                                setTrashFolderNameHistory(prev => [...prev, folderName]);
                             }}
                         />
                     ))
@@ -432,5 +471,17 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
         </div>
     )
 }
+
+// 휴지통 폴더 경로를 전역으로 전달하기 위한 이벤트
+React.useEffect(() => {
+    if (activeTab === 'trash') {
+        window.dispatchEvent(new CustomEvent('trashFolderPathUpdated', { 
+            detail: { 
+                currentTrashFolderId,
+                trashFolderNameHistory 
+            } 
+        }));
+    }
+}, [activeTab, currentTrashFolderId, trashFolderNameHistory]);
 
 export default Data;

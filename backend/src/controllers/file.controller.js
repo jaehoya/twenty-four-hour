@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const fs = require("fs").promises;
 
 const {
     saveFileMetadata,
@@ -11,6 +12,7 @@ const {
     confirmFolderMove
 } = require("../services/file.service");
 const { addAiTagJob } = require("../queue/tag.queue");
+const { getFolderPhysicalPath, ensureDir } = require("../utils/uploadPath");
 
 // 파일 업로드 처리 컨트롤러 + AI 자동 분류
 async function uploadFile(req, res, next) {
@@ -25,8 +27,29 @@ async function uploadFile(req, res, next) {
         }
 
         const userId = req.user.id;
-        // folderId can be passed in body
-        const folderId = req.body.folderId ? parseInt(req.body.folderId, 10) : null;
+        
+        let folderId = req.body.folderId;
+        if (!folderId || folderId === "null") {
+            folderId = null;
+        } else {
+            folderId = parseInt(folderId, 10);
+        }
+
+        let finalPath = req.file.path;
+
+        // folderId가 있으면 실제 폴더로 이동
+        if (folderId) {
+            const targetDir = getFolderPhysicalPath(userId, folderId, "active");
+            await ensureDir(targetDir);
+
+            const newPath = path.join(targetDir, req.file.filename);
+            await fs.rename(req.file.path, newPath);
+
+            finalPath = newPath;
+        }
+
+        // DB에 저장될 path 교체
+        req.file.path = finalPath;
         const fileRecord = await saveFileMetadata(userId, req.file, folderId);
 
         // AI 태깅 작업을 큐에 추가 (백그라운드 처리)
