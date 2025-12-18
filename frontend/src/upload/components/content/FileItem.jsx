@@ -5,10 +5,11 @@ import EmptyFolderIcon from "../../../assets/upload/empty_folder_icon.svg";
 import FileIcon from "../../../assets/upload/file_icon.svg";
 import ProgressCircle from "./ProgressCircle";
 import FileMenu from "./FileMenu";
+import FileSuggested from "./FileSuggested";
 import { useModalStore } from '../../../store/store';
 import api from "../../../utils/api";
 
-function FileItem({ item, isSelected = false, onClick, onFileDeleted, activeTab = 'storage' }) {
+function FileItem({ item, isSelected = false, onClick, onFileDeleted, activeTab = 'storage', onSuggestionHandled }) {
     const { setIsOpenRenameModal, setRenameItem } = useModalStore();
     const navigate = useNavigate();
 
@@ -463,9 +464,19 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted, activeTab 
                 <div className="flex flex-col items-center w-full px-2">
                     <div className="h-px w-full max-w-[102px] bg-[#E5EBF2] mb-3 md:hidden" />
                     {/* 이름 */}
-                    <span className="text-[0.6875rem] md:text-[0.875rem] font-semibold text-[#34475C] text-center md:mt-1 truncate w-full max-w-full" title={item.original_name}>
-                        {item.name}
-                    </span>
+                    <div className="flex items-center justify-center gap-0.5 w-full max-w-full md:mt-1">
+                        <span className="text-[0.6875rem] md:text-[0.875rem] font-semibold text-[#34475C] text-center truncate" title={item.original_name}>
+                            {item.name}
+                        </span>
+                        {item.suggestedFolder && item.mime_type !== 'folder' && (
+                            <FileSuggested
+                                fileId={item.id}
+                                suggestedFolder={item.suggestedFolder}
+                                onConfirm={onSuggestionHandled}
+                                onReject={onSuggestionHandled}
+                            />
+                        )}
+                    </div>
 
                     {/* 메타데이터 */}
                     <span className="text-[0.4375rem] md:text-[0.6875rem] text-[#9AA9B9] font-normal text-center truncate w-full max-w-full">

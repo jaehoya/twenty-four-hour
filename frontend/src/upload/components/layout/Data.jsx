@@ -143,12 +143,28 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                     files = [];
                 }
 
+                // AI 추천 폴더 정보 가져오기
+                let suggestedMap = {};
+                try {
+                    const suggestedResponse = await api.get('/files/suggested', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const suggestedFiles = suggestedResponse.data.files || [];
+                    suggestedFiles.forEach(sf => {
+                        suggestedMap[sf.id] = sf.suggestedFolder;
+                    });
+                } catch (suggestedErr) {
+                    // suggested API 실패해도 파일 목록은 표시
+                    console.error('추천 폴더 조회 실패:', suggestedErr);
+                }
+
                 // 정렬: 폴더와 파일은 각각 정렬하고 폴더를 먼저 표시
                 const sortedFolders = sortItems(folders, sortOption);
                 const sortedFiles = sortItems(files, sortOption);
                 const normalizedFiles = sortedFiles.map(item => ({
                     ...item,
                     mimeType: item.mimeType || item.mime_type || 'file',
+                    suggestedFolder: suggestedMap[item.id] || null,
                 }));
 
                 setFiles([...sortedFolders, ...normalizedFiles]);
@@ -395,6 +411,7 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
                             onClick={() => onItemSelect(file)}
                             onFileDeleted={fetchFiles}
                             activeTab={activeTab}
+                            onSuggestionHandled={fetchFiles}
                         />
                     ))
                 }
