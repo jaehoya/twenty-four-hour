@@ -230,13 +230,19 @@ function Detail({ selectedItem = null, onClose = () => { } }) {
                             className="md:w-[135px] md:h-[101px]"
                         />
                     ) : (
-                        <div className="rounded-lg flex items-center justify-center overflow-hidden">
+                        <div className="rounded-lg flex items-center justify-center overflow-hidden w-full">
                             {isImage && !imageError ? (
                                 <img
                                     src={previewUrl}
                                     alt={selectedItem.name}
                                     className="max-w-full max-h-[200px] object-contain rounded-lg shadow-md"
                                     onError={() => setImageError(true)}
+                                />
+                            ) : (isPdf || isText) ? (
+                                <iframe
+                                    src={previewUrl}
+                                    title={selectedItem.name}
+                                    className="w-full h-[250px] border border-gray-200 rounded-lg bg-gray-50"
                                 />
                             ) : (
                                 <img src={FileIcon} alt="file" className="md:w-[100px] md:h-[125px]" />
