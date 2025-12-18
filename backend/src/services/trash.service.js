@@ -236,14 +236,72 @@ async function restoreFolderRecursive(userId, folderId) {
  * 휴지통 폴더 복원 (진입점)
  */
 async function restoreFolder(userId, folderId) {
-  const from = getFolderPhysicalPath(userId, folderId, "trash");
-  const to = getFolderPhysicalPath(userId, folderId, "active");
+  const folder = await Folder.findOne({
+    where: { id: folderId, userId },
+    paranoid: false,
+  });
 
-  await ensureDir(path.dirname(to));
-  await fs.rename(from, to);
+  if (!folder) {
+    throw new Error("폴더를 찾을 수 없습니다.");
+  }
 
-  await restoreFolderRecursive(userId, folderId);
+  const trashPath = getFolderPhysicalPath(userId, folderId, "trash");
+  const activePath = getFolderPhysicalPath(userId, folderId, "active");
+
+  const trashExists = fss.existsSync(trashPath);
+
+  /**
+   * 1️⃣ 진짜 삭제된 폴더 (물리적으로 trash에 있음)
+   */
+  if (folder.deletedAt && trashExists) {
+    // active 쪽 상위 디렉토리 보장
+    await ensureDir(path.dirname(activePath));
+
+    // 🔥 핵심: 실제 폴더 이동
+    await fs.rename(trashPath, activePath);
+
+    // DB 복원
+    await restoreFolderRecursive(userId, folderId);
+
+    return;
+  }
+
+  /**
+   * 2️⃣ 가상 폴더 (폴더는 살아있고, 파일만 삭제됨)
+   */
+  const deletedFiles = await File.findAll({
+    where: {
+      user_id: userId,
+      folderId,
+      deletedAt: { [Op.ne]: null },
+    },
+    paranoid: false,
+  });
+
+  for (const file of deletedFiles) {
+    const trashFilePath = path.join(
+      getUserTrashDir(userId),
+      path.basename(file.path)
+    );
+
+    const restoreDir = getFolderPhysicalPath(userId, folderId, "active");
+    await ensureDir(restoreDir);
+
+    const restorePath = path.join(
+      restoreDir,
+      path.basename(file.path)
+    );
+
+    if (fss.existsSync(trashFilePath)) {
+      await fs.rename(trashFilePath, restorePath);
+      file.path = restorePath;
+    }
+
+    await file.restore();
+    await file.save();
+  }
 }
+
 
 /**
  * 폴더 재귀 영구 삭제 (파일 실제 삭제 포함)
