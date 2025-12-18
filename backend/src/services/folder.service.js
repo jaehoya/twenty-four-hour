@@ -31,25 +31,25 @@ async function createFolder(userId, name, parentId = null) {
 
 // 하위 폴더 조회
 async function getSubFolders(userId, parentId = null) {
-    const folders = await Folder.findAll({
-        where: { userId, parentId },
-        order: [["createdAt", "ASC"]],
-        include: [
-            {
-                model: Favorite,
-                required: false,
-                where: { userId, targetType: "folder" },
-                attributes: ["id"],
-            },
-        ],
-    });
+    try {
+        console.log("🔍 디버깅 - 조회 시도중:", { userId, parentId });
+        
+        // 실제 실행되는 부분
+        const folders = await Folder.findAll({
+            where: { userId, parentId },
+            include: [{ model: Favorite, required: false }] 
+        });
 
-    return folders.map(f => ({
-        id: f.id,
-        name: f.name,
-        createdAt: f.createdAt,
-        isFavorite: f.Favorites.length > 0,
-    }));
+        return folders.map(f => ({
+            ...f.toJSON(),
+            isFavorite: (f.Favorites || []).length > 0
+        }));
+
+    } catch (error) {
+        // 🚨 여기가 핵심입니다! 터미널에 에러 원인을 강제로 출력합니다.
+        console.error("❌ getSubFolders에서 발생한 진짜 에러:", error);
+        throw error; // 다시 던져줘야 500 응답이 나갑니다.
+    }
 }
 
 // 특정 폴더 안 파일 조회
@@ -74,14 +74,15 @@ async function getFilesInFolder(userId, folderId = null) {
     });
 
     return files.map(f => ({
-        id: f.id,
-        name: f.original_name,
-        size: f.size,
-        mimeType: f.mime_type,
-        createdAt: f.createdAt,
-        isFavorite: f.Favorites.length > 0,
-        tags: f.tags ? f.tags.map(t => t.tag) : []
-    }));
+    id: f.id,
+    name: f.original_name,
+    size: f.size,
+    mimeType: f.mime_type,
+    createdAt: f.createdAt,
+    // 여기도 안전하게 수정
+    isFavorite: (f.Favorites && f.Favorites.length > 0) || (f.favorites && f.favorites.length > 0) || false,
+    tags: f.tags ? f.tags.map(t => t.tag) : []
+}));
 }
 
 

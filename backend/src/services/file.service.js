@@ -280,6 +280,18 @@ async function moveFile(userId, fileId, targetFolderId) {
     return file;
 }
 
+// 파일 이동 거절 처리
+async function rejectFolderMove(userId, fileId) {
+    const file = await File.findOne({
+        where: { id: fileId, user_id: userId }
+    });
+    if (!file) throw new Error("파일을 찾을 수 없습니다.");
+    
+    file.suggestedFolderId = null;
+    await file.save();
+    return file;
+}
+
 
 module.exports = {
     saveFileMetadata,
@@ -290,6 +302,7 @@ module.exports = {
     updateFilePath,
     getSuggestedFiles,
     confirmFolderMove,
-    moveFile
+    moveFile,
+    rejectFolderMove
 };
 
