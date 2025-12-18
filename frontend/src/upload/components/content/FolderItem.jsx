@@ -110,6 +110,7 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, active
     const handleClick = (e) => {
         // 실제 삭제된 폴더는 내부 진입 불가 (복원 버튼만 표시)
         if (isDeletedFolder) {
+            alert('삭제된 폴더는 내부에 접근할 수 없습니다. 복원 후 이용해주세요.');
             if (onClick) onClick();
             return;
         }
@@ -141,6 +142,7 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, active
 
         // 실제 삭제된 폴더는 내부 진입 불가 (복원 버튼만 표시)
         if (isDeletedFolder) {
+            alert('삭제된 폴더는 내부에 접근할 수 없습니다. 복원 후 이용해주세요.');
             if (onClick) onClick();
             return;
         }
