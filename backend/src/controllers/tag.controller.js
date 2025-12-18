@@ -17,7 +17,10 @@ async function getFileTagsController(req, res, next) {
     const fileId = req.params.fileId;
     const rows = await getTagsByFileId(fileId);
 
-    const tags = rows.map((t) => t.tag);
+    const tags = rows.map((t) => ({
+      id: t.id,
+      tag: t.tag,
+    }));
 
     return res.status(200).json({
       state: 200,

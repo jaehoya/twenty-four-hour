@@ -246,7 +246,7 @@ ${truncatedText}
 
     console.log("[Gemini Raw Tag Output]", raw);
 
-    // 🔥 코드블록 및 불필요한 공백/텍스트 제거 정제
+    // 코드블록 및 불필요한 공백/텍스트 제거 정제
     raw = raw.replace(/```json/gi, "")
       .replace(/```/g, "")
       .trim();
@@ -300,18 +300,6 @@ async function saveRecommendedTagsToFile(fileId, tags) {
   return results;
 }
 
-
-module.exports = {
-  getTagsByFileId,
-  addTagToFile,
-  deleteTagById,
-  replaceTags,
-  searchFilesByTag,
-  recommendTagsForFile,
-  saveRecommendedTagsToFile,
-  recommendFolderForFile,
-};
-
 // AI에게 태그와 기존 폴더 목록을 주고 최적의 폴더를 추천받는 함수 (Gemini)
 async function recommendFolderForFile(tags, existingFolders) {
   if (!existingFolders || existingFolders.length === 0) return null;
@@ -352,3 +340,15 @@ async function recommendFolderForFile(tags, existingFolders) {
     return null;
   }
 }
+
+module.exports = {
+  getTagsByFileId,
+  addTagToFile,
+  deleteTagById,
+  replaceTags,
+  searchFilesByTag,
+  recommendTagsForFile,
+  saveRecommendedTagsToFile,
+  recommendFolderForFile,
+};
+

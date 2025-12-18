@@ -3,33 +3,31 @@ import api from "../../../utils/api";
 
 function Tags({
   fileId,
-  tags: tagsProp,
   isFolder = false,
   className = "",
   emptyText = "태그 없음",
   onDelete,
   onAdd,
 }) {
-  const [tags, setTags] = useState(Array.isArray(tagsProp) ? tagsProp : []);
+  const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hoveredIdx, setHoveredIdx] = useState(null);
 
-  // 부모에서 tagsProp이 들어오면 그대로 우선 사용
-  useEffect(() => {
-    if (Array.isArray(tagsProp)) setTags(tagsProp);
-  }, [tagsProp]);
-
   // fileId가 있으면 서버에서 태그 조회
   useEffect(() => {
-    if (!fileId || isFolder) return;
-    if (Array.isArray(tagsProp)) return;
+    if (!fileId || isFolder) {
+      setTags([]);
+      return;
+    }
 
     let cancelled = false;
+
     const fetchTags = async () => {
       try {
         setLoading(true);
         const res = await api.get(`/tags/${fileId}`);
         const serverTags = res?.data?.tags;
+
         if (!cancelled && Array.isArray(serverTags)) {
           setTags(serverTags);
         }
@@ -45,7 +43,7 @@ function Tags({
     return () => {
       cancelled = true;
     };
-  }, [fileId, isFolder, tagsProp]);
+  }, [fileId, isFolder]);
 
   // 태그 삭제 후 로컬 상태 갱신
   const handleDelete = async (tagItem, idx) => {

@@ -427,6 +427,11 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted, activeTab 
             <div
                 className={`rounded-[15px] p-3 md:p-4 flex flex-col md:justify-center items-center cursor-pointer h-[149px] md:h-[229px] min-h-[149px] md:min-h-[229px] relative z-0 ${isSelected ? "bg-[#E6F3FF] border-[#1C91FF] border-[3px]" : "bg-white border-gray-200 border-[1px]"
                     }`}
+                draggable={activeTab === 'storage' && item.mime_type !== 'folder'}
+                onDragStart={(e) => {
+                    e.dataTransfer.setData("type", "file");
+                    e.dataTransfer.setData("id", item.id);
+                }}
                 onClick={onClick}
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
