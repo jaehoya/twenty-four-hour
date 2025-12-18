@@ -29,6 +29,14 @@ function Profile({ editable = false, onImageUpdate = null }) {
         };
 
         fetchProfile();
+
+        // 프로필 업데이트 이벤트 리스닝
+        const handleProfileUpdate = () => fetchProfile();
+        window.addEventListener('profileUpdated', handleProfileUpdate);
+
+        return () => {
+            window.removeEventListener('profileUpdated', handleProfileUpdate);
+        };
     }, []);
 
     const handleEditClick = () => {
