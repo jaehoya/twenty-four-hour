@@ -144,11 +144,23 @@ async function restoreFile(userId, fileId) {
     getUserTrashDir(userId),
     path.basename(file.path)
   );
-  const activeDir = getUserActiveDir(userId);
-  const restorePath = path.join(activeDir, path.basename(file.path));
+    
+    let restoreDir;
+    if (file.folderId) {
+        // 원래 폴더로 복원
+        restoreDir = getFolderPhysicalPath(userId, file.folderId, "active");
+    } else {
+        // 루트로 복원
+        restoreDir = getUserActiveDir(userId);
+    }
+
+    await ensureDir(restoreDir);
+
+    const restorePath = path.join(restoreDir, path.basename(file.path));
+
 
   if (fss.existsSync(trashPath)) {
-    await ensureDir(activeDir);
+    await ensureDir(restoreDir);
     await fs.rename(trashPath, restorePath);
     file.path = restorePath;
   }
