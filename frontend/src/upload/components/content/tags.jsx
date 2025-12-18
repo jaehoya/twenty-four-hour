@@ -101,9 +101,7 @@ function Tags({
       {normalized.map((item, idx) => (
         <span
           key={item.id ?? `${item.label}-${idx}`}
-          className={`group relative rounded-full bg-white border border-[#0D4CFF] transition-all pl-2 pr-2 py-1 text-[11px] font-medium leading-tight break-words whitespace-normal flex items-center ${
-            hoveredIdx === idx ? "pr-7" : ""
-          }`}
+          className="group relative rounded-full bg-white border border-[#0D4CFF] transition-all pl-2 pr-2 py-1 text-[11px] font-medium leading-tight break-words whitespace-normal flex items-center justify-center overflow-hidden"
           style={{ overflowWrap: "anywhere" }}
           title={item.label}
           onMouseEnter={() => setHoveredIdx(idx)}
@@ -112,7 +110,7 @@ function Tags({
           <span className="bg-gradient-to-r from-[#0D4CFF] to-[#33AAFF] bg-clip-text text-transparent">
             {item.label}
           </span>
-          {/* 삭제 버튼: hover 시 표시 */}
+          {/* 태그 삭제 버튼: hover 시 표시 */}
           {onDelete && (
             <button
               type="button"
@@ -120,15 +118,15 @@ function Tags({
                 e.stopPropagation();
                 handleDelete(item.original, idx);
               }}
-              className={`absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full text-[#667687] hover:text-[#FF4757] hover:bg-[#FFE8EA] transition-all ${
+              className={`absolute inset-0 flex items-center justify-center rounded-full text-[#f76767] hover:bg-gray-200/40 transition-all ${
                 hoveredIdx === idx ? "opacity-100" : "opacity-0"
               }`}
               aria-label="태그 삭제"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
+                width="16"
+                height="16"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
