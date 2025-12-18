@@ -1,8 +1,8 @@
 const { File, Favorite, FileTag, Folder } = require("../models");
 const { Op } = require("sequelize");
-const fs = require("fs")
+const fs = require("fs").promises
 const path = require("path");
-const { getUserActiveDir, getUserTrashDir, ensureDir } = require("../utils/uploadPath");
+const { getUserActiveDir, getUserTrashDir, ensureDir, getFolderPhysicalPath } = require("../utils/uploadPath");
 
 /**
  * 파일 메타데이터 저장
@@ -98,7 +98,7 @@ async function deleteFileById(userId, fileId) {
 
     await ensureDir(path.dirname(toPath));
 
-    if (fs.existsSync(fromPath)) {  
+    if (fs.existsSync(fromPath)) {
         fs.renameSync(fromPath, toPath);
     }
 
