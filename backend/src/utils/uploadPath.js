@@ -1,11 +1,9 @@
 const path = require("path");
 const fs = require("fs").promises;
 
-const UPLOADS_ROOT = path.join(
-    process.cwd(),
-    "src",
-    "uploads"
-);
+const UPLOADS_ROOT =
+  process.env.UPLOADS_ROOT ||
+  path.join(process.cwd(), "src", "uploads");
 
 function getUserBaseDir(userId) {
     return path.join(UPLOADS_ROOT, `user_${userId}`);

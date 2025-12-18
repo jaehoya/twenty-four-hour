@@ -4,8 +4,8 @@ node_modules
 # 환경 변수
 .env
 
-uploads
 # 업로드된 파일 저장소
+uploads/
 src/uploads/
 
 # 로그 파일

@@ -12,7 +12,7 @@ app.use(morgan("combined")); // 요청 로깅
 
 app.use(express.json()); // JSON 요청 파싱
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(process.env.UPLOADS_ROOT));
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocs = require('./config/swagger');
