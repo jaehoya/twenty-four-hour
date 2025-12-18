@@ -97,11 +97,11 @@ async function restoreFile(userId, fileId) {
     // 부모 폴더가 삭제된 상태인지 확인
     if (file.folderId) {
         const parentFolder = await Folder.findOne({
-           where: { id: file.folderId },
+            where: { id: file.folderId },
             paranoid: false,
         });
-        
-         if (!parentFolder || parentFolder.deletedAt) {
+
+        if (!parentFolder || parentFolder.deletedAt) {
             file.folderId = null; // 루트로 이동
             await file.save();
         }

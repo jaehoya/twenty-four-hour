@@ -27,14 +27,14 @@ class DiskService {
         'src/uploads',
         `user_${userId}`
       );
-      
+
       // uploads 폴더가 없으면 생성
       if (!fs.existsSync(uploadsPath)) {
         fs.mkdirSync(uploadsPath, { recursive: true });
       }
 
       const used = this.getFolderSize(uploadsPath);
-      const total = 15 * 1024 * 1024 * 1024; // 15GB in bytes
+      const total = 2 * 1024 * 1024 * 1024; // 2GB in bytes
 
       return { total, used };
     } catch (error) {
