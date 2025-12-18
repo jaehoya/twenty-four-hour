@@ -234,7 +234,7 @@ async function requestPasswordReset(email) {
   await user.save();
 
   // 비밀번호 재설정 링크를 이메일로 발송
-  const resetLink = `http://localhost:5173/reset-password?token=${token}&email=${email}`;
+  const resetLink = `${process.env.FRONTEND_BASE_URL}/reset-password?token=${token}&email=${email}`;
   await sendMail(
     user.email,
     "비밀번호 재설정 안내",

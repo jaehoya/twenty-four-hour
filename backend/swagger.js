@@ -6,8 +6,8 @@ const doc = {
         description: 'Automatically generated API documentation',
         version: '1.0.0',
     },
-    host: 'localhost:4000',
-    schemes: ['http'],
+    host: process.env.SWAGGER_HOST || "localhost:4000",
+    schemes: [process.env.SWAGGER_SCHEME || "http"],
 };
 
 const outputFile = './swagger-output.json';
