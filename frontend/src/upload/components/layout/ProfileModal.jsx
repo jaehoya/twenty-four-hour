@@ -86,6 +86,8 @@ export default function ProfileModal() {
         setProfileImageUrl(newImageUrl);
         // 사용자 데이터도 새로고침
         fetchUserData();
+        // 다른 Profile 컴포넌트에게 알림
+        window.dispatchEvent(new CustomEvent('profileUpdated'));
     };
 
     return (
