@@ -106,7 +106,7 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, active
 
     // 싱글클릭 핸들러
     const handleClick = (e) => {
-        // 휴지통 탭에서는 폴더 진입 불가
+        // 휴지통 탭에서는 폴더 진입
         if (isTrashTab) {
             if (onEnterTrashFolder) {
                 onEnterTrashFolder(item.id, item.name);
@@ -131,7 +131,7 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, active
             return;
         }
 
-        // 휴지통 탭에서는 폴더 진입 가능하게
+        // 휴지통 탭에서는 폴더 진입
         if (isTrashTab) {
             if (onEnterTrashFolder) {
                 onEnterTrashFolder(item.id, item.name);
