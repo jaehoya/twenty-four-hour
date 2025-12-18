@@ -13,6 +13,7 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, active
     const [isMobile, setIsMobile] = useState(false);
     const longPressTimer = useRef(null);
     const isTrashTab = activeTab === 'trash';
+    const isVirtual = item.isVirtual === true;
 
 
     // 모바일 체크
@@ -107,7 +108,7 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, active
     // 싱글클릭 핸들러
     const handleClick = (e) => {
         // 휴지통 탭에서는 폴더 진입 불가
-        if (isTrashTab) {
+        if (isTrashTab || isVirtual) {
             if (onEnterTrashFolder) {
                 onEnterTrashFolder(item.id, item.name);
             }
@@ -132,7 +133,7 @@ function FolderItem({ item, isSelected = false, onClick, onFolderDeleted, active
         }
 
         // 휴지통 탭에서는 폴더 진입 가능하게
-        if (isTrashTab) {
+        if (isTrashTab || isVirtual) {
             if (onEnterTrashFolder) {
                 onEnterTrashFolder(item.id, item.name);
             }

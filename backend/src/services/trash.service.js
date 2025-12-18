@@ -14,30 +14,70 @@ const {
  * 휴지통에 있는 파일/폴더 목록 조회
  */
 async function getTrashedFiles(userId) {
-  const deletedFolders = await Folder.findAll({
-    where: {
-      userId,
-      deletedAt: { [Op.ne]: null },
-    },
-    attributes: ["id", "name", "deletedAt"],
-    paranoid: false,
-  });
+    // 실제로 삭제된 폴더
+    const deletedFolders = await Folder.findAll({
+        where: {
+            userId,
+            deletedAt: { [Op.ne]: null },
+        },
+        attributes: ["id", "name", "deletedAt"],
+        paranoid: false,
+    });
 
-  const deletedFolderIds = deletedFolders.map((f) => f.id);
+    const deletedFolderIds = deletedFolders.map(f => f.id);
 
-  const files = await File.findAll({
-    where: {
-      user_id: userId,
-      deletedAt: { [Op.ne]: null },
-      [Op.or]: [
-        { folderId: null },
-        { folderId: { [Op.notIn]: deletedFolderIds } },
-      ],
-    },
-    paranoid: false,
-  });
+    // 루트에서 삭제된 파일
+    const files = await File.findAll({
+        where: {
+            user_id: userId,
+            deletedAt: { [Op.ne]: null },
+            folderId: null,
+        },
+        paranoid: false,
+    });
 
-  return { folders: deletedFolders, files };
+    // 폴더 안에서 삭제된 파일들
+    const deletedFilesInFolders = await File.findAll({
+        where: {
+            user_id: userId,
+            deletedAt: { [Op.ne]: null },
+            folderId: { [Op.ne]: null },
+        },
+        attributes: ["folderId"],
+        paranoid: false,
+    });
+
+    // 삭제된 파일이 있는 '활성 폴더' ID만 추출
+    const folderIdsWithDeletedFiles = [
+        ...new Set(
+            deletedFilesInFolders
+                .map(f => f.folderId)
+                .filter(id => !deletedFolderIds.includes(id))
+        )
+    ];
+
+    // 가상 폴더 정보 조회
+    const virtualFolders = folderIdsWithDeletedFiles.length
+        ? await Folder.findAll({
+            where: {
+                id: folderIdsWithDeletedFiles,
+                userId,
+                deletedAt: null, // ⭐ 살아있는 폴더
+            },
+            attributes: ["id", "name"],
+        })
+    : [];
+
+    // 가상 폴더에 플래그 추가
+    const virtualFoldersWithMeta = virtualFolders.map(f => ({
+        ...f.toJSON(),
+        isVirtual: true,
+    }));
+
+    return {
+        folders: [...deletedFolders, ...virtualFoldersWithMeta],
+        files,
+    };
 }
 
 /**
@@ -49,8 +89,17 @@ async function getTrashedFolderContents(userId, folderId) {
     paranoid: false,
   });
 
-  if (!folder || !folder.deletedAt) {
-    const err = new Error("삭제된 폴더가 아닙니다.");
+  const hasDeletedFiles = await File.count({
+  where: {
+    user_id: userId,
+    folderId,
+    deletedAt: { [Op.ne]: null },
+  },
+  paranoid: false,
+  });
+
+  if (!folder || (!folder.deletedAt && hasDeletedFiles === 0)) {
+    const err = new Error("휴지통에서 접근 가능한 폴더가 아닙니다.");
     err.status = 400;
     throw err;
   }
