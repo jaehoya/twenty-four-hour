@@ -44,7 +44,7 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, curre
 
         try {
             const token = localStorage.getItem('accessToken');
-            
+
             if (!token) {
                 alert('로그인이 필요합니다.');
                 setIsCreatingFolder(false);
@@ -62,18 +62,18 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, curre
             });
 
             if (response.status === 201 && response.data.state === 201) {
-                
+
                 // 폴더 목록 새로고침 이벤트 발생
                 window.dispatchEvent(new CustomEvent('foldersUpdated'));
-                
+
                 handleCloseModal();
             }
         } catch (error) {
             console.error('폴더 생성 오류:', error);
-            
+
             if (error.response?.data) {
                 const errorData = error.response.data;
-                
+
                 if (errorData.code === 'NO_FOLDER_NAME') {
                     alert(errorData.message || '폴더 이름은 필수입니다.');
                 } else if (errorData.code === 'UNAUTHORIZED') {
@@ -95,24 +95,27 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, curre
 
     const handleDragOver = (e) => {
         e.preventDefault();
+        e.stopPropagation();
         setIsDragOver(true);
     };
 
     const handleDragLeave = (e) => {
         e.preventDefault();
+        e.stopPropagation();
         setIsDragOver(false);
     };
 
     const handleDrop = async (e) => {
         e.preventDefault();
+        e.stopPropagation();
         setIsDragOver(false);
-        
+
         const files = e.dataTransfer.files;
         if (files.length === 0) return;
-        
+
         // 드래그앤드롭 순간 모달 닫기
         handleCloseModal();
-        
+
         // 파일 업로드 시작 (현재 폴더 ID 전달)
         if (onFileUpload) {
             onFileUpload(files, currentFolderId);
@@ -122,7 +125,7 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, curre
 
     return (
         <>
-            <div 
+            <div
                 className="relative rounded-[20px] p-3 md:p-4 flex flex-col items-center justify-center cursor-pointer transition-colors h-[149px] md:h-[229px] min-h-[149px] md:min-h-[229px] z-0"
                 onClick={handleClick}
                 onContextMenu={(e) => {
@@ -131,8 +134,8 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, curre
                 }}
             >
                 {/* SVG 점선 테두리 */}
-                <svg 
-                    className="absolute inset-0 w-full h-full pointer-events-none" 
+                <svg
+                    className="absolute inset-0 w-full h-full pointer-events-none"
                     style={{ borderRadius: '15px' }}
                 >
                     <rect
@@ -158,12 +161,12 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, curre
                 <>
                     {/* 배경 오버레이 */}
                     <div className="fixed inset-0 backdrop-blur-sm z-[100] rounded-[16px]" onClick={handleCloseModal} />
-                    
+
                     {/* 모달 */}
                     <div className="fixed inset-0 flex items-center justify-center z-[110] pointer-events-none">
                         {showSelectionModal ? (
                             /* 선택 모달 - 폴더 추가 / 파일 업로드 */
-                            <div 
+                            <div
                                 className="bg-white rounded-[20px] p-8 w-[90%] max-w-[346px] flex flex-col items-center justify-center shadow-[0_0_40px_rgba(36,49,82,0.1)] pointer-events-auto"
                                 onContextMenu={(e) => {
                                     e.preventDefault();
@@ -190,7 +193,7 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, curre
                             </div>
                         ) : showFolderModal ? (
                             /* 폴더 이름 입력 모달 */
-                            <div 
+                            <div
                                 className="bg-white rounded-[20px] p-8 w-[90%] max-w-[346px] flex flex-col items-center justify-center shadow-[0_0_40px_rgba(36,49,82,0.1)] pointer-events-auto"
                                 onContextMenu={(e) => {
                                     e.preventDefault();
@@ -229,19 +232,18 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, curre
 
                                 {/* 생성 버튼 */}
                                 <div className="w-full">
-                                    <MyButton 
-                                        type="gradient" 
-                                        onClick={handleCreateFolder} 
+                                    <MyButton
+                                        type="gradient"
+                                        onClick={handleCreateFolder}
                                         value={isCreatingFolder ? "생성 중..." : "폴더 생성"}
                                     />
                                 </div>
                             </div>
                         ) : (
                             /* 파일 업로드 드래그앤드롭 모달 */
-                            <div 
-                                className={`bg-white rounded-[20px] p-8 md:w-[90%] max-w-[346px] md:h-[35.92svh] max-h-[388px] flex flex-col items-center justify-center transition-all duration-300 shadow-[0_0_40px_rgba(36,49,82,0.1)] pointer-events-auto ${
-                                    isDragOver ? 'bg-blue-50' : ''
-                                }`}
+                            <div
+                                className={`bg-white rounded-[20px] p-8 md:w-[90%] max-w-[346px] md:h-[35.92svh] max-h-[388px] flex flex-col items-center justify-center transition-all duration-300 shadow-[0_0_40px_rgba(36,49,82,0.1)] pointer-events-auto ${isDragOver ? 'bg-blue-50' : ''
+                                    }`}
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
                                 onDrop={handleDrop}
@@ -263,12 +265,12 @@ function AddNewItem({ isAddNewItemOpen, setIsAddNewItemOpen, onFileUpload, curre
                                     <h2 className="text-[0.875rem] md:text-[1.25rem] font-bold text-[#303642] mt-3 mb-15 whitespace-nowrap">
                                         이곳에 놓아주세요!
                                     </h2>
-                                    
+
                                     {/* 드롭 영역 그래픽 */}
                                     <div className="w-32 h-32 md:w-[8.59svw] md:h-[15.27svh] mb-6 rounded-full relative">
-                                        <img 
-                                            src={DragDropIcon} 
-                                            alt="drag_drop" 
+                                        <img
+                                            src={DragDropIcon}
+                                            alt="drag_drop"
                                             className={`w-full h-full rounded-full transition-transform duration-300 ${isDragOver ? '' : 'animate-slow-spin'}`}
                                             style={{
                                                 filter: 'blur(34px)',
