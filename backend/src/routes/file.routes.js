@@ -184,6 +184,9 @@ router.get("/suggested", authenticateToken, getSuggestedFilesController);
  */
 router.post("/:id/confirm-move", authenticateToken, confirmFolderMoveController);
 
+// 폴더 이동 거절
+router.post("/:id/reject-move", authenticateToken, require("../controllers/file.controller").rejectFolderMoveController);
+
 /**
  * @swagger
  * /api/files/{id}/move:

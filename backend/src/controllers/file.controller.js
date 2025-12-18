@@ -250,6 +250,18 @@ async function moveFileController(req, res, next) {
     }
 }
 
+// 폴더 이동 거절
+async function rejectFolderMoveController(req, res, next) {
+    try {
+        const userId = req.user.id;
+        const fileId = req.params.id;
+        const result = await require("../services/file.service").rejectFolderMove(userId, fileId);
+        return res.status(200).json({ state: 200, code: "FOLDER_MOVE_REJECTED", message: "거절 완료" });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     uploadFile,
     getUserFiles,
@@ -259,5 +271,6 @@ module.exports = {
     previewFile,
     getSuggestedFilesController,
     confirmFolderMoveController,
-    moveFileController
+    moveFileController,
+    rejectFolderMoveController
 };
