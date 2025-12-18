@@ -1,11 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Arrow_icon from "../../../assets/upload/arrow_icon.svg";
 import { usePathStore } from "../../../store/store";
 
 function Title({ selectedSort = "이름", onSortChange = () => {}, activeTab = "storage" }) {
     const [isSortOpen, setIsSortOpen] = useState(false);
+    const [currentTrashFolderId, setCurrentTrashFolderId] = useState(null);
+    const [trashFolderNameHistory, setTrashFolderNameHistory] = useState(['휴지통']);
 
     const { goBack, currentPath, currentPathName, pathNameHistory } = usePathStore();
+
+    // 휴지통 폴더 경로 업데이트 이벤트 수신
+    useEffect(() => {
+        const handleTrashFolderPathUpdate = (event) => {
+            setCurrentTrashFolderId(event.detail.currentTrashFolderId);
+            setTrashFolderNameHistory(event.detail.trashFolderNameHistory);
+        };
+
+        window.addEventListener('trashFolderPathUpdated', handleTrashFolderPathUpdate);
+        return () => {
+            window.removeEventListener('trashFolderPathUpdated', handleTrashFolderPathUpdate);
+        };
+    }, []);
 
     // const sortOptions = ["이름", "수정한 날짜", "생성한 날짜"];
     const sortOptions = ["이름", "생성한 날짜"];
@@ -21,18 +36,35 @@ function Title({ selectedSort = "이름", onSortChange = () => {}, activeTab = "
 
     // 경로 이름을 "내 저장소 > test > subfolder" 형식으로 생성
     const getDisplayPath = () => {
-        // 휴지통이나 즐겨찾기 탭인 경우 탭 이름 표시
-        if (activeTab === 'trash') return '휴지통';
+        // 휴지통 탭인 경우
+        if (activeTab === 'trash') {
+            return trashFolderNameHistory.join(' > ');
+        }
+        // 즐겨찾기 탭인 경우
         if (activeTab === 'favorite') return '즐겨찾기';
         
         // 저장소 탭인 경우 경로 표시
         return pathNameHistory.join(' > ');
     };
 
+    // 뒤로가기 핸들러
+    const handleGoBack = () => {
+        if (activeTab === 'trash' && currentTrashFolderId !== null) {
+            // 휴지통 폴더에서 뒤로가기
+            setCurrentTrashFolderId(null);
+            setTrashFolderNameHistory(['휴지통']);
+            // Data.jsx에 뒤로가기 이벤트 전달
+            window.dispatchEvent(new CustomEvent('trashFolderGoBack'));
+        } else if (activeTab === 'storage') {
+            // 저장소 폴더에서 뒤로가기
+            goBack();
+        }
+    };
+
     return (
         <div className="w-full h-[4.57svh] md:h-[7.12svh] bg-white border-[1px] border-[#DAE0E9] rounded-[10px] md:rounded-[15px] flex items-center px-4 py-2 md:px-6 justify-between relative">
-            {currentPath !== "root" && activeTab === "storage" && (
-                <span onClick={() => { goBack(); }} className="cursor-pointer w-7 scale-y-[1.4] mb-0.5 text-[#777]">&lt;</span>
+            {((currentPath !== "root" && activeTab === "storage") || (activeTab === "trash" && currentTrashFolderId !== null)) && (
+                <span onClick={handleGoBack} className="cursor-pointer w-7 scale-y-[1.4] mb-0.5 text-[#777]">&lt;</span>
             )}
             <span className="font-semibold mt-0.5 flex-1 text-[0.81rem] md:text-[12pt] text-[#2A2D41] truncate">{getDisplayPath()}</span>
             <div className="flex flex-row space-x-2">
