@@ -4,11 +4,52 @@ const {
   deleteTagById,
   replaceTags,
   searchFilesByTag,
+  recommendFolderForFile
 } = require("../services/tag.service");
 
+const { getAllFoldersFlat } = require("../services/folder.service");
+const { getIO } = require("../socket");
 const { addAiTagJob } = require("../queue/tag.queue");
 const File = require("../models/file");
 const FileTag = require("../models/fileTag");
+
+// 헬퍼 함수: 태그 변경 시 폴더 재추천 및 알림
+async function triggerFolderSuggestion(fileId, userId) {
+  try {
+    const file = await File.findByPk(fileId);
+    if (!file) return;
+
+    // 현재 태그 목록 조회
+    const tagRows = await getTagsByFileId(fileId);
+    const tagNames = tagRows.map(t => t.tag);
+
+    // 폴더 추천 실행
+    const userFolders = await getAllFoldersFlat(userId);
+    const suggestedFolder = await recommendFolderForFile(tagNames, userFolders);
+
+    if (suggestedFolder) {
+      // DB 업데이트
+      file.suggestedFolderId = suggestedFolder.id;
+      await file.save();
+
+      console.log(`[TAG UPDATE] New folder suggestion for file ${fileId}: ${suggestedFolder.name}`);
+
+      // 소켓 알림
+      try {
+        const io = getIO();
+        io.emit('folderSuggestion', {
+          fileId: file.id,
+          suggestedFolderId: suggestedFolder.id,
+          userId: userId
+        });
+      } catch (e) {
+        console.warn("Socket emit failed:", e.message);
+      }
+    }
+  } catch (err) {
+    console.error("Folder re-suggestion failed:", err);
+  }
+}
 
 
 // 특정 파일 태그 조회
@@ -51,6 +92,9 @@ async function addTagController(req, res, next) {
 
     const newTag = await addTagToFile(fileId, tag);
 
+    // 폴더 재추천 트리거 (비동기로 실행)
+    triggerFolderSuggestion(fileId, req.user.id);
+
     return res.status(201).json({
       state: 201,
       code: "TAG_ADDED",
@@ -69,10 +113,14 @@ async function deleteTagController(req, res, next) {
     const tagId = req.params.tagId;
     await deleteTagById(tagId);
 
+    // 폴더 재추천 트리거 (비동기로 실행) -- fileId는 route params에 있음
+    triggerFolderSuggestion(req.params.fileId, req.user.id);
+
     return res.status(200).json({
       state: 200,
       code: "TAG_DELETED",
       message: "태그 삭제 성공",
+      tagId: tagId
     });
   } catch (err) {
     next(err);
@@ -95,6 +143,9 @@ async function updateAllTagsController(req, res, next) {
     }
 
     const updatedTags = await replaceTags(fileId, tags);
+
+    // 폴더 재추천 트리거 (비동기로 실행)
+    triggerFolderSuggestion(fileId, req.user.id);
 
     return res.status(200).json({
       state: 200,
