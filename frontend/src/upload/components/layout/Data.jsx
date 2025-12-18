@@ -302,6 +302,18 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
         };
     }, [fetchFiles, activeTab]);
 
+    // 휴지통 폴더 경로를 전역으로 전달하기 위한 이벤트
+    useEffect(() => {
+        if (activeTab === 'trash') {
+            window.dispatchEvent(new CustomEvent('trashFolderPathUpdated', { 
+                detail: { 
+                    currentTrashFolderId,
+                    trashFolderNameHistory 
+                }    
+            }));
+        }
+    }, [activeTab, currentTrashFolderId, trashFolderNameHistory]);
+
     // 드래그앤드롭 핸들러 (전체 저장소에서만 작동)
     const handleDragOver = (e) => {
         if (activeTab !== 'storage') return;
@@ -472,16 +484,6 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
     )
 }
 
-// 휴지통 폴더 경로를 전역으로 전달하기 위한 이벤트
-React.useEffect(() => {
-    if (activeTab === 'trash') {
-        window.dispatchEvent(new CustomEvent('trashFolderPathUpdated', { 
-            detail: { 
-                currentTrashFolderId,
-                trashFolderNameHistory 
-            } 
-        }));
-    }
-}, [activeTab, currentTrashFolderId, trashFolderNameHistory]);
+
 
 export default Data;
