@@ -1,6 +1,10 @@
 ![background](https://github.com/user-attachments/assets/83bec46b-3318-4d79-9e9f-7d89dbf34aaf)
+<hr/>
+<p align="center">
+    <img src="https://github.com/user-attachments/assets/0d0b7343-953f-40d1-8d80-f5e337e634e4" />
+</p>
+<h3 align="center">Twenty Four Hour</h3>
 
-# ![24_logo](https://github.com/user-attachments/assets/0d0b7343-953f-40d1-8d80-f5e337e634e4) Twenty Four Hour
 > **AI 기반 스마트 파일 스토리지 서비스**
 > AI가 파일의 내용을 이해하고 지능적으로 분류하며 파일 정리를 제안하는 스마트 파일 스토리지 서비스입니다.
 
