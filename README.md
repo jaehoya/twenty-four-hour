@@ -24,7 +24,7 @@
 | :--- | :--- |
 |**Github**|[https://github.com/jaehoya/twenty-four-hour](https://github.com/jaehoya/twenty-four-hour)|
 | **🚀 Service Link** | [http://tfh.kro.kr/login](http://tfh.kro.kr/login) |
-| **📜 API 명세서** | [Swagger UI (api-docs)](http://tfh.kro.kr/api-docs) |
+| **📜 API 명세서** | [Swagger UI (api-docs)](http://tfh.kro.kr:4000/api-docs) |
 | **🎨 Figma 디자인** | [TFH Design System](https://www.figma.com/design/N63MC6KHzNeK2tKbmaQhq5/TFH_design?node-id=0-1&t=zVf9N83OhpnsmIhO-1) |
 
 
