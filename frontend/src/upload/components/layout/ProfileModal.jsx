@@ -54,7 +54,10 @@ export default function ProfileModal() {
             .then((res) => {
                 setUserData(res.data);
                 if (res.data?.UserProfile?.ProfileImage?.path) {
-                    const baseURL = import.meta.env.VITE_API_ENDPOINT || 'http://localhost:4000/api';
+                    const baseURL = import.meta.env.VITE_API_ENDPOINT || 
+                        (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')
+                            ? `${window.location.protocol}//${window.location.host}/api`
+                            : 'http://localhost:4000/api');
                     const imagePath = res.data.UserProfile.ProfileImage.path;
                     const imageUrl = imagePath.startsWith('http') 
                         ? imagePath 

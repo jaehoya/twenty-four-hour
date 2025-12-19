@@ -168,8 +168,15 @@ function Detail({ selectedItem = null, onClose = () => { } }) {
 
     const isPreviewable = isImage || isPdf || isText;
     const token = localStorage.getItem('accessToken');
+    const getApiUrl = () => {
+        if (import.meta.env.VITE_API_ENDPOINT) return import.meta.env.VITE_API_ENDPOINT;
+        if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+            return `${window.location.protocol}//${window.location.host}/api`;
+        }
+        return 'http://localhost:4000/api';
+    };
     const previewUrl = isPreviewable && token
-        ? `${import.meta.env.VITE_API_ENDPOINT || 'http://localhost:4000/api'}/files/${selectedItem.id}/preview?token=${token}`
+        ? `${getApiUrl()}/files/${selectedItem.id}/preview?token=${token}`
         : null;
 
     if (isMobile) {

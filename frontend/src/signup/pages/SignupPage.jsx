@@ -27,7 +27,7 @@ function SignupPage() {
                                 w-full
                                 h-full
                                 max-h-[clamp(250px,45svh,455px)] md:max-h-full
-                                md:overflow-y-auto
+                                overflow-y-auto
                                 md:pr-3
                                 border-b border-[#DDE4EE]
                                 [overscroll-behavior-y:contain]

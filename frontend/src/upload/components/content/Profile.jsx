@@ -15,7 +15,10 @@ function Profile({ editable = false, onImageUpdate = null }) {
                 const response = await api.get('/profile/me');
                 if (response.data?.UserProfile?.ProfileImage?.path) {
                     // API endpoint 기본 URL 설정
-                    const baseURL = import.meta.env.VITE_API_ENDPOINT || 'http://localhost:4000/api';
+                    const baseURL = import.meta.env.VITE_API_ENDPOINT || 
+                        (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')
+                            ? `${window.location.protocol}//${window.location.host}/api`
+                            : 'http://localhost:4000/api');
                     const imagePath = response.data.UserProfile.ProfileImage.path;
                     // path가 이미 전체 URL이 아니라면 baseURL과 결합
                     const imageUrl = imagePath.startsWith('http') 
@@ -77,7 +80,10 @@ function Profile({ editable = false, onImageUpdate = null }) {
             const response = await api.put('/profile/me', formData, { headers: { 'Authorization': `Bearer ${token}` } });
 
             if (response.status === 200 && response.data?.UserProfile?.ProfileImage?.path) {
-                const baseURL = import.meta.env.VITE_API_ENDPOINT || 'http://localhost:4000/api';
+                const baseURL = import.meta.env.VITE_API_ENDPOINT || 
+                    (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')
+                        ? `${window.location.protocol}//${window.location.host}/api`
+                        : 'http://localhost:4000/api');
                 const imagePath = response.data.UserProfile.ProfileImage.path;
                 const imageUrl = imagePath.startsWith('http') ? imagePath : `${baseURL.replace('/api', '')}/${imagePath}`;
                 setProfileImage(imageUrl);

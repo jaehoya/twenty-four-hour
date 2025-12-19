@@ -319,7 +319,10 @@ function Data({ selectedItem, onItemSelect, isAddNewItemOpen, setIsAddNewItemOpe
 
     // Socket.io 실시간 알림 수신
     useEffect(() => {
-        const apiUrl = import.meta.env.VITE_API_ENDPOINT || 'http://localhost:4000/api';
+        const apiUrl = import.meta.env.VITE_API_ENDPOINT || 
+            (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')
+                ? `${window.location.protocol}//${window.location.host}/api`
+                : 'http://localhost:4000/api');
         const socketUrl = apiUrl.replace('/api', '');
 
         const socket = io(socketUrl);

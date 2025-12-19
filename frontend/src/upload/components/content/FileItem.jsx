@@ -107,7 +107,14 @@ function FileItem({ item, isSelected = false, onClick, onFileDeleted, activeTab 
                 'Authorization': `Bearer ${token}`,
             };
 
-            const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT || 'http://localhost:4000/api'}/files/${item.id}/download`, {
+            const getApiUrl = () => {
+                if (import.meta.env.VITE_API_ENDPOINT) return import.meta.env.VITE_API_ENDPOINT;
+                if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+                    return `${window.location.protocol}//${window.location.host}/api`;
+                }
+                return 'http://localhost:4000/api';
+            };
+            const response = await fetch(`${getApiUrl()}/files/${item.id}/download`, {
                 method: 'GET',
                 headers: headers,
             });
