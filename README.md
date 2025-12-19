@@ -92,7 +92,6 @@
 ## 📸 주요 화면 가이드 (Screenshots)
 - **메인 대시보드:** 폴더 트리와 파일 목록이 시각화된 중앙 관리 화면.
 이미지 삽입
-- 
 - **AI 추천 팝오버:** 파일 분석 후 최적의 폴더 이동을 제안하는 UI (React Portal 적용).
 이미지 삽입
 - **반응형 모바일:** 모바일 환경에 최적화된 하단 바 및 컨텍스트 메뉴.
@@ -128,9 +127,6 @@ npm run dev
 # AI 태깅 워커 실행 (별도 터미널 권장)
 npm run dev:worker
 ```
-
-AI 태깅 워커 실행 (별도 터미널 권장)
-npm run dev:worker
 
 2. Frontend SetupBash
 ```
