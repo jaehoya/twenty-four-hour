@@ -69,7 +69,23 @@
 
 ## 📝 API 명세서 (Core API)
 
-여기에 스웨거 이미지
+<img width="1438" height="109" alt="image" src="https://github.com/user-attachments/assets/9811d3b2-b7db-4387-bc0b-14507df24e93" />
+
+<img width="1430" height="224" alt="image" src="https://github.com/user-attachments/assets/8ea8c06e-6469-4e33-87ba-068a04ecb91f" />
+
+<img width="1432" height="580" alt="image" src="https://github.com/user-attachments/assets/2ddeec36-52c9-4fe5-93bd-25d6ed727117" />
+
+<img width="1431" height="345" alt="image" src="https://github.com/user-attachments/assets/aa73ebe6-8bba-40fb-93d4-94c2d4415f91" />
+
+<img width="1429" height="168" alt="image" src="https://github.com/user-attachments/assets/9cf4cc73-09bf-4a2b-8163-6c937ab83b0f" />
+
+<img width="1430" height="398" alt="image" src="https://github.com/user-attachments/assets/a44c1373-f4d0-464c-8053-8e1ef70f3801" />
+
+<img width="1429" height="226" alt="image" src="https://github.com/user-attachments/assets/8525c824-9ec3-4122-b07c-0cf4382e7e78" />
+
+<img width="1431" height="464" alt="image" src="https://github.com/user-attachments/assets/f7de34d5-aeae-4a40-9e89-9aaeefebb160" />
+
+<img width="1431" height="170" alt="image" src="https://github.com/user-attachments/assets/02c9b7e2-3e67-4fe3-9e8e-641c94637af1" />
 
 ---
 
