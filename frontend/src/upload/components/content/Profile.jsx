@@ -101,9 +101,9 @@ function Profile({ editable = false, onImageUpdate = null }) {
     };
 
     return (
-        <div className="w-full h-full flex justify-center items-center">
+        <div className="w-full h-full flex justify-center items-center p-1">
             <div
-                className="rounded-full w-full md:w-[80%] aspect-1 overflow-hidden relative group"
+                className="rounded-full overflow-hidden relative group w-32 aspect-square"
                 onMouseEnter={() => editable && setIsHovered(true)}
                 onMouseLeave={() => editable && setIsHovered(false)}
             >
