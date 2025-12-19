@@ -91,11 +91,15 @@
 
 ## 📸 주요 화면 가이드 (Screenshots)
 - **메인 대시보드:** 폴더 트리와 파일 목록이 시각화된 중앙 관리 화면.
-이미지 삽입
+<img width="1920" height="918" alt="image" src="https://github.com/user-attachments/assets/92413100-b59a-4dde-a3b2-b77e526484b9" />
+
 - **AI 추천 팝오버:** 파일 분석 후 최적의 폴더 이동을 제안하는 UI (React Portal 적용).
-이미지 삽입
+<img width="853" height="588" alt="image" src="https://github.com/user-attachments/assets/be08b6a0-4f92-4253-8e26-a11219d322a5" />
+
 - **반응형 모바일:** 모바일 환경에 최적화된 하단 바 및 컨텍스트 메뉴.
-이미지 삽입
+<img width="396" height="836" alt="image" src="https://github.com/user-attachments/assets/2a461b32-5c88-4749-a8ad-f08ea69d2506" />
+
+
 
 ## 📂 Project Structure
 ```
