@@ -6,7 +6,7 @@ import ScrollThumb from "../../assets/signup/scrollbar.svg";
 
 function SignupPage() {
     return (
-    <main className="h-screen flex flex-col md:grid md:w-[60svw] max-w-[1158px] md:place-items-center mx-auto p-2 md:p-0">
+    <main className="min-h-screen md:h-screen flex flex-col md:grid md:w-[60svw] max-w-[1158px] md:place-items-center mx-auto p-2 md:p-0">
         <div className="flex flex-col md:flex-row md:shadow-[0_0_70px_0_rgba(73,91,134,0.2)] md:rounded-[25px] overflow-hidden w-full md:w-full h-full md:h-auto">
             <div className="h-[213px] w-full md:basis-0 md:grow-[5.5] md:h-[60vh] md:w-auto flex items-center justify-center p-0 md:p-2">
                 <div className="w-full h-full md:rounded-[20px] overflow-hidden">
