@@ -103,17 +103,94 @@
 
 ## 📂 Project Structure
 ```
-TwentyFourHour/
+twenty-four-hour/
 ├── backend/
+│   ├── migrations/
 │   ├── src/
-│   │   ├── services/    # 재귀 로직, AI 연동 등 핵심 서비스
-│   │   ├── models/      # Sequelize 모델
-│   │   └── worker/      # BullMQ AI 워커
+│   │   ├── config/
+│   │   │   ├── database.js
+│   │   │   └── swagger.js
+│   │   ├── controllers/
+│   │   │   ├── disk.controller.js
+│   │   │   ├── favorite.controller.js
+│   │   │   ├── file.controller.js
+│   │   │   ├── folder.controller.js
+│   │   │   ├── share.controller.js
+│   │   │   ├── tag.controller.js
+│   │   │   ├── trash.controller.js
+│   │   │   ├── user.controller.js
+│   │   │   └── userProfile.controller.js
+│   │   ├── middlewares/
+│   │   │   ├── auth.js
+│   │   │   ├── upload.js
+│   │   │   └── validator.js
+│   │   ├── models/
+│   │   │   ├── favorite.js
+│   │   │   ├── file.js
+│   │   │   ├── fileTag.js
+│   │   │   ├── folder.js
+│   │   │   ├── index.js
+│   │   │   ├── share.js
+│   │   │   ├── user.js
+│   │   │   └── userProfile.js
+│   │   ├── queue/
+│   │   │   └── tag.queue.js
+│   │   ├── routes/
+│   │   │   ├── disk.routes.js
+│   │   │   ├── favorite.routes.js
+│   │   │   ├── file.routes.js
+│   │   │   ├── folder.routes.js
+│   │   │   ├── share.routes.js
+│   │   │   ├── tag.routes.js
+│   │   │   ├── trash.routes.js
+│   │   │   ├── user.routes.js
+│   │   │   └── userProfile.routes.js
+│   │   ├── services/
+│   │   │   ├── disk.service.js
+│   │   │   ├── favorite.service.js
+│   │   │   ├── file.service.js
+│   │   │   ├── folder.service.js
+│   │   │   ├── share.service.js
+│   │   │   ├── tag.service.js
+│   │   │   ├── trash.service.js
+│   │   │   ├── user.service.js
+│   │   │   └── userProfile.service.js
+│   │   ├── utils/
+│   │   │   ├── mailer.js
+│   │   │   └── uploadPath.js
+│   │   ├── worker/
+│   │   │   └── tag.worker.js
+│   │   ├── app.js
+│   │   ├── server.js
+│   │   └── socket.js
+│   ├── .env
+│   └── package.json
+│
 └── frontend/
+    ├── public/
     ├── src/
-    │   ├── store/       # Zustand 전역 상태
-    │   ├── utils/       # 데이터 정규화(Normalization)
-    │   └── pages/       # Storage, Favorite, Trash 탭
+    │   ├── assets/
+    │   ├── login/
+    │   │   ├── components/
+    │   │   └── pages/
+    │   ├── signup/
+    │   │   ├── components/
+    │   │   └── pages/
+    │   ├── store/
+    │   │   └── store.js
+    │   ├── upload/
+    │   │   ├── components/
+    │   │   │   ├── content/
+    │   │   │   └── layout/
+    │   │   └── pages/
+    │   ├── utils/
+    │   │   └── api.js
+    │   ├── App.jsx
+    │   ├── index.css
+    │   └── main.jsx
+    ├── index.html
+    ├── tailwind.config.js
+    └── vite.config.js
 ```
 
 ## ⚙️ Installation & Usage
